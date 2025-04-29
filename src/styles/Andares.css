@@ -1,0 +1,114 @@
+/* src/styles/Andares.css */
+.andares-page {
+    min-height: 100vh;
+}
+
+.logo h1 {
+    font-weight: 700;
+    line-height: 1;
+}
+
+.card {
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.btn-warning {
+    background-color: #FFAB52;
+    color: white;
+}
+
+.btn-warning:hover {
+    background-color: #FFAB52;
+    border-color: #FFAB52;
+}
+
+.ws-header {
+    background-color: #0e0e15 !important;
+}
+
+.ws-logo-container {
+    height: 60px;
+    display: flex;
+    align-items: center;
+}
+
+.ws-logo-img {
+    height: 100%;
+    width: auto;
+    max-width: 200px;
+    /* Ajuste conforme necessário */
+    object-fit: contain;
+}
+
+.ws-nav {
+    font-family: 'Arial', sans-serif;
+}
+
+.ws-nav-link {
+    color: #ffffff !important;
+    text-decoration: none !important;
+    transition: color 0.3s ease;
+    font-weight: 500;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+    letter-spacing: 0.5px;
+}
+
+.ws-nav-link:hover {
+    color: #FFAB52 !important;
+}
+
+.ws-pdf-button {
+    color: #0e0e15 !important;
+    background-color: #FFAB52 !important;
+    text-decoration: none !important;
+    font-weight: 500 !important;
+    text-transform: uppercase !important;
+    font-size: 0.9rem !important;
+    letter-spacing: 0.5px !important;
+    padding: 8px 20px !important;
+    border-radius: 4px !important;
+    transition: all 0.3s ease !important;
+}
+
+.ws-pdf-button:hover {
+    background-color: #f0f0f0 !important;
+    color: #0e0e15 !important;
+    transform: translateY(-2px);
+}
+
+/* Adicione estas classes */
+.proposal-button-container {
+    position: fixed;
+    bottom: 0;
+    left: 16.666667%;
+    width: 41.666667%;
+    padding: 0 1rem;
+    z-index: 1000;
+}
+
+.proposal-content-container {
+    position: fixed;
+    bottom: 80px;
+    left: 16.666667%;
+    width: 41.666667%;
+    max-height: 70vh;
+    overflow-y: auto;
+    z-index: 999;
+    background: white;
+    box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.1);
+    border-radius: 10px 10px 0 0;
+}
+
+@media (max-width: 767px) {
+    .card-mobile {
+      flex-direction: column !important;
+    }
+  }
+  

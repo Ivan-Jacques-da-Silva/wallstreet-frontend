@@ -1,0 +1,40 @@
+/* sessoes.css */
+
+@keyframes girar {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  
+  .icone-animado {
+    animation: girar 2s linear infinite;
+  }
+  
+  /* Botão de andar */
+  .botao-andar {
+    position: absolute;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+  }
+  
+  /* Container do prédio fixo */
+  .predio-container {
+    position: relative;
+    width: 374px;
+    height: 935px;
+  }
+  
+  .logo-header {
+    max-width: 300px;
+    padding: 60px 0 30px 0;
+    z-index: 4;
+  }
+  
+  @media (min-width: 768px) {
+    .logo-header {
+      position: absolute;
+      top: 60px;
+      left: 60px;
+    }
+  }
+  
