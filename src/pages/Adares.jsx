@@ -1,3 +1,4 @@
+import FormularioData from '../api/FormulariosData';
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSearchParams, Link } from 'react-router-dom';
@@ -618,9 +619,7 @@ const Andares = () => {
                                     </p>
 
                                     <div className="d-flex flex-column gap-2 w-100">
-                                        <Button variant="warning" className="fw-bold text-dark" onClick={() => setMostrarModalReserva(true)}>
-                                            PRÉ-RESERVA
-                                        </Button>
+                                        <FormularioData codigo="wall_street_pre_reserva" />
 
                                         <Button variant="warning" className="fw-bold text-dark" onClick={() => setMostrarModalContra(true)}>
                                             FAZER CONTRAPROPOSTA
@@ -656,73 +655,6 @@ const Andares = () => {
                                         className="img-fluid"
                                         style={{ maxHeight: '100%', width: 'auto' }}
                                     />
-                                </motion.div>
-                            )}
-                        </AnimatePresence>
-                        <AnimatePresence>
-                            {mostrarModalReserva && (
-                                <motion.div
-                                    className="position-fixed top-0 start-0 w-100 h-100"
-                                    style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)', zIndex: 1060 }}
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    exit={{ opacity: 0 }}
-                                >
-                                    <div
-                                        className="position-absolute top-50 start-50 translate-middle p-4"
-                                        style={{
-                                            background: 'rgba(0, 69, 138, 0.9)',
-                                            borderRadius: '20px',
-                                            width: '90%',
-                                            maxWidth: '400px'
-                                        }}
-                                    >
-                                        <h5 className="text-white text-center fw-bold mb-4">
-                                            Preencha o formulário e<br />faça sua pré-reserva agora.
-                                        </h5>
-
-                                        <AnimatePresence>
-                                            {mostrarModalReserva && (
-                                                <motion.div
-                                                    className="position-fixed top-0 start-0 w-100 h-100"
-                                                    style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)', zIndex: 1060 }}
-                                                    initial={{ opacity: 0 }}
-                                                    animate={{ opacity: 1 }}
-                                                    exit={{ opacity: 0 }}
-                                                >
-                                                    <div
-                                                        className="position-absolute top-50 start-50 translate-middle p-4"
-                                                        style={{
-                                                            background: 'rgba(0, 69, 138, 0.9)',
-                                                            borderRadius: '20px',
-                                                            width: '90%',
-                                                            maxWidth: '400px'
-                                                        }}
-                                                    >
-                                                        <h5 className="text-white text-center fw-bold mb-4">
-                                                            Preencha o formulário e<br />faça sua pré-reserva agora.
-                                                        </h5>
-
-                                                        <form className="d-flex flex-column gap-3">
-
-                                                            <input type="text" placeholder="NOME COMPLETO" className="form-control rounded-4 px-3 py-3 mb-3" />
-                                                            <input type="text" placeholder="CPF OU CNPJ" className="form-control rounded-4 px-3 py-3 mb-3" />
-                                                            <input type="text" placeholder="CONTATO" className="form-control rounded-4 px-3 py-3 mb-3" />
-                                                            <small className="text-white ms-2" style={{ marginTop: '-10px' }}>(DDD) 99999-9999</small>
-                                                            <input type="email" placeholder="E-MAIL" className="form-control rounded-4 px-3 py-3 mb-3 mt-2" />
-                                                            <button type="submit" className="btn fw-bold text-dark rounded-pill py-3" style={{ backgroundColor: '#FFAB52' }}>
-                                                                FAZER PRÉ-RESERVA
-                                                            </button>
-                                                        </form>
-
-                                                        <button onClick={() => setMostrarModalReserva(false)} className="btn-close position-absolute top-0 end-0 m-3"></button>
-                                                    </div>
-                                                </motion.div>
-                                            )}
-                                        </AnimatePresence>
-
-                                        <button onClick={() => setMostrarModalReserva(false)} className="btn-close position-absolute top-0 end-0 m-3"></button>
-                                    </div>
                                 </motion.div>
                             )}
                         </AnimatePresence>
