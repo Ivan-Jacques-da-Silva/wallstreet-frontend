@@ -35,11 +35,10 @@ export default function ApiData({ codigo = '' }) {
         const response = await fetch(event.target.action, {
             credentials: 'include',
             method: event.target.method,
+            body: new FormData(event.target),
             headers: {
                 'X-CSRFToken': Config.csrf_Token,
-                'Content-Type': 'x-www-form-urlencoded',
             },
-            body: new URLSearchParams(new FormData(event.target)),
         })
         if (response.ok) {
             setMostrarModal(false)
