@@ -30,6 +30,26 @@ export default function ApiData({ codigo = '' }) {
     if (loading) return <div>Carregando...</div>
     if (error) return <div>Erro: {error}</div>
 
+    const handleSubmit = async event => {
+        event.preventDefault()
+        const response = await fetch(event.target.action, {
+            credentials: 'include',
+            method: event.target.method,
+            headers: {
+                'X-CSRFToken': Config.csrf_Token,
+                'Content-Type': 'x-www-form-urlencoded',
+            },
+            body: new URLSearchParams(new FormData(event.target)),
+        })
+        if (response.ok) {
+            setMostrarModal(false)
+            alert('Formulário enviado com sucesso!')
+        } else {
+            setMostrarModal(false)
+            alert('Erro ao enviar formulário.')
+        }
+    }
+
     return data.formularios.map(formulario => (
         <div className="d-flex flex-column gap-2 w-100">
             <Button variant="warning" className="fw-bold text-dark" onClick={() => setMostrarModal(true)}>
@@ -59,9 +79,10 @@ export default function ApiData({ codigo = '' }) {
                             </h5>
 
                             <form
-                                className="d-flex flex-column gap-3"
+                                onSubmit={handleSubmit}
                                 method={formulario.metodo}
-                                action={formulario.acao_url}
+                                className="d-flex flex-column gap-3"
+                                action={`${Config.api_url}${formulario.acao_url}`}
                             >
                                 {formulario.entradas.map(entrada => {
                                     return entrada.tipo === 'submit' ? (
