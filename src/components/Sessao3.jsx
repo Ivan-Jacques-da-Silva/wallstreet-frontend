@@ -1,4 +1,5 @@
 import React from 'react';
+import imgMockup from '../img/mockupTelasSistemas.png';
 
 function Sessao3() {
   return (
@@ -9,7 +10,20 @@ function Sessao3() {
           <strong>nosso sistema!</strong>
         </h2>
 
-        <div className="mt-4">
+        {/* Imagem do makup */}
+        <div className="text-center" >
+          <img
+            src={imgMockup}
+            alt="Mockup"
+            style={{
+              width: '100%',
+              maxWidth: '900px',
+              height: 'auto'
+            }}
+          />
+        </div>
+
+        <div className="">
           <a
             href="https://front.wallstreetcorporate.com.br/andares?andar=19"
             className="px-4 py-2 d-inline-block"

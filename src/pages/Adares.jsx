@@ -4,10 +4,7 @@ import { useSearchParams, Link } from 'react-router-dom';
 import { Container, Row, Col, Button, Offcanvas } from 'react-bootstrap';
 import '../styles/Andares.css';
 import logo from '../img/logo.png';
-import propostaSala1 from '../img/propostas/cotacao1.jpg';
-import propostaSala2 from '../img/propostas/cotacao2.jpg';
-import propostaSala3 from '../img/propostas/cotacao3.jpg';
-import propostaSala4 from '../img/propostas/cotacao4.jpg';
+
 import sala1Img from '../img/salas/sala1.png';
 import sala2Img from '../img/salas/sala2.png';
 import sala3Img from '../img/salas/sala3.png';
@@ -61,6 +58,8 @@ const Andares = () => {
     const [mostrarDetalhes, setMostrarDetalhes] = useState(false);
     const [mostrarModalReserva, setMostrarModalReserva] = useState(false);
     const [mostrarModalContra, setMostrarModalContra] = useState(false);
+    const [mostrarModalAgenda, setMostrarModalAgenda] = useState(false);
+
 
     const andares = Array.from({ length: 15 }, (_, i) => `${19 - i}° andar`);
 
@@ -443,7 +442,39 @@ const Andares = () => {
                                             <h4 className="fw-bold text-center mb-4">PROPOSTA ABAIXO</h4>
                                             <div className="bg-dark text-white p-3 rounded text-center mb-3">
                                                 <div className="fw-bold fs-5">WALL STREET CORPORATE</div>
-                                                <div>Sala Comercial 160{salaSelecionada}</div>
+                                                <div className="d-flex align-items-center justify-content-center gap-2 mb-2">
+                                                    <Button
+                                                        size="sm"
+                                                        style={{
+                                                            border: '1px solid white',
+                                                            color: 'white',
+                                                            backgroundColor: 'transparent',
+                                                            padding: '0.25rem 0.6rem',
+                                                            marginRight: '6px'
+                                                        }}
+                                                        onClick={() => salaSelecionada > 1 && setSalaSelecionada(salaSelecionada - 1)}
+                                                    >
+                                                        &lt;
+                                                    </Button>
+                                                    <div className="fw-bold text-white mx-1">
+                                                        Sala Comercial {andarSelecionado.replace('° andar', '')}0{salaSelecionada}
+                                                    </div>
+                                                    <Button
+                                                        size="sm"
+                                                        style={{
+                                                            border: '1px solid white',
+                                                            color: 'white',
+                                                            backgroundColor: 'transparent',
+                                                            padding: '0.25rem 0.6rem',
+                                                            marginLeft: '6px'
+                                                        }}
+                                                        onClick={() => salaSelecionada < salas.length && setSalaSelecionada(salaSelecionada + 1)}
+                                                    >
+                                                        &gt;
+                                                    </Button>
+
+                                                </div>
+
                                                 <div>{salas[salaSelecionada - 1].area}m² de área privativa</div>
                                             </div>
 
@@ -486,8 +517,8 @@ const Andares = () => {
                                                     download
                                                     target="_blank"
                                                     rel="noopener noreferrer"
-                                                    className="fw-bold"
-                                                    style={{ backgroundColor: '#FFAB52', border: 'none', color: '#001A47' }}
+                                                    className="fw-bold text-dark"
+                                                    style={{ backgroundColor: '#FFAB52', border: 'none', }}
                                                 >
                                                     BAIXAR PROPOSTA
                                                 </Button>
@@ -591,13 +622,13 @@ const Andares = () => {
                                     <table className="table table-bordered">
                                         <tbody>
                                             <tr>
-                                                <td>Valorização até Entrega</td>
+                                                <td>Valorização até Entrega*</td>
                                                 <td className="fw-bold text-end">
                                                     R$ {(valorSala * 1.7).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td>Rendimento obtido (Lucro)</td>
+                                                <td>Rendimento obtido (Lucro)*</td>
                                                 <td className="fw-bold text-end">
                                                     R$ {((valorSala * 1.7) - valorSala).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                                                 </td>
@@ -631,10 +662,13 @@ const Andares = () => {
                                             download
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="fw-bold"
-                                            style={{ backgroundColor: '#FFAB52', border: 'none', color: '#001A47' }}
+                                            className="fw-bold text-dark"
+                                            style={{ backgroundColor: '#FFAB52', border: 'none'}}
                                         >
                                             BAIXAR PROPOSTA
+                                        </Button>
+                                        <Button variant="warning" className="fw-bold text-dark" onClick={() => setMostrarModalAgenda(true)}>
+                                            AGENDAR REUNIÃO
                                         </Button>
                                     </div>
                                     <p className="text-center mt-2 small text-muted">FAÇA O DOWNLOAD DA PROPOSTA E DA VALORIZAÇÃO</p>
@@ -773,6 +807,42 @@ const Andares = () => {
                                         </form>
 
                                         <button onClick={() => setMostrarModalContra(false)} className="btn-close position-absolute top-0 end-0 m-3"></button>
+                                    </div>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+                        <AnimatePresence>
+                            {mostrarModalAgenda && (
+                                <motion.div
+                                    className="position-fixed top-0 start-0 w-100 h-100"
+                                    style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)', zIndex: 1060 }}
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0 }}
+                                >
+                                    <div
+                                        className="position-absolute top-50 start-50 translate-middle p-4"
+                                        style={{
+                                            background: 'rgba(0, 69, 138, 0.9)',
+                                            borderRadius: '20px',
+                                            width: '90%',
+                                            maxWidth: '400px',
+                                            boxShadow: '0 8px 24px rgba(0,0,0,0.3)'
+                                        }}
+                                    >
+                                        <h5 className="text-white text-center fw-bold mb-3">Agende sua reunião</h5>
+                                        <form className="d-flex flex-column gap-3">
+                                            <input type="text" placeholder="NOME COMPLETO" className="form-control rounded-4 px-3 py-3" />
+                                            <input type="text" placeholder="CPF OU CNPJ" className="form-control rounded-4 px-3 py-3" />
+                                            <input type="text" placeholder="CONTATO" className="form-control rounded-4 px-3 py-3" />
+                                            <input type="email" placeholder="E-MAIL" className="form-control rounded-4 px-3 py-3" />
+                                            <input type="date" className="form-control rounded-4 px-3 py-3" />
+                                            <input type="time" className="form-control rounded-4 px-3 py-3" />
+                                            <button type="submit" className="btn fw-bold text-dark rounded-pill py-3" style={{ backgroundColor: '#FFAB52' }}>
+                                                AGENDAR
+                                            </button>
+                                        </form>
+                                        <button onClick={() => setMostrarModalAgenda(false)} className="btn-close position-absolute top-0 end-0 m-3"></button>
                                     </div>
                                 </motion.div>
                             )}

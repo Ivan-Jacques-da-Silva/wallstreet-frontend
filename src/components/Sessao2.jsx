@@ -1,6 +1,7 @@
 import React from 'react';
 
 import imgPredio from '../img/imgS2.webp';
+import imgMockup from '../img/mockupTelasSistemas.png';
 import fundoSessao2 from '../img/fundoSessao2.webp';
 import icone1 from '../img/icone1.webp';
 import icone2 from '../img/icone2.webp';
@@ -17,7 +18,8 @@ function Sessao2() {
     <section
       className="py-5"
       style={{
-        backgroundImage: `url(${fundoSessao2})`,
+        // backgroundImage: `url(${fundoSessao2})`,
+        backgroundColor: '#010329',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat',
@@ -73,14 +75,14 @@ function Sessao2() {
             >
               <div className="row row-cols-2 g-3">
                 {[
-                  [icone1, '120 salas de 54 a 78m²'],
-                  [icone2, '30 garagens rotativas'],
-                  [icone3, 'Porta-cochere dupla'],
-                  [icone4, 'Pub Executivo'],
-                  [icone5, '2 Salões Gourmets'],
-                  [icone6, 'Espaço descompressão'],
-                  [icone7, 'Conceito internacional'],
-                  [icone8, 'Alto potencial de valorização'],
+                  [icone2, '120 salas de 54 a 78m²'],
+                  [icone3, '30 garagens rotativas'],
+                  [icone4, 'Port-chochère com pista dupla'],
+                  [icone5, 'Pub Executivo'],
+                  [icone6, '2 Salões Gourmets'],
+                  [icone7, 'Espaço descompressão'],
+                  [icone8, 'Conceito internacional'],
+                  [icone1, 'Alto potencial de valorização'],
                 ].map(([icone, texto], i) => (
                   <div key={i} className="col d-flex align-items-start gap-2">
                     <img src={icone} alt={`Ícone ${i + 1}`} style={{ width: '30px' }} />
@@ -102,12 +104,29 @@ function Sessao2() {
           </div>
         </div>
 
+        {/* Imagem do prédio */}
+        <div className="text-center" style={{paddingTop: '80px'}}>
+          <img
+            src={imgPredio}
+            alt="Prédio"
+            className="img-fluid mb-5"
+            style={{
+              // border: '2px solid #FFAB52',
+              borderRadius: '16px',
+              maxWidth: '100%',
+            }}
+          />
+        </div>
+        
+       
+
         {/* Botão */}
         <div className="text-center" style={{ marginTop: '-25px', marginBottom: '20px' }}>
 
 
           <a
             href="https://front.wallstreetcorporate.com.br/proposta-wall-street.pdf"
+            download
             target="_blank"
             rel="noopener noreferrer"
             className="px-4 py-2 d-inline-block"
@@ -124,20 +143,7 @@ function Sessao2() {
             Baixe o memorial descritivo
           </a>
 
-        </div>
 
-        {/* Imagem do prédio */}
-        <div className="text-center">
-          <img
-            src={imgPredio}
-            alt="Prédio"
-            className="img-fluid mb-5"
-            style={{
-              // border: '2px solid #FFAB52',
-              borderRadius: '16px',
-              maxWidth: '100%',
-            }}
-          />
         </div>
       </div>
     </section>
