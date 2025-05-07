@@ -76,6 +76,9 @@ export default function ApiData({ codigo = '' }) {
                             <h5 className="text-white text-center fw-bold mb-4">
                                 {formulario.descricao}
                             </h5>
+                            <p className="text-white text-center mb-4" style={{ fontSize: '0.9rem' }}>
+                                {formulario.sub_descricao}
+                            </p>
 
                             <form
                                 onSubmit={handleSubmit}
