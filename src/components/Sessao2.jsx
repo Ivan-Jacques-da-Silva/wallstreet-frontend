@@ -58,6 +58,7 @@ function Sessao2() {
             </div>
           </div>
 
+
           {/* Coluna direita */}
           <div className="col-md-6 d-flex justify-content-md-start justify-content-center mb-3 mb-md-0">
 
@@ -105,7 +106,7 @@ function Sessao2() {
         </div>
 
         {/* Imagem do prédio */}
-        <div className="text-center" style={{paddingTop: '80px'}}>
+        {/* <div className="text-center" style={{ paddingTop: '80px' }}>
           <img
             src={imgPredio}
             alt="Prédio"
@@ -116,9 +117,22 @@ function Sessao2() {
               maxWidth: '100%',
             }}
           />
+        </div> */}
+
+        <div className="text-center" style={{ paddingTop: '80px' }}>
+          <iframe
+            src="https://tour360.meupasseiovirtual.com/067962/278515/tourvirtual/index.html"
+            width="100%"
+            height="600"
+            style={{
+              border: '2px solid #FFAB52',
+              borderRadius: '16px',
+              maxWidth: '100%',
+              marginBottom: "70px",
+            }}
+            allowFullScreen
+          />
         </div>
-        
-       
 
         {/* Botão */}
         <div className="text-center" style={{ marginTop: '-25px', marginBottom: '20px' }}>

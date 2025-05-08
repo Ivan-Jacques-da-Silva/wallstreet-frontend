@@ -60,7 +60,7 @@ const Andares = () => {
     const [mostrarModalReserva, setMostrarModalReserva] = useState(false);
     const [mostrarModalContra, setMostrarModalContra] = useState(false);
     const [mostrarModalAgenda, setMostrarModalAgenda] = useState(false);
-
+    const [mostrarModalValorizacao, setMostrarModalValorizacao] = useState(false);
 
     const andares = Array.from({ length: 15 }, (_, i) => `${19 - i}° andar`);
 
@@ -81,12 +81,17 @@ const Andares = () => {
 
 
     const valorSala = parseFloat(salas[salaSelecionada - 1].preco.replace('.', '').replace(',', '.'));
-    const entrada = valorSala * 0.30;
-    const reforco2025 = valorSala * 0.10;
-    const reforco2026 = valorSala * 0.10;
-    const reforco2027 = valorSala * 0.10;
-    const valorParcelamento = valorSala - (entrada + reforco2025 + reforco2026 + reforco2027);
+    const valorGaragem = 60000;
+    const descontoFixo = 36801.63;
+    const valorTotalSemDesconto = valorSala + valorGaragem;
+    const valorTotal = valorTotalSemDesconto - descontoFixo;
+    const entrada = valorTotal * 0.30;
+    const reforco2025 = valorTotal * 0.10;
+    const reforco2026 = valorTotal * 0.10;
+    const reforco2027 = valorTotal * 0.10;
+    const valorParcelamento = valorTotal - (entrada + reforco2025 + reforco2026 + reforco2027);
     const parcelaCub = valorParcelamento / 55;
+
 
     const downloadProposta = () => {
         // TODO: ajustar URL de download
@@ -273,7 +278,9 @@ const Andares = () => {
                                                     onClick={(e) => {
                                                         e.stopPropagation()
                                                         setSalaSelecionada(sala.numero)
-                                                        setMostrarProposta(true)
+                                                        // setMostrarProposta(true)
+                                                        setMostrarModalValorizacao(true)
+
                                                     }}
                                                     className="btn btn-link text-dark p-0 small"
                                                 >
@@ -333,18 +340,19 @@ const Andares = () => {
                                                     </div>
                                                     <div className="mt-2 mb-2 fw-medium">{sala.area} m²</div>
                                                     <div className="fw-bold mb-2">R$ {sala.preco}</div>
-                                                    <button
+                                                    {/* <button
                                                         type="button"
                                                         onClick={(e) => {
                                                             e.stopPropagation()
                                                             setSalaSelecionada(sala.numero)
-                                                            setMostrarProposta(true)
+                                                            // setMostrarProposta(true)
+                                                            setMostrarModalValorizacao(true)
                                                         }}
                                                         className="btn btn-link text-dark d-flex align-items-center gap-1 p-0 small"
                                                     >
                                                         <i className="bi bi-exclamation-circle-fill"></i>
                                                         Mais informações
-                                                    </button>
+                                                    </button> */}
                                                 </div>
                                             </div>
                                         </div>
@@ -483,7 +491,19 @@ const Andares = () => {
                                                 <tbody>
                                                     <tr><td>Valor da Sala</td><td className="text-end">R$ {valorSala.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td></tr>
                                                     <tr><td>01 Vaga de garagem</td><td className="text-end">R$ 60.000,00</td></tr>
-                                                    <tr className="fw-bold"><td>Valor Total</td><td className="text-end">R$ {valorSala.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td></tr>
+                                                    <tr className="fw-bold">
+                                                        <td>Valor Total</td>
+                                                        <td className="text-end">R$ {valorTotalSemDesconto.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Desconto aplicado</td>
+                                                        <td className="text-end text-success">- R$ {descontoFixo.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                                                    </tr>
+                                                    <tr className="fw-bold">
+                                                        <td>Valor Final</td>
+                                                        <td className="text-end">R$ {valorTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                                                    </tr>
+
                                                 </tbody>
                                             </table>
 
@@ -496,11 +516,18 @@ const Andares = () => {
                                                     <tr><td>Dezembro 2027</td><td className="text-end">R$ {reforco2027.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td></tr>
                                                     <tr><td>Valor Parcelamento</td><td className="text-end">R$ {valorParcelamento.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td></tr>
                                                     <tr><td>55 Parcelas pelo CUB**</td><td className="text-end">R$ {parcelaCub.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td></tr>
-                                                    <tr className="fw-bold"><td>Total</td><td className="text-end">R$ {valorSala.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td></tr>
+                                                    <tr className="fw-bold"><td>Total</td><td className="text-end">R$ {valorTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td></tr>
                                                 </tbody>
                                             </table>
-
                                             <div className="text-center small">Entrega da Sala em Dezembro de 2027</div>
+                                            <Button
+                                                type="button"
+                                                onClick={() => setMostrarModalValorizacao(true)}
+                                                className="btn btn-link text-dark d-flex align-items-center gap-1 p-0 small"
+                                            >
+                                                <i className="bi bi-exclamation-circle-fill"></i>
+                                                Mais informações
+                                            </Button>
 
 
                                             <div className="d-flex flex-column gap-2 mt-4">
@@ -508,21 +535,85 @@ const Andares = () => {
                                                     PRÉ-RESERVA
                                                 </Button>
 
+                                                <AnimatePresence>
+                                                    {mostrarModalValorizacao && (
+                                                        <motion.div
+                                                            className="position-fixed top-0 start-0 w-100 h-100"
+                                                            style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)', zIndex: 1060 }}
+                                                            initial={{ opacity: 0 }}
+                                                            animate={{ opacity: 1 }}
+                                                            exit={{ opacity: 0 }}
+                                                        >
+                                                            <div
+                                                                className="position-absolute top-50 start-50 translate-middle p-4"
+                                                                style={{
+                                                                    background: 'white',
+                                                                    borderRadius: '20px',
+                                                                    width: '90%',
+                                                                    maxWidth: '600px',
+                                                                    boxShadow: '0 8px 24px rgba(0,0,0,0.3)'
+                                                                }}
+                                                            >
+                                                                <h5 className="text-center fw-bold mb-3">VALORIZAÇÃO</h5>
+                                                                <table className="table table-bordered">
+                                                                    <tbody>
+                                                                        <tr>
+                                                                            <td>Valorização até Entrega*</td>
+                                                                            <td className="fw-bold text-end">
+                                                                                R$ {(valorSala * 1.7).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr>
+                                                                            <td>Rendimento obtido (Lucro)*</td>
+                                                                            <td className="fw-bold text-end">
+                                                                                R$ {((valorSala * 1.7) - valorSala).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr>
+                                                                            <td>Valor do Aluguel*</td>
+                                                                            <td className="text-end">
+                                                                                R$ {(valorTotalSemDesconto * 0.0095).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr><td>Valor Condomínio*</td><td className="text-end">R$ 800,00</td></tr>
+                                                                        <tr><td>Valor IPTU* (12x)</td><td className="text-end">R$ 166,67</td></tr>
+                                                                    </tbody>
+                                                                </table>
+                                                                <p className="small text-center text-muted">*Valores aproximados do mercado atual.</p>
+                                                                <button
+                                                                    onClick={() => setMostrarModalValorizacao(false)}
+                                                                    className="btn btn-outline-secondary mt-3 d-block mx-auto"
+                                                                >
+                                                                    Fechar
+                                                                </button>
+                                                            </div>
+                                                        </motion.div>
+                                                    )}
+                                                </AnimatePresence>
+
                                                 <Button variant="warning" className="fw-bold text-dark" onClick={() => setMostrarModalContra(true)}>
                                                     FAZER CONTRAPROPOSTA
                                                 </Button>
-
                                                 <Button
-                                                    as="a"
-                                                    href="https://front.wallstreetcorporate.com.br/proposta-wall-street.pdf"
-                                                    download
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
+                                                    onClick={() => {
+                                                        const andarNumero = parseInt(andarSelecionado);
+                                                        const numeroSalaCompleto = `${andarNumero}${salaSelecionada.toString().padStart(2, '0')}`;
+                                                        const nomeArquivo = `Sala ${numeroSalaCompleto} - WALL STREET CORPORATE.pdf`;
+                                                        const url = `https://front.wallstreetcorporate.com.br/${encodeURIComponent(nomeArquivo)}`;
+                                                        const link = document.createElement('a');
+                                                        link.href = url;
+                                                        link.download = nomeArquivo;
+                                                        document.body.appendChild(link);
+                                                        link.click();
+                                                        document.body.removeChild(link);
+
+                                                    }}
                                                     className="fw-bold text-dark"
-                                                    style={{ backgroundColor: '#FFAB52', border: 'none', }}
+                                                    style={{ backgroundColor: '#FFAB52', border: 'none' }}
                                                 >
                                                     BAIXAR PROPOSTA
                                                 </Button>
+
                                             </div>
 
                                         </motion.div>
@@ -581,7 +672,7 @@ const Andares = () => {
                                                 <tbody>
                                                     <tr><td>Valor da Sala</td><td className="text-end">R$ {valorSala.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td></tr>
                                                     <tr><td>01 Vaga de garagem</td><td className="text-end">R$ 60.000,00</td></tr>
-                                                    <tr className="fw-bold"><td>Valor Total</td><td className="text-end">R$ {valorSala.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td></tr>
+                                                    <tr><td>Desconto aplicado</td><td className="text-end text-success">- R$ {descontoFixo.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td></tr>
                                                 </tbody>
                                             </table>
 
@@ -594,7 +685,8 @@ const Andares = () => {
                                                     <tr><td>Dezembro 2027</td><td className="text-end">R$ {reforco2027.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td></tr>
                                                     <tr><td>Valor Parcelamento</td><td className="text-end">R$ {valorParcelamento.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td></tr>
                                                     <tr><td>55 Parcelas pelo CUB**</td><td className="text-end">R$ {parcelaCub.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td></tr>
-                                                    <tr className="fw-bold"><td>Total</td><td className="text-end">R$ {valorSala.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td></tr>
+                                                    <tr className="fw-bold"><td>Total</td><td className="text-end">R$ {valorTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td></tr>
+
                                                 </tbody>
                                             </table>
 
@@ -636,8 +728,9 @@ const Andares = () => {
                                             </tr>
                                             <tr>
                                                 <td>Valor do Aluguel*</td>
-                                                <td className="text-end">--</td>
+                                                <td className="text-end">R$ {(valorTotalSemDesconto * 0.0095).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                                             </tr>
+
 
                                             <tr><td>Valor Condomínio*</td><td className="text-end">R$ 800,00</td></tr>
                                             <tr><td>Valor IPTU* (12x)</td><td className="text-end">R$ 166,67</td></tr>
@@ -656,16 +749,25 @@ const Andares = () => {
                                             FAZER CONTRAPROPOSTA
                                         </Button>
                                         <Button
-                                            as="a"
-                                            href="https://front.wallstreetcorporate.com.br/proposta-wall-street.pdf"
-                                            download
-                                            target="_blank"
-                                            rel="noopener noreferrer"
+                                            onClick={() => {
+                                                const andarNumero = parseInt(andarSelecionado);
+                                                const numeroSalaCompleto = `${andarNumero}${salaSelecionada.toString().padStart(2, '0')}`;
+                                                const nomeArquivo = `Sala ${numeroSalaCompleto} - WALL STREET CORPORATE.pdf`;
+                                                const url = `https://front.wallstreetcorporate.com.br/${encodeURIComponent(nomeArquivo)}`;
+                                                const link = document.createElement('a');
+                                                link.href = url;
+                                                link.download = nomeArquivo;
+                                                document.body.appendChild(link);
+                                                link.click();
+                                                document.body.removeChild(link);
+
+                                            }}
                                             className="fw-bold text-dark"
-                                            style={{ backgroundColor: '#FFAB52', border: 'none'}}
+                                            style={{ backgroundColor: '#FFAB52', border: 'none' }}
                                         >
                                             BAIXAR PROPOSTA
                                         </Button>
+
                                         <Button variant="warning" className="fw-bold text-dark" onClick={() => setMostrarModalAgenda(true)}>
                                             AGENDAR REUNIÃO
                                         </Button>
@@ -779,8 +881,6 @@ const Andares = () => {
                                 </motion.div>
                             )}
                         </AnimatePresence>
-
-
                     </Col>
 
                 </Row>
