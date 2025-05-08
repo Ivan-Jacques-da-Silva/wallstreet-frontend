@@ -523,7 +523,8 @@ const Andares = () => {
                                             <Button
                                                 type="button"
                                                 onClick={() => setMostrarModalValorizacao(true)}
-                                                className="btn btn-link text-dark d-flex align-items-center gap-1 p-0 small"
+                                                style={{backgroundColor:"white", border:"none"}}
+                                                className="text-dark d-flex align-items-center gap-1 p-0 small"
                                             >
                                                 <i className="bi bi-exclamation-circle-fill"></i>
                                                 Mais informações
