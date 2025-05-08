@@ -40,12 +40,23 @@ export default function ApiData({ codigo = '' }) {
                 'X-CSRFToken': Config.csrf_Token,
             },
         })
-        if (response.ok) {
+        const json = await response.json()
+        if (json.sucesso) {
             setMostrarModal(false)
-            alert('Formulário enviado com sucesso!')
+            alert(json.mensagem ? json.mensagem : 'Formulário enviado com sucesso!')
         } else {
-            setMostrarModal(false)
-            alert('Erro ao enviar formulário.')
+            let errors = false
+            if (json.erros) {
+                for (let key in json.erros) {
+                    for (let error of json.erros[key]) {
+                        errors = true
+                        alert(error)
+                    }
+                }
+            }
+            if (!errors) {
+                alert(json.mensagem ? json.mensagem : 'Erro ao enviar formulário.')
+            }
         }
     }
 
