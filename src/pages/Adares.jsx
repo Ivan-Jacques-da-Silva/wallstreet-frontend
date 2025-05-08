@@ -46,6 +46,13 @@ const plantasImgs = {
     8: plantaSala8
 };
 
+const salasCom = [
+    705, 706, 707, 708, 801, 906, 907, 1001, 1105, 1206, 1307, 1308, 1408,
+    1601, 603, 606, 607, 608, 808, 901, 903, 1007, 1008, 1106, 1108,
+    1205, 1208, 1305, 1401, 1405, 1508
+];
+
+
 
 const Andares = () => {
     const [searchParams] = useSearchParams();
@@ -61,6 +68,7 @@ const Andares = () => {
     const [mostrarModalContra, setMostrarModalContra] = useState(false);
     const [mostrarModalAgenda, setMostrarModalAgenda] = useState(false);
     const [mostrarModalValorizacao, setMostrarModalValorizacao] = useState(false);
+
 
     const andares = Array.from({ length: 15 }, (_, i) => `${19 - i}° andar`);
 
@@ -91,7 +99,6 @@ const Andares = () => {
     const reforco2027 = valorTotal * 0.10;
     const valorParcelamento = valorTotal - (entrada + reforco2025 + reforco2026 + reforco2027);
     const parcelaCub = valorParcelamento / 55;
-
 
     const downloadProposta = () => {
         // TODO: ajustar URL de download
@@ -262,10 +269,22 @@ const Andares = () => {
                                                     style={{ width: '200px', objectFit: 'cover' }}
 
                                                 />
-                                                <i
-                                                    className={`bi fs-5 ${sala.numero % 2 === 0 ? 'bi-x-circle-fill text-danger' : 'bi-check-circle-fill text-success'}`}
-                                                    style={{ position: 'absolute', top: '10px', right: '10px' }}
-                                                />
+                                                {(() => {
+                                                    const andarNumero = parseInt(andarSelecionado);
+                                                    const numeroSalaCompleto = parseInt(`${andarNumero}${sala.numero.toString().padStart(2, '0')}`);
+                                                    const estaDisponivel = salasCom.includes(numeroSalaCompleto);
+
+                                                    console.log('Verificando sala:', numeroSalaCompleto, 'Disponível?', estaDisponivel);
+
+                                                    return (
+                                                        <i
+                                                            className={`bi fs-5 ${estaDisponivel ? 'bi-check-circle-fill text-success' : 'bi-x-circle-fill text-danger'}`}
+                                                            style={{ position: 'absolute', top: '10px', right: '10px' }}
+                                                        />
+                                                    );
+                                                })()}
+
+
                                             </div>
                                             <div className="text-start">
                                                 <div className="fw-bold">SALA {sala.numero}</div>
@@ -280,7 +299,6 @@ const Andares = () => {
                                                         setSalaSelecionada(sala.numero)
                                                         // setMostrarProposta(true)
                                                         setMostrarModalValorizacao(true)
-
                                                     }}
                                                     className="btn btn-link text-dark p-0 small"
                                                 >
@@ -333,10 +351,18 @@ const Andares = () => {
                                                             <div className="fw-bold">SALA {sala.numero}</div>
                                                             <div className="text-uppercase small text-muted">{sala.orientacao}</div>
                                                         </div>
-                                                        <i
-                                                            className={`bi fs-4 ${sala.numero % 2 === 0 ? 'bi-x-circle-fill text-danger' : 'bi-check-circle-fill text-success'}`}
-                                                            style={{ position: 'absolute', top: '-1px', right: '0.7rem' }}
-                                                        />
+                                                        {(() => {
+                                                            const andarNum = parseInt(andarSelecionado);
+                                                            const numSala = parseInt(`${andarNum}${sala.numero.toString().padStart(2, '0')}`);
+                                                            const estaDisp = salasCom.includes(numSala);
+                                                            return (
+                                                                <i
+                                                                    className={`bi fs-4 ${estaDisp ? 'bi-check-circle-fill text-success' : 'bi-x-circle-fill text-danger'}`}
+                                                                    style={{ position: 'absolute', top: '-1px', right: '0.7rem' }}
+                                                                />
+                                                            );
+                                                        })()}
+
                                                     </div>
                                                     <div className="mt-2 mb-2 fw-medium">{sala.area} m²</div>
                                                     <div className="fw-bold mb-2">R$ {sala.preco}</div>
@@ -345,8 +371,7 @@ const Andares = () => {
                                                         onClick={(e) => {
                                                             e.stopPropagation()
                                                             setSalaSelecionada(sala.numero)
-                                                            // setMostrarProposta(true)
-                                                            setMostrarModalValorizacao(true)
+                                                            setMostrarProposta(true)
                                                         }}
                                                         className="btn btn-link text-dark d-flex align-items-center gap-1 p-0 small"
                                                     >
@@ -519,22 +544,24 @@ const Andares = () => {
                                                     <tr className="fw-bold"><td>Total</td><td className="text-end">R$ {valorTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td></tr>
                                                 </tbody>
                                             </table>
+
                                             <div className="text-center small">Entrega da Sala em Dezembro de 2027</div>
-                                            <Button
-                                                type="button"
-                                                onClick={() => setMostrarModalValorizacao(true)}
-                                                style={{backgroundColor:"white", border:"none"}}
-                                                className="text-dark d-flex align-items-center gap-1 p-0 small"
-                                            >
-                                                <i className="bi bi-exclamation-circle-fill"></i>
-                                                Mais informações
-                                            </Button>
 
+                                            <div className="d-flex justify-content-center w-100 small">
 
-                                            <div className="d-flex flex-column gap-2 mt-4">
-                                                <Button variant="warning" className="fw-bold text-dark" onClick={() => setMostrarModalReserva(true)}>
-                                                    PRÉ-RESERVA
+                                                <Button
+                                                    type="button"
+                                                    onClick={() => setMostrarModalValorizacao(true)}
+                                                    style={{ backgroundColor: "white", border: "none" }}
+                                                    className="text-dark d-flex align-items-center gap-1 p-0 small"
+                                                >
+                                                    <i className="bi bi-exclamation-circle-fill"></i>
+                                                    Confira valorização
                                                 </Button>
+                                            </div>
+                                            <div className="d-flex flex-column gap-2 mt-4">
+                                                <FormularioData codigo="wall_street_pre_reserva" />
+                                                <FormularioData codigo="wall_street_contraproposta" />
 
                                                 <AnimatePresence>
                                                     {mostrarModalValorizacao && (
@@ -591,29 +618,31 @@ const Andares = () => {
                                                         </motion.div>
                                                     )}
                                                 </AnimatePresence>
+                                                {(() => {
+                                                    const andarNumero = parseInt(andarSelecionado);
+                                                    const numeroSalaCompleto = parseInt(`${andarNumero}${salaSelecionada.toString().padStart(2, '0')}`);
+                                                    const estaDisponivel = salasCom.includes(numeroSalaCompleto);
+                                                    if (!estaDisponivel) return null;
 
-                                                <Button variant="warning" className="fw-bold text-dark" onClick={() => setMostrarModalContra(true)}>
-                                                    FAZER CONTRAPROPOSTA
-                                                </Button>
-                                                <Button
-                                                    onClick={() => {
-                                                        const andarNumero = parseInt(andarSelecionado);
-                                                        const numeroSalaCompleto = `${andarNumero}${salaSelecionada.toString().padStart(2, '0')}`;
-                                                        const nomeArquivo = `Sala ${numeroSalaCompleto} - WALL STREET CORPORATE.pdf`;
-                                                        const url = `https://front.wallstreetcorporate.com.br/${encodeURIComponent(nomeArquivo)}`;
-                                                        const link = document.createElement('a');
-                                                        link.href = url;
-                                                        link.download = nomeArquivo;
-                                                        document.body.appendChild(link);
-                                                        link.click();
-                                                        document.body.removeChild(link);
-
-                                                    }}
-                                                    className="fw-bold text-dark"
-                                                    style={{ backgroundColor: '#FFAB52', border: 'none' }}
-                                                >
-                                                    BAIXAR PROPOSTA
-                                                </Button>
+                                                    return (
+                                                        <Button
+                                                            onClick={() => {
+                                                                const nomeArquivo = `Sala ${numeroSalaCompleto} - WALL STREET CORPORATE.pdf`;
+                                                                const url = `https://front.wallstreetcorporate.com.br/${encodeURIComponent(nomeArquivo)}`;
+                                                                const link = document.createElement('a');
+                                                                link.href = url;
+                                                                link.download = nomeArquivo;
+                                                                document.body.appendChild(link);
+                                                                link.click();
+                                                                document.body.removeChild(link);
+                                                            }}
+                                                            className="fw-bold text-dark"
+                                                            style={{ backgroundColor: '#FFAB52', border: 'none' }}
+                                                        >
+                                                            BAIXAR PROPOSTA
+                                                        </Button>
+                                                    );
+                                                })()}
 
                                             </div>
 
@@ -673,7 +702,7 @@ const Andares = () => {
                                                 <tbody>
                                                     <tr><td>Valor da Sala</td><td className="text-end">R$ {valorSala.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td></tr>
                                                     <tr><td>01 Vaga de garagem</td><td className="text-end">R$ 60.000,00</td></tr>
-                                                    <tr><td>Desconto aplicado</td><td className="text-end text-success">- R$ {descontoFixo.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td></tr>
+                                                    <tr className="fw-bold"><td>Valor Total</td><td className="text-end">R$ {valorSala.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td></tr>
                                                 </tbody>
                                             </table>
 
@@ -686,8 +715,7 @@ const Andares = () => {
                                                     <tr><td>Dezembro 2027</td><td className="text-end">R$ {reforco2027.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td></tr>
                                                     <tr><td>Valor Parcelamento</td><td className="text-end">R$ {valorParcelamento.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td></tr>
                                                     <tr><td>55 Parcelas pelo CUB**</td><td className="text-end">R$ {parcelaCub.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td></tr>
-                                                    <tr className="fw-bold"><td>Total</td><td className="text-end">R$ {valorTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td></tr>
-
+                                                    <tr className="fw-bold"><td>Total</td><td className="text-end">R$ {valorSala.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td></tr>
                                                 </tbody>
                                             </table>
 
@@ -729,9 +757,8 @@ const Andares = () => {
                                             </tr>
                                             <tr>
                                                 <td>Valor do Aluguel*</td>
-                                                <td className="text-end">R$ {(valorTotalSemDesconto * 0.0095).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                                                <td className="text-end">--</td>
                                             </tr>
-
 
                                             <tr><td>Valor Condomínio*</td><td className="text-end">R$ 800,00</td></tr>
                                             <tr><td>Valor IPTU* (12x)</td><td className="text-end">R$ 166,67</td></tr>
@@ -745,33 +772,23 @@ const Andares = () => {
 
                                     <div className="d-flex flex-column gap-2 w-100">
                                         <FormularioData codigo="wall_street_pre_reserva" />
-
-                                        <Button variant="warning" className="fw-bold text-dark" onClick={() => setMostrarModalContra(true)}>
-                                            FAZER CONTRAPROPOSTA
-                                        </Button>
-                                        <Button
-                                            onClick={() => {
-                                                const andarNumero = parseInt(andarSelecionado);
-                                                const numeroSalaCompleto = `${andarNumero}${salaSelecionada.toString().padStart(2, '0')}`;
-                                                const nomeArquivo = `Sala ${numeroSalaCompleto} - WALL STREET CORPORATE.pdf`;
-                                                const url = `https://front.wallstreetcorporate.com.br/${encodeURIComponent(nomeArquivo)}`;
-                                                const link = document.createElement('a');
-                                                link.href = url;
-                                                link.download = nomeArquivo;
-                                                document.body.appendChild(link);
-                                                link.click();
-                                                document.body.removeChild(link);
-
-                                            }}
-                                            className="fw-bold text-dark"
-                                            style={{ backgroundColor: '#FFAB52', border: 'none' }}
-                                        >
-                                            BAIXAR PROPOSTA
-                                        </Button>
-
-                                        <Button variant="warning" className="fw-bold text-dark" onClick={() => setMostrarModalAgenda(true)}>
-                                            AGENDAR REUNIÃO
-                                        </Button>
+                                        <FormularioData codigo="wall_street_contraproposta" />
+                                        {estaDisp && (
+                                            <>
+                                                <Button
+                                                    as="a"
+                                                    href="https://front.wallstreetcorporate.com.br/proposta-wall-street.pdf"
+                                                    download
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="fw-bold text-dark"
+                                                    style={{ backgroundColor: '#FFAB52', border: 'none' }}
+                                                >
+                                                    BAIXAR PROPOSTA
+                                                </Button>
+                                            </>
+                                        )}
+                                        <FormularioData codigo="wall_street_agendar_reuniao" />
                                     </div>
                                     <p className="text-center mt-2 small text-muted">FAÇA O DOWNLOAD DA PROPOSTA E DA VALORIZAÇÃO</p>
                                 </motion.div>
@@ -792,93 +809,6 @@ const Andares = () => {
                                         className="img-fluid"
                                         style={{ maxHeight: '100%', width: 'auto' }}
                                     />
-                                </motion.div>
-                            )}
-                        </AnimatePresence>
-                        <AnimatePresence>
-                            {mostrarModalContra && (
-                                <motion.div
-                                    className="position-fixed top-0 start-0 w-100 h-100"
-                                    style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)', zIndex: 1060 }}
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    exit={{ opacity: 0 }}
-                                >
-                                    <div
-                                        className="position-absolute top-50 start-50 translate-middle p-4"
-                                        style={{
-                                            background: 'rgba(0, 69, 138, 0.9)',
-                                            borderRadius: '20px',
-                                            width: '90%',
-                                            maxWidth: '400px',
-                                            boxShadow: '0 8px 24px rgba(0,0,0,0.3)'
-                                        }}
-                                    >
-                                        <h5 className="text-white text-center fw-bold mb-1">Preencha sua contraproposta.</h5>
-                                        <p className="text-white text-center mb-4" style={{ fontSize: '0.9rem' }}>
-                                            Em breve nossa equipe entrará em<br />contato para realizar a negociação!
-                                        </p>
-
-                                        <form className="d-flex flex-column">
-                                            <div className="mb-3">
-                                                <input type="text" placeholder="NOME COMPLETO" className="form-control rounded-4 px-3 py-3" />
-                                            </div>
-                                            <div className="mb-3">
-                                                <input type="text" placeholder="CPF OU CNPJ" className="form-control rounded-4 px-3 py-3" />
-                                            </div>
-                                            <div className="mb-1">
-                                                <input type="text" placeholder="CONTATO" className="form-control rounded-4 px-3 py-3" />
-                                            </div>
-                                            <small className="text-white ms-2 mb-2">(DDD) 99999-9999</small>
-                                            <div className="mb-3">
-                                                <input type="email" placeholder="E-MAIL" className="form-control rounded-4 px-3 py-3" />
-                                            </div>
-                                            <div className="mb-3">
-                                                <textarea placeholder="ESCREVA SUA PROPOSTA" rows="3" className="form-control rounded-4 px-3 py-3"></textarea>
-                                            </div>
-                                            <button type="submit" className="btn fw-bold text-dark rounded-pill py-3" style={{ backgroundColor: '#FFAB52' }}>
-                                                FAZER CONTRAPROPOSTA
-                                            </button>
-                                        </form>
-
-                                        <button onClick={() => setMostrarModalContra(false)} className="btn-close position-absolute top-0 end-0 m-3"></button>
-                                    </div>
-                                </motion.div>
-                            )}
-                        </AnimatePresence>
-                        <AnimatePresence>
-                            {mostrarModalAgenda && (
-                                <motion.div
-                                    className="position-fixed top-0 start-0 w-100 h-100"
-                                    style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)', zIndex: 1060 }}
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    exit={{ opacity: 0 }}
-                                >
-                                    <div
-                                        className="position-absolute top-50 start-50 translate-middle p-4"
-                                        style={{
-                                            background: 'rgba(0, 69, 138, 0.9)',
-                                            borderRadius: '20px',
-                                            width: '90%',
-                                            maxWidth: '400px',
-                                            boxShadow: '0 8px 24px rgba(0,0,0,0.3)'
-                                        }}
-                                    >
-                                        <h5 className="text-white text-center fw-bold mb-3">Agende sua reunião</h5>
-                                        <form className="d-flex flex-column gap-3">
-                                            <input type="text" placeholder="NOME COMPLETO" className="form-control rounded-4 px-3 py-3" />
-                                            <input type="text" placeholder="CPF OU CNPJ" className="form-control rounded-4 px-3 py-3" />
-                                            <input type="text" placeholder="CONTATO" className="form-control rounded-4 px-3 py-3" />
-                                            <input type="email" placeholder="E-MAIL" className="form-control rounded-4 px-3 py-3" />
-                                            <input type="date" className="form-control rounded-4 px-3 py-3" />
-                                            <input type="time" className="form-control rounded-4 px-3 py-3" />
-                                            <button type="submit" className="btn fw-bold text-dark rounded-pill py-3" style={{ backgroundColor: '#FFAB52' }}>
-                                                AGENDAR
-                                            </button>
-                                        </form>
-                                        <button onClick={() => setMostrarModalAgenda(false)} className="btn-close position-absolute top-0 end-0 m-3"></button>
-                                    </div>
                                 </motion.div>
                             )}
                         </AnimatePresence>
