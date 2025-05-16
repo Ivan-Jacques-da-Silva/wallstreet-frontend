@@ -202,7 +202,7 @@ const Andares = () => {
                                 style={{ width: '100%', height: 'auto', overflowY: 'auto', zIndex: 1 }}
                             >
                                 <img
-                                    src={salaAtual?.arquivos?.plantas?.[0]?.baixar}
+                                    src={`${Config.api_url}${salaAtual?.arquivos?.plantas?.[0]?.baixar}`}
                                     alt={`Planta da Sala ${salaSelecionada}`}
                                     className="img-fluid w-100 px-3 planta-img"
                                     style={{ height: 'auto' }}
