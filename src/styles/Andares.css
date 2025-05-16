@@ -1,3 +1,7 @@
+body, html {
+    overflow-x: hidden;
+}
+
 /* src/styles/Andares.css */
 .andares-page {
     min-height: 100vh;
@@ -83,32 +87,53 @@
     transform: translateY(-2px);
 }
 
-/* Adicione estas classes */
-.proposal-button-container {
-    position: fixed;
-    bottom: 0;
-    left: 16.666667%;
-    width: 41.666667%;
-    padding: 0 1rem;
-    z-index: 1000;
-}
+/* @media (min-width: 1200px) {
 
-.proposal-content-container {
-    position: fixed;
-    bottom: 80px;
-    left: 16.666667%;
-    width: 41.666667%;
-    max-height: 70vh;
-    overflow-y: auto;
-    z-index: 999;
-    background: white;
-    box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.1);
-    border-radius: 10px 10px 0 0;
-}
+    .col-andares,
+    .col-salas,
+    .col-planta,
+    .col-proposta {
+        flex: 0 0 25%;
+        max-width: 25%;
+    }
+} */
 
 @media (max-width: 767px) {
-    .card-mobile {
-      flex-direction: column !important;
+
+    .col-andares,
+    .col-salas,
+    .col-planta,
+    .col-proposta {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+}
+
+.container-fluid {
+    max-width: 100%;
+    padding-left: 0;
+    padding-right: 0;
+}
+
+@media (min-width: 768px) and (max-width: 1199px) {
+    .col-andares,
+    .col-salas {
+      flex: 0 0 100%;
+      max-width: 100%;
+    }
+    
+    .col-planta,
+    .col-proposta {
+      flex: 0 0 50%;
+      max-width: 50%;
     }
   }
-  
+ 
+
+@media (max-width: 767px) {
+    .col-md-6 {
+        flex: 0 0 100% !important;
+        max-width: 100% !important;
+    }
+}
+

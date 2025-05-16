@@ -5,6 +5,8 @@ import { useSearchParams, Link } from 'react-router-dom';
 import { Container, Row, Col, Button, Offcanvas } from 'react-bootstrap';
 import '../styles/Andares.css';
 import logo from '../img/logo.png';
+import Config from '../Config';
+
 
 import sala1Img from '../img/salas/sala1.png';
 import sala2Img from '../img/salas/sala2.png';
@@ -52,6 +54,24 @@ const salasCom = [
     1205, 1208, 1305, 1401, 1405, 1508
 ];
 
+// useEffect(() => {
+//     const fetchProduto = async () => {
+//         try {
+//             const response = await fetch(`${Config.api_url}/api/produtos/1`);
+//             if (!response.ok) {
+//                 throw new Error('Erro ao buscar produto');
+//             }
+//             const json = await response.json();
+//             console.log('[Produto]', json);
+//         } catch (err) {
+//             console.error('Erro:', err.message);
+//         }
+//     };
+//     fetchProduto();
+// }, []);
+
+
+
 const Andares = () => {
     const [searchParams] = useSearchParams();
     const andarUrl = searchParams.get('andar');
@@ -97,6 +117,23 @@ const Andares = () => {
         window.addEventListener("resize", handleResize);
         return () => window.removeEventListener("resize", handleResize);
     }, []);
+
+    useEffect(() => {
+        const fetchProduto = async () => {
+            try {
+                const response = await fetch(`${Config.api_url}/api/produtos/1`);
+                if (!response.ok) {
+                    throw new Error('Erro ao buscar produto');
+                }
+                const json = await response.json();
+                console.log('[Produto]', json);
+            } catch (err) {
+                console.error('Erro:', err.message);
+            }
+        };
+        fetchProduto();
+    }, []);
+    
 
     return (
         <div className="andares-page bg-white">
@@ -167,22 +204,25 @@ const Andares = () => {
             </header>
 
             <Container fluid className="mt-4">
-                <Row className="flex-column flex-md-row">
-                    <Col md={2} className="border-end text-center">
+                {/* <Row className="flex-column flex-xl-row flex-wrap">
+                 */}
+                <Row>
+                    <Col xs={12} md={3} xl={2} className="px-2 col-andares">
                         <h2 className="text-center mb-4">ESCOLHA O SEU ANDAR</h2>
-                        <div className="d-none d-md-flex flex-column">
+                        <div className="d-none d-xl-flex flex-column px-3">
                             {andares.map((andar, index) => (
                                 <Button
                                     key={index}
                                     variant={andar === andarSelecionado ? 'dark' : 'outline-dark'}
-                                    className="mb-2 text-start"
+                                    className="mb-1 text-start"
+
                                     onClick={() => setAndarSelecionado(andar)}
                                 >
                                     {andar}
                                 </Button>
                             ))}
                         </div>
-                        <div className="d-flex d-md-none flex-wrap justify-content-center gap-2">
+                        <div className="d-flex d-xl-none flex-wrap justify-content-center gap-2">
                             {andares.map((andar, index) => (
                                 <Button
                                     key={index}
@@ -196,8 +236,9 @@ const Andares = () => {
                             ))}
                         </div>
                     </Col>
-                    <Col md={4} className="px-3 mb-3 mb-md-0 position-relative">
-                        <div className="d-flex justify-content-between align-items-center mb-3">
+                    <Col xs={12} md={9} xl={4} className="p-2 col-salas">
+
+                        <div className="d-flex justify-content-between align-items-center mb-3 p-2">
                             <div>
                                 <small className="text-muted d-block">{andarSelecionado}</small>
                                 <h3 className="mb-0 fw-bold text-uppercase">Escolha<br /> sua sala</h3>
@@ -213,13 +254,14 @@ const Andares = () => {
                                 </span>
                             </div>
                         </div>
-                        {larguraTela < 768 ? (
-                            <div style={{ overflowX: 'auto', whiteSpace: 'nowrap', paddingBottom: '20px' }}>
-                                <div style={{ display: 'inline-flex', gap: '1rem', padding: '0 10px' }}>
+                        {larguraTela < 1200 ? (
+
+                            <div style={{ overflowX: 'auto', whiteSpace: 'nowrap', paddingBottom: '3px' }}>
+                                <div style={{ display: 'inline-flex', padding: '0 10px' }}>
                                     {salas.map((sala, index) => (
                                         <div
                                             key={index}
-                                            className={`rounded-4 p-2 position-relative ${sala.numero === salaSelecionada ? 'border-dark border-4' : 'border-secondary border-3'}`}
+                                            className={`rounded-4 p-2 mx-1 position-relative ${sala.numero === salaSelecionada ? 'border-dark border-4' : 'border-secondary border-3'}`}
                                             style={{
                                                 background: '#DAE3F3',
                                                 cursor: 'pointer',
@@ -245,7 +287,7 @@ const Andares = () => {
                                                     const numeroSalaCompleto = parseInt(`${andarNumero}${sala.numero.toString().padStart(2, '0')}`);
                                                     const estaDisponivel = salasCom.includes(numeroSalaCompleto);
 
-                                                    console.log('Verificando sala:', numeroSalaCompleto, 'Disponível?', estaDisponivel);
+                                                    // console.log('Verificando sala:', numeroSalaCompleto, 'Disponível?', estaDisponivel);
 
                                                     return (
                                                         <i
@@ -272,67 +314,89 @@ const Andares = () => {
                                             height: 8,
                                             borderRadius: '50%',
                                             backgroundColor: salaSelecionada === i + 1 ? '#0046AD' : '#ccc',
-                                            margin: '0 4px'
+                                            margin: '0px 4px'
                                         }} />
                                     ))}
                                 </div>
                             </div>
                         ) : (
-                            <Row className="g-3" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(365px, 1fr))', gap: '1rem', marginBottom: '80px' }}>
-                                {salas.map((sala, index) => (
-                                    <Col key={index}>
-                                        <div
-                                            className={`rounded-4 p-2 h-100 d-flex align-items-stretch position-relative ${sala.numero === salaSelecionada ? 'border-dark border-4' : 'border-secondary border-3'}`}
-                                            style={{
-                                                background: '#DAE3F3',
-                                                cursor: 'pointer',
-                                                border: '4px solid #0046AD'
-                                            }}
-                                            onClick={() => {
-                                                if (salaSelecionada !== sala.numero || mostrarProposta) {
+                            <AnimatePresence mode="wait">
+                                <Row
+                                    key={andarSelecionado}
+                                    as={motion.div}
+                                    initial={{ x: -50, opacity: 0 }}
+                                    animate={{ x: 0, opacity: 1 }}
+                                    transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+                                    // transition={{ duration: 0.01 }}
+                                    className=""
+                                    style={{
+                                        display: 'grid',
+                                        gridTemplateColumns: 'repeat(auto-fit, minmax(365px, 1fr))',
+                                        gap: '0.5rem',
+                                        marginBottom: '10px',
+                                        marginRight: '10px',
+                                    }}
+                                >
+                                    {salas.map((sala, index) => (
+                                        <Col
+                                            key={sala.numero}
+                                            as={motion.div}
+                                            initial={{ x: -50, opacity: 0 }}
+                                            animate={{ x: 0, opacity: 1 }}
+                                            exit={{ x: 50, opacity: 0 }}
+                                            // transition={{ delay: index * 0.1, type: 'spring', stiffness: 100, damping: 10 }}
+                                            transition={{ duration: 0.2 }}
+                                        >
+                                            <div
+                                                className={`rounded-4 p-2 h-100 d-flex align-items-stretch position-relative ${sala.numero === salaSelecionada ? 'border-dark border-4' : 'border-secondary border-3'}`}
+                                                style={{
+                                                    background: '#DAE3F3',
+                                                    cursor: 'pointer',
+                                                    border: '4px solid #0046AD',
+                                                }}
+                                                onClick={() => {
                                                     setSalaSelecionada(sala.numero)
                                                     setMostrarProposta(false)
-                                                }
-                                            }}
-                                        >
-                                            <div className="d-flex align-items-center">
-                                                <img
-                                                    src={salasImgs[sala.numero]}
-                                                    alt={`Sala ${sala.numero}`}
-                                                    style={{ width: '200px', height: '120px', objectFit: 'cover', borderRadius: '6px', flexShrink: 0 }}
-                                                    className="me-3"
-                                                />
-                                                <div className="flex-grow-1 text-start">
-                                                    <div className="d-flex justify-content-between align-items-start">
-                                                        <div>
-                                                            <div className="fw-bold">SALA {sala.numero}</div>
-                                                            <div className="text-uppercase small text-muted">{sala.orientacao}</div>
+                                                }}
+                                            >
+                                                <div className="d-flex align-items-center">
+                                                    <img
+                                                        src={salasImgs[sala.numero]}
+                                                        alt={`Sala ${sala.numero}`}
+                                                        style={{ width: '180px', height: '120px', objectFit: 'cover', borderRadius: '6px', flexShrink: 0 }}
+                                                        className="me-3"
+                                                    />
+                                                    <div className="flex-grow-1 text-start">
+                                                        <div className="d-flex justify-content-between align-items-start">
+                                                            <div>
+                                                                <div className="fw-bold">SALA {sala.numero}</div>
+                                                                <div className="text-uppercase small text-muted">{sala.orientacao}</div>
+                                                            </div>
+                                                            {(() => {
+                                                                const andarNum = parseInt(andarSelecionado)
+                                                                const numSala = parseInt(`${andarNum}${sala.numero.toString().padStart(2, '0')}`)
+                                                                const estaDisp = salasCom.includes(numSala)
+                                                                return (
+                                                                    <i
+                                                                        className={`bi fs-4 ${estaDisp ? 'bi-check-circle-fill text-success' : 'bi-x-circle-fill text-danger'}`}
+                                                                        style={{ position: 'absolute', top: '-1px', right: '0.7rem' }}
+                                                                    />
+                                                                )
+                                                            })()}
                                                         </div>
-                                                        {(() => {
-                                                            const andarNum = parseInt(andarSelecionado);
-                                                            const numSala = parseInt(`${andarNum}${sala.numero.toString().padStart(2, '0')}`);
-                                                            const estaDisp = salasCom.includes(numSala);
-                                                            return (
-                                                                <i
-                                                                    className={`bi fs-4 ${estaDisp ? 'bi-check-circle-fill text-success' : 'bi-x-circle-fill text-danger'}`}
-                                                                    style={{ position: 'absolute', top: '-1px', right: '0.7rem' }}
-                                                                />
-                                                            );
-                                                        })()}
-
+                                                        <div className="mt-2 mb-2 fw-medium">{sala.area} m²</div>
+                                                        <div className="fw-bold mb-2">R$ {sala.preco}</div>
                                                     </div>
-                                                    <div className="mt-2 mb-2 fw-medium">{sala.area} m²</div>
-                                                    <div className="fw-bold mb-2">R$ {sala.preco}</div>
-
                                                 </div>
                                             </div>
-                                        </div>
-                                    </Col>
-                                ))}
-                            </Row>
+                                        </Col>
+                                    ))}
+                                </Row>
+                            </AnimatePresence>
+
                         )}
                     </Col>
-                    <Col md={3} className="p-0 m-0">
+                    <Col xs={12} md={6} xl={3} className="px-0 col-planta">
                         <AnimatePresence mode="wait">
                             <motion.div
                                 key="planta"
@@ -340,25 +404,28 @@ const Andares = () => {
                                 animate={{ opacity: 1, y: 0 }}
                                 exit={{ opacity: 0, y: -30 }}
                                 transition={{ duration: 0.4 }}
-                                className="d-flex align-items-center justify-content-center"
-                                style={{ height: '100vh', overflowY: 'auto' }}
-
+                                className="d-flex align-items-start justify-content-center"
+                                style={{
+                                    width: '100%',
+                                    height: 'auto',
+                                    overflowY: 'auto',
+                                    zIndex: 1
+                                }}
                             >
                                 <img
                                     src={plantasImgs[salaSelecionada]}
                                     alt={`Planta da Sala ${salaSelecionada}`}
-                                    className="img-fluid"
-                                    style={{ maxHeight: '100%', width: 'auto' }}
+                                    className="img-fluid w-100 px-3 planta-img"
+                                    style={{ height: 'auto' }}
                                 />
                             </motion.div>
                         </AnimatePresence>
                     </Col>
-                    <Col md={3} className="px-0">
-                        <div className="d-none d-md-block">
+                    <Col xs={12} md={6} xl={3} className="px-0 col-proposta">
+
+                        <div>
                             <AnimatePresence>
-                                <div
-                                    className="d-flex flex-column bg-light p-4 rounded h-100" style={{ height: '100vh', overflowY: 'auto' }}
-                                >
+                                <div className="d-flex flex-column bg-light p-4 rounded" style={{ overflowY: 'auto' }} >
                                     <motion.div
                                         initial={{ y: '100%' }}
                                         animate={{ y: 0 }}
@@ -432,8 +499,35 @@ const Andares = () => {
                                                 <tr className="fw-bold"><td>Total</td><td className="text-end">R$ {valorTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td></tr>
                                             </tbody>
                                         </table>
+                                        <h5 className="text-center fw-bold mt-4 mb-3">VALORIZAÇÃO ESTIMADA</h5>
+                                        <table className="table table-bordered">
+                                            <tbody>
+                                                <tr>
+                                                    <td>Valorização até Entrega*</td>
+                                                    <td className="fw-bold text-end">
+                                                        R$ {(valorSala * 1.7).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Rendimento obtido (Lucro)*</td>
+                                                    <td className="fw-bold text-end">
+                                                        R$ {((valorSala * 1.7) - valorSala).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Valor do Aluguel*</td>
+                                                    <td className="text-end">
+                                                        R$ {(valorTotalSemDesconto * 0.0095).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                                                    </td>
+                                                </tr>
+                                                <tr><td>Valor Condomínio*</td><td className="text-end">R$ 800,00</td></tr>
+                                                <tr><td>Valor IPTU* (12x)</td><td className="text-end">R$ 166,67</td></tr>
+                                            </tbody>
+                                        </table>
+                                        <p className="small text-center text-muted mb-0">*Valores aproximados do mercado atual.</p>
+
                                         <div className="text-center small">Entrega da Sala em Dezembro de 2027</div>
-                                        <div className="d-flex justify-content-center w-100 small">
+                                        {/* <div className="d-flex justify-content-center w-100 small">
 
                                             <Button
                                                 type="button"
@@ -444,13 +538,13 @@ const Andares = () => {
                                                 <i className="bi bi-exclamation-circle-fill"></i>
                                                 Confira valorização
                                             </Button>
-                                        </div>
+                                        </div> */}
                                         <div className="d-flex flex-column gap-2 mt-4">
                                             <FormularioData codigo="wall_street_pre_reserva" />
                                             <FormularioData codigo="wall_street_contraproposta" />
                                             <FormularioData codigo="wall_street_agendar_reuniao" />
 
-                                            <AnimatePresence>
+                                            {/* <AnimatePresence>
                                                 {mostrarModalValorizacao && (
                                                     <motion.div
                                                         className="position-fixed top-0 start-0 w-100 h-100"
@@ -504,7 +598,8 @@ const Andares = () => {
                                                         </div>
                                                     </motion.div>
                                                 )}
-                                            </AnimatePresence>
+                                            </AnimatePresence> */}
+
                                             {(() => {
                                                 const andarNumero = parseInt(andarSelecionado);
                                                 const numeroSalaCompleto = parseInt(`${andarNumero}${salaSelecionada.toString().padStart(2, '0')}`);
