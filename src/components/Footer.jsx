@@ -40,9 +40,9 @@ function Rodape() {
               {/* Botão */}
               <button
                 style={{
-                  backgroundColor: '#FFAB52',
+                  backgroundColor: '#fff',
                   color: '#001A47',
-                  border: 'none',
+                  border: '3px solid #001A47',
                   borderRadius: '8px',
                   padding: '10px 20px',
                   fontWeight: 'bold',

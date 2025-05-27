@@ -15,13 +15,14 @@
     background: transparent;
     border: none;
     cursor: pointer;
+    margin: 0;
   }
   
   /* Container do prédio fixo */
   .predio-container {
     position: relative;
     width: 374px;
-    height: 935px;
+    /* height: 935px; */
   }
   
   .logo-header {

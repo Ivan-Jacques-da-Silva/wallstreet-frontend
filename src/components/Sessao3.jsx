@@ -25,10 +25,10 @@ function Sessao3() {
 
         <div className="">
           <a
-            href="https://front.wallstreetcorporate.com.br/andares?andar=19"
+            href="https://front.wallstreetnr.com.br/andares?andar=19"
             className="px-4 py-2 d-inline-block"
             style={{
-              backgroundColor: '#FFAB52',
+              backgroundColor: '#fff',
               color: '#001A47',
               border: 'none',
               borderRadius: '8px',

@@ -1,4 +1,5 @@
-body, html {
+body,
+html {
     overflow-x: hidden;
 }
 
@@ -116,19 +117,20 @@ body, html {
 }
 
 @media (min-width: 768px) and (max-width: 1199px) {
+
     .col-andares,
     .col-salas {
-      flex: 0 0 100%;
-      max-width: 100%;
+        flex: 0 0 100%;
+        max-width: 100%;
     }
-    
+
     .col-planta,
     .col-proposta {
-      flex: 0 0 50%;
-      max-width: 50%;
+        flex: 0 0 50%;
+        max-width: 50%;
     }
-  }
- 
+}
+
 
 @media (max-width: 767px) {
     .col-md-6 {
@@ -137,3 +139,20 @@ body, html {
     }
 }
 
+@media (min-width: 1199px) {
+    .col-planta {
+        margin-top: 110px !important;
+        /* flex: 0 0 30%; */
+        /* max-width: 40%; */
+    }
+
+    .planta-img {
+        max-width: 100%;
+        height: auto;
+    }
+
+    /* .col-proposta {
+        margin-top: 110px !important;
+    } */
+
+}

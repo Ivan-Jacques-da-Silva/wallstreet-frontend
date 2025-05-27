@@ -139,14 +139,14 @@ function Sessao2() {
 
 
           <a
-            href="https://front.wallstreetcorporate.com.br/proposta-wall-street.pdf"
+            href="https://front.wallstreetnr.com.br/proposta-wall-street.pdf"
             download
             target="_blank"
             rel="noopener noreferrer"
             className="px-4 py-2 d-inline-block"
             style={{
-              backgroundColor: '#FFAB52',
-              color: 'black',
+              backgroundColor: '#fff',
+              color: '#001A47',
               border: 'none',
               borderRadius: '8px',
               fontWeight: 'bold',

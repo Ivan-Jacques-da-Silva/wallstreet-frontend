@@ -1,12 +1,12 @@
-import FormularioData   from '../api/FormulariosData';
-import Salas            from './../api/Salas.jsx';
-import React, { useState, useEffect }   from 'react';
-import { motion, AnimatePresence }      from 'framer-motion';
-import { useSearchParams, Link }        from 'react-router-dom';
+import FormularioData from '../api/FormulariosData';
+import Salas from './../api/Salas.jsx';
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useSearchParams, Link } from 'react-router-dom';
 import { Container, Row, Col, Button, Offcanvas } from 'react-bootstrap';
 import '../styles/Andares.css';
-import logo     from '../img/logo.png';
-import Config   from '../Config';
+import logo from '../img/logo.png';
+import Config from '../Config';
 
 const salasCom = [
     705, 706, 707, 708, 801, 906, 907, 1001, 1105, 1206, 1307, 1308, 1408,
@@ -39,7 +39,7 @@ const Andares = () => {
     useEffect(() => {
         const fetchProduto = async () => {
             try {
-                const response = await fetch(`${Config.api_url}/api/produtos/1`);
+                const response = await fetch(`${Config.api_url}/api/produtos/1/`);
                 if (!response.ok) throw new Error('Erro ao buscar produto');
                 const json = await response.json();
                 setDadosProduto(json);
@@ -84,7 +84,7 @@ const Andares = () => {
                                 <a href="#" className="ws-nav-link mx-3">CONTATO</a>
                                 <Button
                                     as="a"
-                                    href="https://front.wallstreetcorporate.com.br/folder-wall-street-corporate.pdf"
+                                    href="https://front.wallstreetnr.com.br/folder-wall-street-corporate.pdf"
                                     download
                                     target="_blank"
                                     rel="noopener noreferrer"
@@ -134,8 +134,8 @@ const Andares = () => {
             </header>
 
             <Container fluid className="mt-4">
-                <Row>
-                    <Col xs={12} md={3} xl={2} className="px-2 col-andares">
+                <Row className={larguraTela < 1199 ? "" : "flex-nowrap"}>
+                    <Col xs={12} md={2} xl={2} className="px-2 col-andares">
                         <h2 className="text-center mb-4">ESCOLHA O SEU ANDAR</h2>
                         <div className="d-none d-xl-flex flex-column px-3">
                             {andares.map((andar, index) => (
@@ -163,13 +163,15 @@ const Andares = () => {
                             ))}
                         </div>
                     </Col>
-                    <Col xs={12} md={9} xl={4} className="p-2 col-salas">
+                    <Col xs={12} md={4} xl={3} className="px-0 col-salas">
                         <div className="d-flex justify-content-between align-items-center mb-3 p-2">
                             <div>
                                 <small className="text-muted d-block">{andarSelecionado}</small>
-                                <h3 className="mb-0 fw-bold text-uppercase">Escolha<br /> sua sala</h3>
+                                <h3 className="mb-0 fw-bold text-uppercase" style={{ fontSize: larguraTela < 992 ? '1.1rem' : '1.5rem' }}>
+                                    Escolha<br /> sua sala
+                                </h3>
                             </div>
-                            <div className="d-flex align-items-center gap-3">
+                            <div className="d-flex flex-wrap align-items-center gap-1 pl-3" >
                                 <span className="d-flex align-items-center gap-1">
                                     <i className="bi bi-check-circle-fill text-success"></i>
                                     <span className="fw-semibold text-dark mx-1">DISPONÍVEL </span>
@@ -190,7 +192,8 @@ const Andares = () => {
                             setMostrarProposta={setMostrarProposta}
                         />
                     </Col>
-                    <Col xs={12} md={6} xl={3} className="px-0 col-planta">
+                    <Col xs={12} md={3} xl={3} className="px-0 col-planta">
+
                         <AnimatePresence mode="wait">
                             <motion.div
                                 key="planta"
@@ -201,16 +204,25 @@ const Andares = () => {
                                 className="d-flex align-items-start justify-content-center"
                                 style={{ width: '100%', height: 'auto', overflowY: 'auto', zIndex: 1 }}
                             >
-                                <img
-                                    src={`${Config.api_url}${salaAtual?.arquivos?.plantas?.[0]?.baixar}`}
-                                    alt={`Planta da Sala ${salaSelecionada}`}
-                                    className="img-fluid w-100 px-3 planta-img"
-                                    style={{ height: 'auto' }}
-                                />
+                                {salaAtual?.arquivos?.plantas?.[0]?.baixar ? (
+                                    <img
+                                        src={salaAtual?.arquivos?.plantas?.[0]?.baixar ? `${Config.api_url}${salaAtual.arquivos.plantas[0].baixar}` : ''}
+                                        alt={`Planta da Sala ${salaSelecionada}`}
+                                        className="img-fluid justify-content-center px-3 planta-img"
+                                        style={{ height: 'auto' }}
+                                        onError={(e) => e.target.style.display = 'none'}
+                                    />
+                                ) : (
+                                    <div className="d-flex justify-content-center align-items-center" style={{ height: '200px' }}>
+                                        <div className="spinner-border text-primary" role="status" />
+                                    </div>
+                                )}
+
+
                             </motion.div>
                         </AnimatePresence>
                     </Col>
-                    <Col xs={12} md={6} xl={3} className="px-0 col-proposta">
+                    <Col xs={12} md={3} xl={4} className="px-0 col-proposta">
                         <div className="d-flex flex-column bg-light p-4 rounded" style={{ overflowY: 'auto' }}>
                             <motion.div
                                 initial={{ y: '100%' }}
@@ -247,6 +259,33 @@ const Andares = () => {
                                         <tr className="fw-bold"><td>Total</td><td className="text-end">R$ {valorTotal.toLocaleString('pt-BR')}</td></tr>
                                     </tbody>
                                 </table>
+                                <h5 className="text-center fw-bold mt-4 mb-3">VALORIZAÇÃO ESTIMADA</h5>
+                                <table className="table table-bordered">
+                                    <tbody>
+                                        <tr>
+                                            <td>Valorização até Entrega*</td>
+                                            <td className="fw-bold text-end">
+                                                R$ {(valorSala * 1.7).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Rendimento obtido (Lucro)*</td>
+                                            <td className="fw-bold text-end">
+                                                R$ {((valorSala * 1.7) - valorSala).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Valor do Aluguel*</td>
+                                            <td className="text-end">
+                                                R$ {(valorTotalSemDesconto * 0.0095).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                                            </td>
+                                        </tr>
+                                        <tr><td>Valor Condomínio*</td><td className="text-end">R$ 800,00</td></tr>
+                                        <tr><td>Valor IPTU* (12x)</td><td className="text-end">R$ 166,67</td></tr>
+                                    </tbody>
+                                </table>
+                                <p className="small text-center text-muted mb-0">*Valores aproximados do mercado atual.</p>
+
                                 <div className="d-flex flex-column gap-2 mt-4">
                                     <FormularioData codigo="wall_street_pre_reserva" />
                                     <FormularioData codigo="wall_street_contraproposta" />
@@ -264,7 +303,7 @@ const Andares = () => {
                                             <Button
                                                 onClick={() => {
                                                     const nomeArquivo = `Sala ${numeroSalaCompleto} - WALL STREET CORPORATE.pdf`;
-                                                    const url = `https://front.wallstreetcorporate.com.br/${encodeURIComponent(nomeArquivo)}`;
+                                                    const url = `https://front.wallstreetnr.com.br/${encodeURIComponent(nomeArquivo)}`;
                                                     const link = document.createElement('a');
                                                     link.href = url;
                                                     link.download = nomeArquivo;

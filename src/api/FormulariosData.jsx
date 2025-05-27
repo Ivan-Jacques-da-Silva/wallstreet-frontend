@@ -27,8 +27,10 @@ export default function ApiData({ codigo = '' }) {
         fetchData()
     }, [])
 
-    if (loading) return <div>Carregando...</div>
-    if (error) return <div>Erro: {error}</div>
+    // if (loading) return <div>Carregando...</div>
+    // if (error) return <div>Erro: {error}</div>
+    if (loading || error || !data.formularios?.length) return null
+
 
     const handleSubmit = async event => {
         event.preventDefault()
@@ -95,14 +97,16 @@ export default function ApiData({ codigo = '' }) {
                                 onSubmit={handleSubmit}
                                 method={formulario.metodo}
                                 className="d-flex flex-column gap-3"
-                                action={`${Config.api_url}${formulario.acao_url}`}
+                                // action={`${Config.api_url}${formulario.acao_url}`}
+                                action={formulario.acao_url ? `${Config.api_url}${formulario.acao_url}` : '#'}
+
                             >
                                 {formulario.entradas.map(entrada => {
                                     return entrada.tipo === 'submit' ? (
                                         <button
                                             type="{entrada.tipo}"
                                             className="btn fw-bold text-dark rounded-pill py-3"
-                                            style={{ backgroundColor: '#FFAB52' }}
+                                            style={{ backgroundColor: '#fff', color: '#001A47', border:"3px solid #001A47" }}
                                         >
                                             {entrada.titulo.toUpperCase()}
                                         </button>
