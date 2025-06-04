@@ -11,8 +11,10 @@ import Config from '../Config';
 const salasCom = [
     705, 706, 707, 708, 801, 906, 907, 1001, 1105, 1206, 1307, 1308, 1408,
     1601, 603, 606, 607, 608, 808, 901, 903, 1007, 1008, 1106, 1108,
-    1205, 1208, 1305, 1401, 1405, 1508
+    1205, 1208, 1305, 1401, 1405, 1508,
+    1501, 1306, 1107, 908, 807, 701
 ];
+
 
 const Andares = () => {
     const [searchParams] = useSearchParams();
@@ -55,17 +57,24 @@ const Andares = () => {
     const salasDinamicas = andarAtual?.variacoes || [];
     const salaAtual = salasDinamicas[salaSelecionada - 1];
 
+    if (!salaAtual) return null;
+
     const valorSala = parseFloat(salaAtual?.precos?.de?.[0]?.valor || 0);
     const valorGaragem = 60000;
     const descontoFixo = 36801.63;
     const valorTotalSemDesconto = valorSala + valorGaragem;
     const valorTotal = valorTotalSemDesconto - descontoFixo;
-    const entrada = valorTotal * 0.30;
-    const reforco2025 = valorTotal * 0.10;
-    const reforco2026 = valorTotal * 0.10;
-    const reforco2027 = valorTotal * 0.10;
-    const valorParcelamento = valorTotal - (entrada + reforco2025 + reforco2026 + reforco2027);
+    const entrada = valorTotalSemDesconto * 0.30;
+    const reforco2025 = valorTotalSemDesconto * 0.10;
+    const reforco2026 = valorTotalSemDesconto * 0.10;
+    const reforco2027 = valorTotalSemDesconto * 0.10;
+    const valorParcelamento = valorTotalSemDesconto - (entrada + reforco2025 + reforco2026 + reforco2027);
     const parcelaCub = valorParcelamento / 55;
+    const valorizacaoEntrega = valorTotalSemDesconto * 1.9;
+    const lucro = valorizacaoEntrega - valorTotalSemDesconto;
+    const valorAluguel = valorTotalSemDesconto * 0.0095;
+
+
 
     return (
         <div className="andares-page bg-white">
@@ -80,7 +89,7 @@ const Andares = () => {
                         <Col xs="auto">
                             <div className="d-none d-md-flex justify-content-end align-items-center">
                                 <Link to="/" className="ws-nav-link mx-3">INÍCIO</Link>
-                                <a href="#" className="ws-nav-link mx-3">TOUR VIRTUAL</a>
+                                <a href="https://tour360.meupasseiovirtual.com/067962/278515/tourvirtual/index.html" className="ws-nav-link mx-3">TOUR VIRTUAL</a>
                                 <a href="#" className="ws-nav-link mx-3">CONTATO</a>
                                 <Button
                                     as="a"
@@ -88,7 +97,11 @@ const Andares = () => {
                                     download
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    style={{ border: 'none', color: '#001A47' }}
+                                    style={{
+                                        backgroundColor: '#fff',
+                                        border: 'none',
+                                        color: '#001A47'
+                                    }}
                                     className="ws-pdf-button mx-3"
                                 >
                                     BAIXAR PDF
@@ -265,13 +278,14 @@ const Andares = () => {
                                         <tr>
                                             <td>Valorização até Entrega*</td>
                                             <td className="fw-bold text-end">
-                                                R$ {(valorSala * 1.7).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                                                R$ {valorizacaoEntrega.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+
                                             </td>
                                         </tr>
                                         <tr>
                                             <td>Rendimento obtido (Lucro)*</td>
                                             <td className="fw-bold text-end">
-                                                R$ {((valorSala * 1.7) - valorSala).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                                                R$ {lucro.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                                             </td>
                                         </tr>
                                         <tr>
@@ -311,8 +325,8 @@ const Andares = () => {
                                                     link.click();
                                                     document.body.removeChild(link);
                                                 }}
-                                                className="fw-bold text-dark"
-                                                style={{ backgroundColor: '#FFAB52', border: 'none' }}
+                                                className="fw-bold text-dark btn-warning"
+                                            // style={{ backgroundColor: '#FFAB52', border: 'none' }}
                                             >
                                                 BAIXAR PROPOSTA
                                             </Button>

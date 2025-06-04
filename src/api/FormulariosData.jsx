@@ -75,8 +75,11 @@ export default function ApiData({ codigo = '' }) {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
+                        onClick={() => setMostrarModal(false)}
                     >
+
                         <div
+                            onClick={(e) => e.stopPropagation()}
                             className="position-absolute top-50 start-50 translate-middle p-4"
                             style={{
                                 background: 'rgba(0, 69, 138, 0.9)',
@@ -103,13 +106,21 @@ export default function ApiData({ codigo = '' }) {
                             >
                                 {formulario.entradas.map(entrada => {
                                     return entrada.tipo === 'submit' ? (
+                                        // <button
+                                        //     type="{entrada.tipo}"
+                                        //     className="btn fw-bold text-dark rounded-pill py-3"
+                                        //     style={{ backgroundColor: '#fff', color: '#001A47', border:"3px solid #001A47" }}
+                                        // >
+                                        //     {entrada.titulo.toUpperCase()}
+                                        // </button>
                                         <button
-                                            type="{entrada.tipo}"
-                                            className="btn fw-bold text-dark rounded-pill py-3"
-                                            style={{ backgroundColor: '#fff', color: '#001A47', border:"3px solid #001A47" }}
+                                            type={entrada.tipo}
+                                            className="btn fw-bold rounded-pill py-3"
+                                            style={{ backgroundColor: '#fff', color: '#001A47', border: '3px solid #001A47' }}
                                         >
                                             {entrada.titulo.toUpperCase()}
                                         </button>
+
                                     ) : (
                                         <input
                                             name={entrada.nome}

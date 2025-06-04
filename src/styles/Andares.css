@@ -24,14 +24,18 @@ html {
 }
 
 .btn-warning {
-    background-color: #FFAB52;
-    color: white;
+    background-color: #fff;
+    color: #001A47;
+    border: 3px solid #001A47;
 }
 
 .btn-warning:hover {
-    background-color: #FFAB52;
-    border-color: #FFAB52;
+    background-color: #f8f9fa;
+    /* ou mantém #fff */
+    border-color: #001A47;
+    color: #001A47;
 }
+
 
 .ws-header {
     background-color: #0e0e15 !important;
@@ -140,7 +144,7 @@ html {
 }
 
 @media (min-width: 1199px) {
-    .col-planta {
+    .col-planta, .col-proposta {
         margin-top: 110px !important;
         /* flex: 0 0 30%; */
         /* max-width: 40%; */

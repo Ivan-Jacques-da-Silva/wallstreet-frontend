@@ -70,8 +70,8 @@ function Sessao1() {
 
       <div className="container " style={{ position: 'relative', zIndex: 3 }}>
         <div className="row ">
-          <div className="col-md-6 d-flex flex-column justify-content-center align-items-center text-md-start text-center">
-            <div style={{ marginBottom: "40px" }}>
+          <div className="col-md-6 d-flex flex-column justify-content-center  align-items-center text-md-start text-center">
+            <div className="mb-md-5 mb-0">
               <img
                 src={logoCompleto}
                 alt="Wall Street Corporate"
@@ -79,16 +79,26 @@ function Sessao1() {
               />
             </div>
 
-            <div className="d-flex flex-column text-white" style={{ marginTop: '130px' }}>
-              <div style={{ fontSize: '28px', fontWeight: 300, textAlign: 'left' }}>
+
+            {/* TEXTO DESKTOP */}
+            <div className="d-none d-md-flex flex-column text-white" style={{ marginTop: '130px' }}>
+              <div style={{ fontSize: '28px', fontWeight: 300 }}>
                 Escolha seu Andar → Veja as Salas Disponíveis
               </div>
-              <div style={{ fontSize: '28px', fontWeight: 300, textAlign: 'right' }}>
+              <div style={{ fontSize: '28px', fontWeight: 300 }}>
                 Acesse os Valores → Veja a Rentabilidade
               </div>
             </div>
 
-            <div className="d-flex flex-column align-items-center" style={{ marginTop: "80px"}}>
+            {/* TEXTO MOBILE */}
+            <div className="d-flex d-md-none flex-column text-white text-center" style={{ marginTop: '40px', fontSize: '20px', fontWeight: 300 }}>
+              <div>Escolha seu Andar</div>
+              <div>Veja as Salas Disponíveis</div>
+              <div style={{ marginTop: '10px' }}>Acesse os Valores</div>
+              <div>Veja a Rentabilidade</div>
+            </div>
+
+            <div className="d-flex flex-column align-items-center mt-md-5 mt-3">
               <Button
                 as="a"
                 href="https://front.wallstreetnr.com.br/andares?andar=19"
@@ -120,7 +130,7 @@ function Sessao1() {
               </Button>
 
               <div style={{
-                marginTop: '100px',
+                marginTop: '50px',
                 fontWeight: 300,
                 fontSize: '36px',
                 color: '#FFF'
@@ -129,13 +139,13 @@ function Sessao1() {
               </div>
             </div>
 
+
           </div>
 
 
-          <div className="col-md-6 p-0 d-flex align-items-end justify-content-md-start justify-content-center">
-
-            <div className="predio-container" style={{ position: 'relative' }}>
-              <img src={predio1} alt="Prédio" style={{ width: '280px', height: '730px', marginTop: '40px', verticalAlign: 'bottom' }} />
+          <div className="col-md-6 p-0 mt-5 d-flex align-items-end justify-content-md-start justify-content-center mb-md-0 mb-0">
+            <div className="predio-container">
+              <img src={predio1} alt="Prédio" style={{ width: '280px', height: '730px' }} />
 
               {posicoesAndares.map(({ andar, top }) => (
                 <React.Fragment key={andar}>
@@ -148,47 +158,52 @@ function Sessao1() {
                       <img src={iconeCirculo} alt={`${andar}º Andar`} className="icone-animado" />
                     </button>
                   </div>
-                  <div className="d-none d-md-flex" style={{
+                  <div className="d-flex" style={{
                     position: 'absolute',
-                    top: `${top + 7}px`,
+                    top: `${top + 10}px`,
                     left: '155px', // um pouco antes da linha
-                    width: '12px',
-                    height: '12px',
+                    width: '9px',
+                    height: '9px',
                     backgroundColor: '#FF8C00',
                     borderRadius: '50%'
                   }}></div>
-                  <div className="d-none d-md-flex" style={{
+                  <div className="d-flex linha-andares" style={{
                     position: 'absolute',
-                    top: `${top + 12}px`,
+                    top: `${top + 14}px`,
                     left: '160px',
-                    width: '190px',
-                    height: '2px',
+                    // width: '190px',
+                    // height: '1px',
                     backgroundColor: '#FF8C00',
                     borderRadius: '2px'
                   }}></div>
 
-                  <div className="d-none d-md-flex" style={{
+                  <div className="d-flex linha-andares-texto" style={{
                     position: 'absolute',
                     top: `${top - 5}px`,
-                    left: '360px',
+                    // left: '360px',
                     fontWeight: 300,
                     whiteSpace: 'nowrap'
                   }}>
-                    {andar}º Andar{andar === 5 ? ' – Pavimento Prime' : ''}
+                    {/* {andar}º Andar{andar === 5 ? ' – Pavimento Prime' : ''} */}
+                    {andar}º Andar{andar === 5 ? <><br />Pavimento <br /> Prime</> : ''}
+
+
                   </div>
                 </React.Fragment>
               ))}
 
-              <div style={{
-                position: 'absolute',
-                bottom: '100px',
-                right: '-280px',
-                fontWeight: '500',
-                fontSize: '26px',
-                letterSpacing: '1px',
-                textTransform: 'uppercase',
-                color: '#fff'
-              }}>
+              <div
+                className="bem-vindo-mobile"
+                style={{
+                  position: 'absolute',
+                  bottom: '100px',
+                  right: '-280px',
+                  fontWeight: '500',
+                  fontSize: '26px',
+                  letterSpacing: '1px',
+                  textTransform: 'uppercase',
+                  color: '#fff'
+                }}>
                 BEM VINDO AO NOVO!
               </div>
             </div>
