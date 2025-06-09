@@ -37,11 +37,11 @@ const Salas = ({
               return (
                 <div
                   key={index}
-                  className={`rounded-4 p-2 mx-1 position-relative ${numero === salaSelecionada ? 'border-dark border-4' : 'border-secondary border-3'}`}
+                  className={`rounded-4 p-2 mx-1 position-relative ${numero === salaSelecionada ? 'border-dark border-2' : 'border-secondary'}`}
                   style={{
-                    background: '#DAE3F3',
+                    background: 'rgb(243 245 249)',
                     cursor: 'pointer',
-                    border: '4px solid #0046AD',
+                    border: '1px solid #0046AD',
                     width: '220px',
                     flexShrink: 0
                   }}
@@ -126,11 +126,11 @@ const Salas = ({
               transition={{ duration: 0.2 }}
             >
               <div
-                className={`rounded-4 p-2 h-100 d-flex align-items-stretch position-relative ${numero === salaSelecionada ? 'border-dark border-4' : 'border-secondary border-3'}`}
+                className={`rounded-4 p-2 h-100 d-flex align-items-stretch position-relative ${numero === salaSelecionada ? 'border-dark border-2' : 'border-secondary'}`}
                 style={{
-                  background: '#DAE3F3',
+                  background: 'rgb(243 245 249)',
                   cursor: 'pointer',
-                  border: '4px solid #0046AD',
+                  border: '1px solid #0046AD',
                 }}
                 onClick={() => {
                   setSalaSelecionada(numero);

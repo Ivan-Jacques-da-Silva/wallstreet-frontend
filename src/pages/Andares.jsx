@@ -9,10 +9,17 @@ import logo from '../img/logo.png';
 import Config from '../Config';
 
 const salasCom = [
-    705, 706, 707, 708, 801, 906, 907, 1001, 1105, 1206, 1307, 1308, 1408,
-    1601, 603, 606, 607, 608, 808, 901, 903, 1007, 1008, 1106, 1108,
-    1205, 1208, 1305, 1401, 1405, 1508,
-    1501, 1306, 1107, 908, 807, 701
+    603, 606, 607, 608,
+    701, 705, 706, 707, 708,
+    801, 807, 808,
+    901, 903, 906, 907,
+    1001, 1007, 1008,
+    1105, 1106, 1107, 1108,
+    1205, 1206, 1208,
+    1305, 1306, 1307, 1308,
+    1401, 1405,
+    1501,
+    1601
 ];
 
 
@@ -89,8 +96,16 @@ const Andares = () => {
                         <Col xs="auto">
                             <div className="d-none d-md-flex justify-content-end align-items-center">
                                 <Link to="/" className="ws-nav-link mx-3">INÍCIO</Link>
-                                <a href="https://tour360.meupasseiovirtual.com/067962/278515/tourvirtual/index.html" className="ws-nav-link mx-3">TOUR VIRTUAL</a>
-                                <a href="#" className="ws-nav-link mx-3">CONTATO</a>
+                                <a
+                                    href="https://tour360.meupasseiovirtual.com/067962/278515/tourvirtual/index.html"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="ws-nav-link mx-3"
+                                >
+                                    TOUR VIRTUAL
+                                </a>
+
+                                {/* <a href="#" className="ws-nav-link mx-3">CONTATO</a> */}
                                 <Button
                                     as="a"
                                     href="https://front.wallstreetnr.com.br/folder-wall-street-corporate.pdf"
@@ -136,7 +151,7 @@ const Andares = () => {
                             <a
                                 href="#"
                                 className="btn fw-bold"
-                                style={{ backgroundColor: '#FFAB52', color: '#001A47' }}
+                                style={{ backgroundColor: '#FFF', color: '#001A47' }}
                                 onClick={() => setMostrarMenu(false)}
                             >
                                 BAIXAR PDF
@@ -247,7 +262,7 @@ const Andares = () => {
                                 <div className="bg-dark text-white p-3 rounded text-center mb-3">
                                     <div className="fw-bold fs-5">WALL STREET CORPORATE</div>
                                     <div className="fw-bold text-white mt-2">
-                                        Sala Comercial {andarSelecionado.replace('° andar', '')}0{salaSelecionada}
+                                        Sala Comercial {salaAtual?.atributos?.nome?.[0]?.valor}
                                     </div>
                                     <div>{salaAtual?.atributos?.area?.[0]?.valor}m² de área privativa</div>
                                 </div>
@@ -316,7 +331,7 @@ const Andares = () => {
                                         return (
                                             <Button
                                                 onClick={() => {
-                                                    const nomeArquivo = `Sala ${numeroSalaCompleto} - WALL STREET CORPORATE.pdf`;
+                                                    const nomeArquivo = `sala ${numeroSalaCompleto}.pdf`;
                                                     const url = `https://front.wallstreetnr.com.br/${encodeURIComponent(nomeArquivo)}`;
                                                     const link = document.createElement('a');
                                                     link.href = url;

@@ -20,7 +20,7 @@ function Cabecalho() {
           {/* <img src={logo} alt="Logo" style={{ height: '40px' }} /> */}
           <div style={{ height: '40px' }}></div>
           <div className="d-flex align-items-center gap-2">
-            <button
+            {/* <button
               className="btn text-white px-4 py-1"
               style={{
                 border: '1px solid rgba(255, 255, 255, 0.5)',
@@ -43,7 +43,7 @@ function Cabecalho() {
               }}
             >
               <i className="bi bi-list fs-5"></i>
-            </button>
+            </button> */}
           </div>
 
         </div>

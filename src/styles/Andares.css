@@ -26,7 +26,7 @@ html {
 .btn-warning {
     background-color: #fff;
     color: #001A47;
-    border: 3px solid #001A47;
+    border: 1px solid #001A47;
 }
 
 .btn-warning:hover {
@@ -69,20 +69,20 @@ html {
     letter-spacing: 0.5px;
 }
 
-.ws-nav-link:hover {
+/* .ws-nav-link:hover {
     color: #FFAB52 !important;
-}
+} */
 
 .ws-pdf-button {
-    color: #0e0e15 !important;
-    background-color: #FFAB52 !important;
+    background-color: #fff;
+    color: #001A47;
+    border: 1px solid #001A47;
     text-decoration: none !important;
     font-weight: 500 !important;
     text-transform: uppercase !important;
     font-size: 0.9rem !important;
     letter-spacing: 0.5px !important;
     padding: 8px 20px !important;
-    border-radius: 4px !important;
     transition: all 0.3s ease !important;
 }
 
@@ -159,4 +159,12 @@ html {
         margin-top: 110px !important;
     } */
 
+}
+
+.btn-warning:active,
+/* .btn-warning:focus, */
+.btn-warning:hover {
+  background-color: #f6faff !important;
+  color: #001A47 !important;
+  border: 1px solid #001A47 !important;
 }
