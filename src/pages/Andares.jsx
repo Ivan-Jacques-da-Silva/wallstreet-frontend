@@ -282,8 +282,8 @@ const Andares = () => {
                                         <tr><td>Dezembro 2025</td><td className="text-end">R$ {reforco2025.toLocaleString('pt-BR')}</td></tr>
                                         <tr><td>Dezembro 2026</td><td className="text-end">R$ {reforco2026.toLocaleString('pt-BR')}</td></tr>
                                         <tr><td>Dezembro 2027</td><td className="text-end">R$ {reforco2027.toLocaleString('pt-BR')}</td></tr>
-                                        <tr><td>Valor Parcelamento</td><td className="text-end">R$ {valorParcelamento.toLocaleString('pt-BR')}</td></tr>
-                                        <tr><td>55 Parcelas pelo CUB**</td><td className="text-end">R$ {parcelaCub.toLocaleString('pt-BR')}</td></tr>
+                                        {/* <tr><td>Valor Parcelamento</td><td className="text-end">R$ {valorParcelamento.toLocaleString('pt-BR')}</td></tr> */}
+                                        <tr><td>55x</td><td className="text-end">R$ {parcelaCub.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td></tr>
                                         <tr className="fw-bold"><td>Total</td><td className="text-end">R$ {valorTotal.toLocaleString('pt-BR')}</td></tr>
                                     </tbody>
                                 </table>
