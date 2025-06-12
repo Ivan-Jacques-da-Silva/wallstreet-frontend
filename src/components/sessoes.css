@@ -31,7 +31,7 @@
 }
 
 .predio-container img {
-  border-radius: 3px;
+  border-radius: 4px;
 }
 
 .logo-header {
@@ -79,7 +79,7 @@
 
   .predio-container {
     border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 3px;
+    border-radius: 4px;
     padding-bottom: 20px;
   }
 }

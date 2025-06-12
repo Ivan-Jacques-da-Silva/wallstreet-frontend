@@ -148,7 +148,7 @@ function Sessao2() {
               backgroundColor: '#fff',
               color: '#001A47',
               border: 'none',
-              borderRadius: '8px',
+              borderRadius: '4px',
               fontWeight: 'bold',
               textDecoration: 'none',
               textAlign: 'center',

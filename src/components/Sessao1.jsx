@@ -106,7 +106,8 @@ function Sessao1() {
                   backgroundColor: '#fff',
                   border: 'none',
                   color: '#001A47',
-                  marginBottom: '10px'
+                  marginBottom: '10px',
+                  borderRadius: '4px'
                 }}
                 className="fw-bold px-4 py-2"
               >
@@ -122,7 +123,8 @@ function Sessao1() {
                 style={{
                   backgroundColor: '#fff',
                   border: 'none',
-                  color: '#001A47'
+                  color: '#001A47',
+                  borderRadius: '4px'
                 }}
                 className="fw-bold px-4 py-2"
               >

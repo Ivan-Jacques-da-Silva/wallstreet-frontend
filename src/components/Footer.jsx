@@ -43,7 +43,7 @@ function Rodape() {
                   backgroundColor: '#fff',
                   color: '#001A47',
                   border: '3px solid #001A47',
-                  borderRadius: '8px',
+                  borderRadius: '4px',
                   padding: '10px 20px',
                   fontWeight: 'bold',
                 }}
