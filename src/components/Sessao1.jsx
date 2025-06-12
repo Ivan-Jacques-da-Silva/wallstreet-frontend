@@ -2,7 +2,7 @@ import React from 'react';
 import { Button } from 'react-bootstrap';
 import logoCompleto from '../img/logo.png';
 import fundoHeader from '../img/fundoHeader.webp';
-import predio1 from '../img/predio1.webp';
+import predio1 from '../img/predio1.png';
 import iconeCirculo from '../img/iconeCirculo.webp';
 import './sessoes.css';
 

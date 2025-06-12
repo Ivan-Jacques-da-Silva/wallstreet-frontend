@@ -151,7 +151,8 @@ html {
     }
 
     .planta-img {
-        max-width: 100%;
+        width: 100%;
+        max-width: none;
         height: auto;
     }
 
@@ -159,6 +160,30 @@ html {
         margin-top: 110px !important;
     } */
 
+}
+
+@media (min-width: 2999px) {
+    .col-andares {
+        flex: 0 0 10% !important;
+        max-width: 10% !important;
+    }
+    
+    .col-salas {
+        flex: 0 0 20% !important;
+        max-width: 20% !important;
+    }
+    
+    .col-planta {
+        flex: 0 0 35% !important;
+        max-width: 35% !important;
+        margin-top: 110px !important;
+    }
+    
+    .col-proposta {
+        flex: 0 0 35% !important;
+        max-width: 35% !important;
+        margin-top: 110px !important;
+    }
 }
 
 .btn-warning:active,
