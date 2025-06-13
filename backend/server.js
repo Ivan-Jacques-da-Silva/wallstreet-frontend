@@ -353,6 +353,126 @@ app.delete('/api/salas/:id', async (req, res) => {
   }
 });
 
+// ================= ROTAS DE ADMIN E GERENCIAMENTO =================
+
+// Login Admin
+app.post('/api/admin/login', async (req, res) => {
+  try {
+    const { usuario, senha } = req.body;
+
+    if (!usuario || !senha) {
+      return res.status(400).json({ 
+        sucesso: false, 
+        mensagem: 'Usuário e senha são obrigatórios' 
+      });
+    }
+
+    // Verificação simples (em produção, use hash da senha)
+    if (usuario === 'admin' && senha === 'admin123') {
+      res.json({ 
+        sucesso: true, 
+        mensagem: 'Login realizado com sucesso!',
+        token: 'admin-token-123' // Token simples para demonstração
+      });
+    } else {
+      res.status(401).json({ 
+        sucesso: false, 
+        mensagem: 'Credenciais inválidas' 
+      });
+    }
+  } catch (error) {
+    console.error('Erro no login admin:', error);
+    res.status(500).json({ 
+      sucesso: false, 
+      mensagem: 'Erro interno do servidor' 
+    });
+  }
+});
+
+// Listar todas as pré-reservas
+app.get('/api/admin/pre-reservas', async (req, res) => {
+  try {
+    const preReservas = await prisma.preReserva.findMany({
+      orderBy: { createdAt: 'desc' }
+    });
+    res.json({ sucesso: true, data: preReservas });
+  } catch (error) {
+    console.error('Erro ao buscar pré-reservas:', error);
+    res.status(500).json({ sucesso: false, mensagem: 'Erro interno do servidor' });
+  }
+});
+
+// Listar todas as contrapropostas
+app.get('/api/admin/contrapropostas', async (req, res) => {
+  try {
+    const contrapropostas = await prisma.contraproposta.findMany({
+      orderBy: { createdAt: 'desc' }
+    });
+    res.json({ sucesso: true, data: contrapropostas });
+  } catch (error) {
+    console.error('Erro ao buscar contrapropostas:', error);
+    res.status(500).json({ sucesso: false, mensagem: 'Erro interno do servidor' });
+  }
+});
+
+// Listar todos os agendamentos
+app.get('/api/admin/agendamentos', async (req, res) => {
+  try {
+    const agendamentos = await prisma.agendamentoReuniao.findMany({
+      orderBy: { createdAt: 'desc' }
+    });
+    res.json({ sucesso: true, data: agendamentos });
+  } catch (error) {
+    console.error('Erro ao buscar agendamentos:', error);
+    res.status(500).json({ sucesso: false, mensagem: 'Erro interno do servidor' });
+  }
+});
+
+// Marcar pré-reserva como visualizada
+app.put('/api/admin/pre-reservas/:id/visualizar', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const preReserva = await prisma.preReserva.update({
+      where: { id: parseInt(id) },
+      data: { visualizado: true }
+    });
+    res.json({ sucesso: true, data: preReserva });
+  } catch (error) {
+    console.error('Erro ao marcar como visualizado:', error);
+    res.status(500).json({ sucesso: false, mensagem: 'Erro interno do servidor' });
+  }
+});
+
+// Marcar contraproposta como visualizada
+app.put('/api/admin/contrapropostas/:id/visualizar', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const contraproposta = await prisma.contraproposta.update({
+      where: { id: parseInt(id) },
+      data: { visualizado: true }
+    });
+    res.json({ sucesso: true, data: contraproposta });
+  } catch (error) {
+    console.error('Erro ao marcar como visualizado:', error);
+    res.status(500).json({ sucesso: false, mensagem: 'Erro interno do servidor' });
+  }
+});
+
+// Marcar agendamento como visualizado
+app.put('/api/admin/agendamentos/:id/visualizar', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const agendamento = await prisma.agendamentoReuniao.update({
+      where: { id: parseInt(id) },
+      data: { visualizado: true }
+    });
+    res.json({ sucesso: true, data: agendamento });
+  } catch (error) {
+    console.error('Erro ao marcar como visualizado:', error);
+    res.status(500).json({ sucesso: false, mensagem: 'Erro interno do servidor' });
+  }
+});
+
 // CSRF Token (compatibilidade)
 app.get('/api/csrf-token/', (req, res) => {
   res.json({ csrfToken: 'dummy-token' });

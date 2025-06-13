@@ -10,20 +10,24 @@ import Andares from './pages/Andares.jsx';
 import Painel from './pages/Painel.jsx';
 // import Sobre from './pages/Sobre.jsx';
 // import Contato from './pages/Contato.jsx';
+import Login from './pages/Login.jsx';
 
 function App() {
   return (
     <Router>
       <div className="w-100" style={{ backgroundColor: '#0e0e15' }}>
-        
+
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/andares" element={<Andares />} />
           {/* <Route path="/painel" element={<Painel />} /> */}
           {/* <Route path="/sobre" element={<Sobre />} /> */}
           {/* <Route path="/contato" element={<Contato />} /> */}
+          <Route path="/login" element={<Login />} />
+          <Route path="/admin" element={<Painel />} />
+          <Route path="/painel" element={<Painel />} />
         </Routes>
-       
+
       </div>
     </Router>
   );
