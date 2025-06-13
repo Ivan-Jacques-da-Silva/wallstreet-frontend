@@ -1,0 +1,72 @@
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model PreReserva {
+  id       Int      @id @default(autoincrement())
+  nome     String
+  cpf_cnpj String
+  contato  String
+  email    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("pre_reservas")
+}
+
+model Contraproposta {
+  id       Int      @id @default(autoincrement())
+  nome     String
+  cpf_cnpj String
+  contato  String
+  email    String
+  proposta String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("contrapropostas")
+}
+
+model AgendamentoReuniao {
+  id       Int      @id @default(autoincrement())
+  nome     String
+  cpf_cnpj String
+  contato  String
+  email    String
+  data     String
+  hora     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("agendamentos_reuniao")
+}
+
+model Sala {
+  id           Int      @id @default(autoincrement())
+  numero       String
+  andar        Int
+  nome         String
+  area         Float
+  posicao      String
+  orientacao   String
+  preco        Float
+  disponivel   Boolean  @default(true)
+  imagem       String?
+  planta       String?
+  proposta     String?
+  valorizacao  Float?
+  lucro        Float?
+  aluguel      Float?
+  condominio   Float?
+  iptu         Float?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("salas")
+}

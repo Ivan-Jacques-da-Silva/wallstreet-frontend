@@ -1,5 +1,5 @@
-// const api_url = 'http://localhost:8000'
-const api_url = 'https://api.wallstreetnr.com.br'
+const api_url = 'http://localhost:5000'
+// const api_url = 'https://api.wallstreetnr.com.br'
 
 if (!sessionStorage.getItem('csrfToken')) {
     fetch(`${api_url}/api/csrf-token/`, {
