@@ -155,20 +155,43 @@ const Painel = () => {
     };
 
     const abrirEdicaoSala = (sala) => {
-        setSalaEdicao(sala || {
-            id: '',
-            andar: 15,
-            numero: '',
-            nome: '',
-            area: '',
-            posicao: '',
-            preco: '',
-            disponivel: true,
-            imagem: null,
-            planta: null
-        });
-        setImagemPreview(sala?.imagem ? `${Config.api_url}${sala.imagem}` : null);
-        setPlantaPreview(sala?.planta ? `${Config.api_url}${sala.planta}` : null);
+        if (sala) {
+            // Edição
+            setSalaEdicao({
+                id: sala.id,
+                andar: parseInt(sala.andar) || 15,
+                numero: sala.numero || '',
+                nome: sala.nome || '',
+                area: sala.area || '',
+                posicao: sala.posicao || '',
+                preco: sala.preco || '',
+                disponivel: sala.disponivel || true,
+                imagem: sala.imagem,
+                planta: sala.planta,
+                imagemFile: null,
+                plantaFile: null
+            });
+            setImagemPreview(sala.imagem ? `${Config.api_url}${sala.imagem}` : null);
+            setPlantaPreview(sala.planta ? `${Config.api_url}${sala.planta}` : null);
+        } else {
+            // Nova sala
+            setSalaEdicao({
+                id: null,
+                andar: 15,
+                numero: '',
+                nome: '',
+                area: '',
+                posicao: '',
+                preco: '',
+                disponivel: true,
+                imagem: null,
+                planta: null,
+                imagemFile: null,
+                plantaFile: null
+            });
+            setImagemPreview(null);
+            setPlantaPreview(null);
+        }
         setShowSalaModal(true);
     };
 
@@ -247,7 +270,7 @@ const Painel = () => {
             formData.append('posicao', salaEdicao.posicao);
             formData.append('orientacao', salaEdicao.posicao);
             formData.append('preco', salaEdicao.preco);
-            formData.append('disponivel', salaEdicao.disponivel);
+            formData.append('disponivel', salaEdicao.disponivel ? 'true' : 'false');
 
             if (salaEdicao.imagemFile) {
                 formData.append('imagem', salaEdicao.imagemFile);
@@ -256,13 +279,21 @@ const Painel = () => {
                 formData.append('planta', salaEdicao.plantaFile);
             }
 
-            const url = salaEdicao.id ? 
-                `${Config.api_url}/api/salas/${salaEdicao.id}` : 
-                `${Config.api_url}/api/salas`;
-            
-            const method = salaEdicao.id ? 'PUT' : 'POST';
-
             const token = localStorage.getItem('admin-token');
+            let url, method;
+
+            if (salaEdicao.id && salaEdicao.id !== '') {
+                // Edição - usar endpoint admin
+                url = `${Config.api_url}/api/admin/salas/${salaEdicao.id}`;
+                method = 'PUT';
+            } else {
+                // Criação - usar endpoint admin
+                url = `${Config.api_url}/api/admin/salas`;
+                method = 'POST';
+            }
+
+            console.log('Salvando sala:', { url, method, salaEdicao });
+
             const response = await fetch(url, {
                 method,
                 headers: {
@@ -271,16 +302,24 @@ const Painel = () => {
                 body: formData
             });
 
-            if (response.ok) {
+            const result = await response.json();
+            console.log('Resposta do servidor:', result);
+
+            if (response.ok && result.sucesso) {
                 setShowSalaModal(false);
+                setSalaEdicao(null);
                 carregarDados();
-                toast.success('Sala salva com sucesso!');
+                toast.success(result.mensagem || 'Sala salva com sucesso!');
                 setImagemPreview(null);
                 setPlantaPreview(null);
+            } else {
+                const errorMessage = result.mensagem || `Erro ${response.status}: ${response.statusText}`;
+                console.error('Erro na resposta:', errorMessage);
+                toast.error(errorMessage);
             }
         } catch (error) {
             console.error('Erro ao salvar sala:', error);
-            toast.error('Erro ao salvar sala');
+            toast.error('Erro ao conectar com o servidor. Verifique sua conexão.');
         } finally {
             setLoading(false);
         }
