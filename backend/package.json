@@ -1,4 +1,3 @@
-
 {
   "name": "backend",
   "version": "1.0.0",
@@ -9,7 +8,9 @@
     "start": "node server.js",
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate dev",
-    "db:generate": "prisma generate"
+    "db:generate": "prisma generate",
+    "seed:salas": "node seed-salas.js",
+    "seed:salas:limpar": "node seed-salas.js --limpar"
   },
   "dependencies": {
     "@prisma/client": "^5.7.0",

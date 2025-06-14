@@ -24,6 +24,19 @@ const Painel = () => {
         carregarDados();
     }, [navigate]);
 
+    // Renderizar loading enquanto verifica autenticação
+    const token = localStorage.getItem('admin-token');
+    if (!token) {
+        return (
+            <Container className="d-flex justify-content-center align-items-center min-vh-100">
+                <div className="text-center">
+                    <div className="spinner-border text-primary mb-3" role="status"></div>
+                    <h5>Verificando acesso...</h5>
+                </div>
+            </Container>
+        );
+    }
+
     const carregarDados = async () => {
         try {
             const token = localStorage.getItem('admin-token');
