@@ -624,7 +624,8 @@ async function main() {
       disponivel: true,
       imagem: "seedImg/sala2.png",
       planta: "seedPlanta/planta-sala-2.png",
-      valorizacao: 49465,
+      valorizacao: 49465, 
+      
       lucro: 74197,
       aluguel: 3710,
       condominio: 450.0,

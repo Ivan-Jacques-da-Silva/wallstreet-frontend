@@ -73,5 +73,6 @@ model Sala {
   planta       String?
   proposta     String?
 
+
   @@map("salas")
 }
