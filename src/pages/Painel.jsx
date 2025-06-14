@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Container, Row, Col, Card, Form, Button, Navbar, Nav, FloatingLabel, Table, Badge, Modal, Tab, Tabs, Pagination, InputGroup } from 'react-bootstrap';
 import { useNavigate, Link } from 'react-router-dom';
 import { useDropzone } from 'react-dropzone';
@@ -172,77 +172,67 @@ const Painel = () => {
         setShowSalaModal(true);
     };
 
-    // Dropzone para imagem
-    const onDropImagem = useCallback((acceptedFiles, rejectedFiles) => {
-        if (rejectedFiles.length > 0) {
-            const error = rejectedFiles[0].errors[0];
-            if (error.code === 'file-too-large') {
-                toast.error('Arquivo muito grande! Máximo 10MB.');
-            } else if (error.code === 'file-invalid-type') {
-                toast.error('Tipo de arquivo inválido! Use PNG, JPG ou WEBP.');
-            } else {
-                toast.error('Erro ao selecionar arquivo.');
-            }
+    // Refs para inputs de arquivo
+    const imagemInputRef = useRef(null);
+    const plantaInputRef = useRef(null);
+
+    // Função para selecionar imagem
+    const selecionarImagem = () => {
+        imagemInputRef.current?.click();
+    };
+
+    // Função para selecionar planta
+    const selecionarPlanta = () => {
+        plantaInputRef.current?.click();
+    };
+
+    // Handler para mudança de imagem
+    const handleImagemChange = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        // Validar tipo de arquivo
+        const tiposPermitidos = ['image/png', 'image/jpeg', 'image/webp'];
+        if (!tiposPermitidos.includes(file.type)) {
+            toast.error('Tipo de arquivo inválido! Use PNG, JPG ou WEBP.');
             return;
         }
 
-        const file = acceptedFiles[0];
-        if (file) {
-            setSalaEdicao(prev => ({ ...prev, imagemFile: file }));
-            const previewUrl = URL.createObjectURL(file);
-            setImagemPreview(previewUrl);
-            toast.success('Imagem selecionada com sucesso!');
-        }
-    }, []);
-
-    // Dropzone para planta
-    const onDropPlanta = useCallback((acceptedFiles, rejectedFiles) => {
-        if (rejectedFiles.length > 0) {
-            const error = rejectedFiles[0].errors[0];
-            if (error.code === 'file-too-large') {
-                toast.error('Arquivo muito grande! Máximo 10MB.');
-            } else if (error.code === 'file-invalid-type') {
-                toast.error('Tipo de arquivo inválido! Use PNG, JPG ou WEBP.');
-            } else {
-                toast.error('Erro ao selecionar arquivo.');
-            }
+        // Validar tamanho (10MB)
+        if (file.size > 10485760) {
+            toast.error('Arquivo muito grande! Máximo 10MB.');
             return;
         }
 
-        const file = acceptedFiles[0];
-        if (file) {
-            setSalaEdicao(prev => ({ ...prev, plantaFile: file }));
-            const previewUrl = URL.createObjectURL(file);
-            setPlantaPreview(previewUrl);
-            toast.success('Planta selecionada com sucesso!');
+        setSalaEdicao(prev => ({ ...prev, imagemFile: file }));
+        const previewUrl = URL.createObjectURL(file);
+        setImagemPreview(previewUrl);
+        toast.success('Imagem selecionada com sucesso!');
+    };
+
+    // Handler para mudança de planta
+    const handlePlantaChange = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        // Validar tipo de arquivo
+        const tiposPermitidos = ['image/png', 'image/jpeg', 'image/webp'];
+        if (!tiposPermitidos.includes(file.type)) {
+            toast.error('Tipo de arquivo inválido! Use PNG, JPG ou WEBP.');
+            return;
         }
-    }, []);
 
-    const { getRootProps: getImagemRootProps, getInputProps: getImagemInputProps, isDragActive: isImagemDragActive, open: openImagemDialog } = useDropzone({
-        onDrop: onDropImagem,
-        accept: { 
-            'image/png': ['.png'],
-            'image/jpeg': ['.jpg', '.jpeg'],
-            'image/webp': ['.webp']
-        },
-        multiple: false,
-        maxSize: 10485760, // 10MB
-        noClick: true,  // Desabilitar clique automático
-        noKeyboard: false
-    });
+        // Validar tamanho (10MB)
+        if (file.size > 10485760) {
+            toast.error('Arquivo muito grande! Máximo 10MB.');
+            return;
+        }
 
-    const { getRootProps: getPlantaRootProps, getInputProps: getPlantaInputProps, isDragActive: isPlantaDragActive, open: openPlantaDialog } = useDropzone({
-        onDrop: onDropPlanta,
-        accept: { 
-            'image/png': ['.png'],
-            'image/jpeg': ['.jpg', '.jpeg'],
-            'image/webp': ['.webp']
-        },
-        multiple: false,
-        maxSize: 10485760, // 10MB
-        noClick: true,  // Desabilitar clique automático
-        noKeyboard: false
-    });
+        setSalaEdicao(prev => ({ ...prev, plantaFile: file }));
+        const previewUrl = URL.createObjectURL(file);
+        setPlantaPreview(previewUrl);
+        toast.success('Planta selecionada com sucesso!');
+    };
 
     const salvarSala = async (e) => {
         e.preventDefault();
@@ -305,71 +295,52 @@ const Painel = () => {
         return new Date(dataString).toLocaleString('pt-BR');
     };
 
-    const DropzoneArea = ({ getRootProps, getInputProps, isDragActive, preview, type, icon: Icon, openDialog }) => (
-        <div
-            {...getRootProps()}
-            className={`border-2 border-dashed rounded-4 p-3 text-center position-relative ${
-                isDragActive 
-                    ? 'border-primary bg-primary bg-opacity-10' 
-                    : 'border-secondary'
-            }`}
-            style={{ 
-                minHeight: '180px', 
-                transition: 'all 0.3s ease',
-                backgroundColor: isDragActive ? '#f8f9fa' : '#fff'
-            }}
-        >
-            <input {...getInputProps()} style={{ display: 'none' }} />
+    const FileUploadArea = ({ preview, type, icon: Icon, onSelect }) => (
+        <div className="border border-dashed rounded-4 p-3 text-center position-relative bg-light" style={{ minHeight: '180px' }}>
             {preview ? (
-                <div 
-                    className="position-relative h-100 d-flex flex-column align-items-center justify-content-center"
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        openDialog();
-                    }}
-                    style={{ cursor: 'pointer' }}
-                >
+                <div className="h-100 d-flex flex-column align-items-center justify-content-center">
                     <img 
                         src={preview} 
                         alt={`Preview ${type}`}
-                        className="img-fluid rounded mb-2"
+                        className="img-fluid rounded mb-3"
                         style={{ 
-                            maxHeight: '120px', 
+                            maxHeight: '100px', 
                             maxWidth: '100%', 
                             objectFit: 'cover',
                             border: '1px solid #dee2e6'
                         }}
                     />
-                    <div className="small text-muted fw-semibold mb-1">
+                    <div className="small text-muted fw-semibold mb-2">
                         <Icon size={16} className="me-1" />
                         {type} selecionada
                     </div>
-                    <div className="small text-primary">
-                        <i className="bi bi-pencil-square me-1"></i>
-                        Clique para alterar
-                    </div>
+                    <Button 
+                        size="sm" 
+                        variant="outline-primary" 
+                        onClick={onSelect}
+                        className="d-flex align-items-center"
+                    >
+                        <Edit3 size={14} className="me-2" />
+                        Alterar {type}
+                    </Button>
                 </div>
             ) : (
-                <div 
-                    className="d-flex flex-column align-items-center justify-content-center h-100"
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        openDialog();
-                    }}
-                    style={{ cursor: 'pointer' }}
-                >
-                    <Icon size={40} className={`mb-3 ${isDragActive ? 'text-primary' : 'text-muted'}`} />
-                    <p className="mb-2 fw-semibold" style={{ color: isDragActive ? '#0d6efd' : '#6c757d' }}>
-                        {isDragActive ? 
-                            `Solte a ${type.toLowerCase()} aqui` : 
-                            `Selecionar ${type.toLowerCase()}`
-                        }
+                <div className="d-flex flex-column align-items-center justify-content-center h-100">
+                    <Icon size={40} className="mb-3 text-muted" />
+                    <p className="mb-3 fw-semibold text-muted">
+                        Selecionar {type.toLowerCase()}
                     </p>
+                    <Button 
+                        variant="primary" 
+                        onClick={onSelect}
+                        className="d-flex align-items-center mb-2"
+                        style={{ background: 'linear-gradient(135deg, #001A47 0%, #003875 100%)', border: 'none' }}
+                    >
+                        <Upload size={16} className="me-2" />
+                        Escolher Arquivo
+                    </Button>
                     <small className="text-muted">
-                        Clique ou arraste arquivos aqui
-                    </small>
-                    <small className="text-muted">
-                        PNG, JPG até 10MB
+                        PNG, JPG, WEBP até 10MB
                     </small>
                 </div>
             )}
@@ -795,14 +766,18 @@ const Painel = () => {
                                                     <Image size={18} className="me-2 text-primary" />
                                                     Imagem da Sala
                                                 </label>
-                                                <DropzoneArea 
-                                                    getRootProps={getImagemRootProps}
-                                                    getInputProps={getImagemInputProps}
-                                                    isDragActive={isImagemDragActive}
+                                                <input
+                                                    ref={imagemInputRef}
+                                                    type="file"
+                                                    accept="image/png,image/jpeg,image/webp"
+                                                    onChange={handleImagemChange}
+                                                    style={{ display: 'none' }}
+                                                />
+                                                <FileUploadArea 
                                                     preview={imagemPreview}
                                                     type="Imagem"
                                                     icon={Image}
-                                                    openDialog={openImagemDialog}
+                                                    onSelect={selecionarImagem}
                                                 />
                                             </Col>
                                             <Col md={12}>
@@ -810,14 +785,18 @@ const Painel = () => {
                                                     <FileText size={18} className="me-2 text-primary" />
                                                     Planta da Sala
                                                 </label>
-                                                <DropzoneArea 
-                                                    getRootProps={getPlantaRootProps}
-                                                    getInputProps={getPlantaInputProps}
-                                                    isDragActive={isPlantaDragActive}
+                                                <input
+                                                    ref={plantaInputRef}
+                                                    type="file"
+                                                    accept="image/png,image/jpeg,image/webp"
+                                                    onChange={handlePlantaChange}
+                                                    style={{ display: 'none' }}
+                                                />
+                                                <FileUploadArea 
                                                     preview={plantaPreview}
                                                     type="Planta"
                                                     icon={FileText}
-                                                    openDialog={openPlantaDialog}
+                                                    onSelect={selecionarPlanta}
                                                 />
                                             </Col>
                                         </Row>
