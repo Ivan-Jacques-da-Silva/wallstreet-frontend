@@ -4,11 +4,58 @@ const cors = require('cors');
 const { PrismaClient } = require('@prisma/client');
 const multer = require('multer');
 const path = require('path');
+const fs = require('fs');
 require('dotenv').config();
 
 const app = express();
 const prisma = new PrismaClient();
 const PORT = process.env.PORT || 5000;
+
+// Sistema de Logs
+const logError = (error, req = null) => {
+  const timestamp = new Date().toISOString();
+  const route = req ? `${req.method} ${req.path}` : 'SYSTEM';
+  const logEntry = `[${timestamp}] ${route} - ERROR: ${error.message}\nStack: ${error.stack}\n\n`;
+  
+  // Criar diretório de logs se não existir
+  if (!fs.existsSync('logs')) {
+    fs.mkdirSync('logs');
+  }
+  
+  // Salvar no arquivo de log
+  const logFile = `logs/error-${new Date().toISOString().split('T')[0]}.log`;
+  fs.appendFileSync(logFile, logEntry);
+  
+  console.error(`[${timestamp}] ${route} - ERROR:`, error.message);
+};
+
+// Middleware de autenticação
+const authenticateAdmin = (req, res, next) => {
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  
+  if (!token || token !== 'admin-token-123') {
+    const error = new Error('Token de acesso inválido ou expirado');
+    logError(error, req);
+    return res.status(401).json({ 
+      sucesso: false, 
+      mensagem: 'Acesso negado. Token inválido.',
+      codigo: 'UNAUTHORIZED'
+    });
+  }
+  
+  next();
+};
+
+// Middleware global de tratamento de erros
+const errorHandler = (err, req, res, next) => {
+  logError(err, req);
+  
+  res.status(500).json({
+    sucesso: false,
+    mensagem: 'Erro interno do servidor',
+    codigo: 'INTERNAL_ERROR'
+  });
+};
 
 // Middleware
 app.use(cors());
@@ -225,7 +272,7 @@ app.get('/api/salas/:id', async (req, res) => {
 });
 
 // Criar nova sala
-app.post('/api/salas', upload.fields([
+app.post('/api/salas', authenticateAdmin, upload.fields([
   { name: 'imagem', maxCount: 1 },
   { name: 'planta', maxCount: 1 },
   { name: 'proposta', maxCount: 1 }
@@ -276,7 +323,7 @@ app.post('/api/salas', upload.fields([
 });
 
 // Atualizar sala
-app.put('/api/salas/:id', upload.fields([
+app.put('/api/salas/:id', authenticateAdmin, upload.fields([
   { name: 'imagem', maxCount: 1 },
   { name: 'planta', maxCount: 1 },
   { name: 'proposta', maxCount: 1 }
@@ -332,7 +379,7 @@ app.put('/api/salas/:id', upload.fields([
 });
 
 // Deletar sala
-app.delete('/api/salas/:id', async (req, res) => {
+app.delete('/api/salas/:id', authenticateAdmin, async (req, res) => {
   try {
     const { id } = req.params;
     
@@ -390,7 +437,7 @@ app.post('/api/admin/login', async (req, res) => {
 });
 
 // Listar todas as pré-reservas
-app.get('/api/admin/pre-reservas', async (req, res) => {
+app.get('/api/admin/pre-reservas', authenticateAdmin, async (req, res) => {
   try {
     const preReservas = await prisma.preReserva.findMany({
       orderBy: { createdAt: 'desc' }
@@ -403,33 +450,33 @@ app.get('/api/admin/pre-reservas', async (req, res) => {
 });
 
 // Listar todas as contrapropostas
-app.get('/api/admin/contrapropostas', async (req, res) => {
+app.get('/api/admin/contrapropostas', authenticateAdmin, async (req, res) => {
   try {
     const contrapropostas = await prisma.contraproposta.findMany({
       orderBy: { createdAt: 'desc' }
     });
     res.json({ sucesso: true, data: contrapropostas });
   } catch (error) {
-    console.error('Erro ao buscar contrapropostas:', error);
+    logError(error, req);
     res.status(500).json({ sucesso: false, mensagem: 'Erro interno do servidor' });
   }
 });
 
 // Listar todos os agendamentos
-app.get('/api/admin/agendamentos', async (req, res) => {
+app.get('/api/admin/agendamentos', authenticateAdmin, async (req, res) => {
   try {
     const agendamentos = await prisma.agendamentoReuniao.findMany({
       orderBy: { createdAt: 'desc' }
     });
     res.json({ sucesso: true, data: agendamentos });
   } catch (error) {
-    console.error('Erro ao buscar agendamentos:', error);
+    logError(error, req);
     res.status(500).json({ sucesso: false, mensagem: 'Erro interno do servidor' });
   }
 });
 
 // Marcar pré-reserva como visualizada
-app.put('/api/admin/pre-reservas/:id/visualizar', async (req, res) => {
+app.put('/api/admin/pre-reservas/:id/visualizar', authenticateAdmin, async (req, res) => {
   try {
     const { id } = req.params;
     const preReserva = await prisma.preReserva.update({
@@ -438,13 +485,13 @@ app.put('/api/admin/pre-reservas/:id/visualizar', async (req, res) => {
     });
     res.json({ sucesso: true, data: preReserva });
   } catch (error) {
-    console.error('Erro ao marcar como visualizado:', error);
+    logError(error, req);
     res.status(500).json({ sucesso: false, mensagem: 'Erro interno do servidor' });
   }
 });
 
 // Marcar contraproposta como visualizada
-app.put('/api/admin/contrapropostas/:id/visualizar', async (req, res) => {
+app.put('/api/admin/contrapropostas/:id/visualizar', authenticateAdmin, async (req, res) => {
   try {
     const { id } = req.params;
     const contraproposta = await prisma.contraproposta.update({
@@ -453,13 +500,13 @@ app.put('/api/admin/contrapropostas/:id/visualizar', async (req, res) => {
     });
     res.json({ sucesso: true, data: contraproposta });
   } catch (error) {
-    console.error('Erro ao marcar como visualizado:', error);
+    logError(error, req);
     res.status(500).json({ sucesso: false, mensagem: 'Erro interno do servidor' });
   }
 });
 
 // Marcar agendamento como visualizado
-app.put('/api/admin/agendamentos/:id/visualizar', async (req, res) => {
+app.put('/api/admin/agendamentos/:id/visualizar', authenticateAdmin, async (req, res) => {
   try {
     const { id } = req.params;
     const agendamento = await prisma.agendamentoReuniao.update({
@@ -468,7 +515,7 @@ app.put('/api/admin/agendamentos/:id/visualizar', async (req, res) => {
     });
     res.json({ sucesso: true, data: agendamento });
   } catch (error) {
-    console.error('Erro ao marcar como visualizado:', error);
+    logError(error, req);
     res.status(500).json({ sucesso: false, mensagem: 'Erro interno do servidor' });
   }
 });
@@ -477,6 +524,9 @@ app.put('/api/admin/agendamentos/:id/visualizar', async (req, res) => {
 app.get('/api/csrf-token/', (req, res) => {
   res.json({ csrfToken: 'dummy-token' });
 });
+
+// Middleware de tratamento de erros (deve estar por último)
+app.use(errorHandler);
 
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Servidor rodando na porta ${PORT}`);

@@ -26,10 +26,16 @@ const Painel = () => {
 
     const carregarDados = async () => {
         try {
+            const token = localStorage.getItem('admin-token');
+            const headers = {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            };
+
             const [preRes, contraRes, agendRes, salasRes] = await Promise.all([
-                fetch(`${Config.api_url}/api/admin/pre-reservas`),
-                fetch(`${Config.api_url}/api/admin/contrapropostas`),
-                fetch(`${Config.api_url}/api/admin/agendamentos`),
+                fetch(`${Config.api_url}/api/admin/pre-reservas`, { headers }),
+                fetch(`${Config.api_url}/api/admin/contrapropostas`, { headers }),
+                fetch(`${Config.api_url}/api/admin/agendamentos`, { headers }),
                 fetch(`${Config.api_url}/api/salas`)
             ]);
 
@@ -37,6 +43,13 @@ const Painel = () => {
             const contraData = await contraRes.json();
             const agendData = await agendRes.json();
             const salasData = await salasRes.json();
+
+            // Verificar se alguma resposta retornou erro de autenticação
+            if (preRes.status === 401 || contraRes.status === 401 || agendRes.status === 401) {
+                localStorage.removeItem('admin-token');
+                navigate('/login');
+                return;
+            }
 
             if (preData.sucesso) setPreReservas(preData.data);
             if (contraData.sucesso) setContrapropostas(contraData.data);
@@ -65,13 +78,22 @@ const Painel = () => {
             }
         } catch (error) {
             console.error('Erro ao carregar dados:', error);
+            if (error.message.includes('401') || error.message.includes('Unauthorized')) {
+                localStorage.removeItem('admin-token');
+                navigate('/acesso-negado');
+            }
         }
     };
 
     const marcarComoVisualizado = async (tipo, id) => {
         try {
+            const token = localStorage.getItem('admin-token');
             const response = await fetch(`${Config.api_url}/api/admin/${tipo}/${id}/visualizar`, {
-                method: 'PUT'
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
             });
             
             if (response.ok) {
@@ -126,8 +148,12 @@ const Painel = () => {
             
             const method = salaEdicao.id ? 'PUT' : 'POST';
 
+            const token = localStorage.getItem('admin-token');
             const response = await fetch(url, {
                 method,
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                },
                 body: formData
             });
 

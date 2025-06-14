@@ -11,6 +11,7 @@ import Painel from './pages/Painel.jsx';
 // import Sobre from './pages/Sobre.jsx';
 // import Contato from './pages/Contato.jsx';
 import Login from './pages/Login.jsx';
+import AcessoNegado from './pages/AcessoNegado.jsx';
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/admin" element={<Painel />} />
           <Route path="/painel" element={<Painel />} />
+          <Route path="/acesso-negado" element={<AcessoNegado />} />
         </Routes>
 
       </div>
