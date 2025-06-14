@@ -52,9 +52,7 @@ const Salas = ({
                 >
                   <div className="position-relative">
                     <img
-                      // src={`${Config.api_url}${imagem}`}
-                      src={imagem ? `${Config.api_url}${imagem}` : ''}
-
+                      src={imagem ? `${Config.api_url}${imagem}` : '/placeholder-image.png'}
                       alt={nome}
                       className="w-100 rounded mb-2"
                       style={{ width: '200px', objectFit: 'cover' }}
@@ -139,9 +137,7 @@ const Salas = ({
               >
                 <div className="d-flex align-items-center">
                   <img
-                    // src={`${Config.api_url}${imagem}`}
-                    src={imagem ? `${Config.api_url}${imagem}` : ''}
-
+                    src={imagem ? `${Config.api_url}${imagem}` : '/placeholder-image.png'}
                     alt={nome}
                     style={{ width: '180px', height: '120px', objectFit: 'cover', borderRadius: '6px', flexShrink: 0 }}
                     className="me-3"

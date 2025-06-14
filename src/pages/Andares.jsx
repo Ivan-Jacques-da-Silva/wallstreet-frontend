@@ -48,12 +48,12 @@ const Andares = () => {
     useEffect(() => {
         const fetchProduto = async () => {
             try {
-                const response = await fetch(`${Config.api_url}/api/produtos/1/`);
-                if (!response.ok) throw new Error('Erro ao buscar produto');
-                const json = await response.json();
-                setDadosProduto(json);
-            } catch (err) {
-                console.error('Erro:', err.message);
+                const response = await fetch(`${Config.api_url}/api/salas`);
+                if (!response.ok) throw new Error('Erro na resposta');
+                const data = await response.json();
+                setDadosProduto(data);
+            } catch (error) {
+                console.error('Erro ao buscar salas:', error.message);
             }
         };
         fetchProduto();
