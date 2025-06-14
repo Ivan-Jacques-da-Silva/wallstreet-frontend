@@ -1,7 +1,10 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Container, Row, Col, Card, Form, Button, Navbar, Nav, FloatingLabel, Table, Badge, Modal, Tab, Tabs } from 'react-bootstrap';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+import { useDropzone } from 'react-dropzone';
+import toast, { Toaster } from 'react-hot-toast';
+import { Upload, Image, FileText, Eye, Check, Plus, Edit3, Building } from 'lucide-react';
 import Config from '../Config';
 
 const Painel = () => {
@@ -14,6 +17,8 @@ const Painel = () => {
     const [showSalaModal, setShowSalaModal] = useState(false);
     const [salaEdicao, setSalaEdicao] = useState(null);
     const [loading, setLoading] = useState(false);
+    const [imagemPreview, setImagemPreview] = useState(null);
+    const [plantaPreview, setPlantaPreview] = useState(null);
 
     useEffect(() => {
         const token = localStorage.getItem('admin-token');
@@ -110,10 +115,12 @@ const Painel = () => {
             });
             
             if (response.ok) {
+                toast.success('Marcado como visualizado!');
                 carregarDados();
             }
         } catch (error) {
             console.error('Erro ao marcar como visualizado:', error);
+            toast.error('Erro ao marcar como visualizado');
         }
     };
 
@@ -130,8 +137,44 @@ const Painel = () => {
             imagem: null,
             planta: null
         });
+        setImagemPreview(sala?.imagem ? `${Config.api_url}${sala.imagem}` : null);
+        setPlantaPreview(sala?.planta ? `${Config.api_url}${sala.planta}` : null);
         setShowSalaModal(true);
     };
+
+    // Dropzone para imagem
+    const onDropImagem = useCallback((acceptedFiles) => {
+        const file = acceptedFiles[0];
+        if (file) {
+            setSalaEdicao(prev => ({ ...prev, imagemFile: file }));
+            const previewUrl = URL.createObjectURL(file);
+            setImagemPreview(previewUrl);
+            toast.success('Imagem selecionada!');
+        }
+    }, []);
+
+    // Dropzone para planta
+    const onDropPlanta = useCallback((acceptedFiles) => {
+        const file = acceptedFiles[0];
+        if (file) {
+            setSalaEdicao(prev => ({ ...prev, plantaFile: file }));
+            const previewUrl = URL.createObjectURL(file);
+            setPlantaPreview(previewUrl);
+            toast.success('Planta selecionada!');
+        }
+    }, []);
+
+    const { getRootProps: getImagemRootProps, getInputProps: getImagemInputProps, isDragActive: isImagemDragActive } = useDropzone({
+        onDrop: onDropImagem,
+        accept: { 'image/*': [] },
+        multiple: false
+    });
+
+    const { getRootProps: getPlantaRootProps, getInputProps: getPlantaInputProps, isDragActive: isPlantaDragActive } = useDropzone({
+        onDrop: onDropPlanta,
+        accept: { 'image/*': [] },
+        multiple: false
+    });
 
     const salvarSala = async (e) => {
         e.preventDefault();
@@ -173,11 +216,13 @@ const Painel = () => {
             if (response.ok) {
                 setShowSalaModal(false);
                 carregarDados();
-                alert('Sala salva com sucesso!');
+                toast.success('Sala salva com sucesso!');
+                setImagemPreview(null);
+                setPlantaPreview(null);
             }
         } catch (error) {
             console.error('Erro ao salvar sala:', error);
-            alert('Erro ao salvar sala');
+            toast.error('Erro ao salvar sala');
         } finally {
             setLoading(false);
         }
@@ -192,13 +237,123 @@ const Painel = () => {
         return new Date(dataString).toLocaleString('pt-BR');
     };
 
+    const DropzoneArea = ({ getRootProps, getInputProps, isDragActive, preview, type, icon: Icon }) => (
+        <div
+            {...getRootProps()}
+            className={`border-2 border-dashed rounded-4 p-4 text-center cursor-pointer transition-all duration-300 ${
+                isDragActive 
+                    ? 'border-primary bg-primary bg-opacity-10' 
+                    : 'border-secondary hover:border-primary hover:bg-light'
+            }`}
+            style={{ minHeight: '200px' }}
+        >
+            <input {...getInputProps()} />
+            {preview ? (
+                <div className="position-relative">
+                    <img 
+                        src={preview} 
+                        alt={`Preview ${type}`}
+                        className="img-fluid rounded mb-2"
+                        style={{ maxHeight: '150px', objectFit: 'cover' }}
+                    />
+                    <div className="small text-muted">Clique ou arraste para alterar</div>
+                </div>
+            ) : (
+                <div className="d-flex flex-column align-items-center justify-content-center h-100">
+                    <Icon size={48} className="text-muted mb-3" />
+                    <p className="mb-2 text-muted">
+                        {isDragActive ? 
+                            `Solte a ${type.toLowerCase()} aqui...` : 
+                            `Clique ou arraste a ${type.toLowerCase()} aqui`
+                        }
+                    </p>
+                    <small className="text-muted">PNG, JPG até 10MB</small>
+                </div>
+            )}
+        </div>
+    );
+
+    const FormularioCard = ({ title, items, tipo, icon }) => (
+        <Card className="h-100 shadow-sm border-0" style={{ background: 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)' }}>
+            <Card.Header className="bg-white border-0 pb-0">
+                <div className="d-flex align-items-center">
+                    {icon}
+                    <h5 className="mb-0 ms-2">{title}</h5>
+                    <Badge bg="primary" className="ms-auto">{items.length}</Badge>
+                </div>
+            </Card.Header>
+            <Card.Body style={{ maxHeight: '500px', overflowY: 'auto' }}>
+                {items.length === 0 ? (
+                    <div className="text-center text-muted py-4">
+                        <p>Nenhum item encontrado</p>
+                    </div>
+                ) : (
+                    items.map((item) => (
+                        <div key={item.id} className={`p-3 mb-3 rounded-3 ${!item.visualizado ? 'border border-warning bg-warning bg-opacity-10' : 'bg-white'}`}>
+                            <div className="d-flex justify-content-between align-items-start">
+                                <div className="flex-grow-1">
+                                    <div className="fw-bold text-dark mb-1">{item.nome}</div>
+                                    <div className="small text-muted mb-1">
+                                        <i className="bi bi-envelope me-1"></i>
+                                        {item.email}
+                                    </div>
+                                    <div className="small text-muted mb-1">
+                                        <i className="bi bi-phone me-1"></i>
+                                        {item.contato}
+                                    </div>
+                                    {item.proposta && (
+                                        <div className="small text-muted mb-1">
+                                            <i className="bi bi-chat-text me-1"></i>
+                                            <strong>Proposta:</strong> {item.proposta}
+                                        </div>
+                                    )}
+                                    {item.data && item.hora && (
+                                        <div className="small text-muted mb-1">
+                                            <i className="bi bi-calendar me-1"></i>
+                                            <strong>Agendado:</strong> {item.data} às {item.hora}
+                                        </div>
+                                    )}
+                                    <div className="small text-muted">
+                                        <i className="bi bi-clock me-1"></i>
+                                        {formatarData(item.createdAt)}
+                                    </div>
+                                </div>
+                                <div className="d-flex flex-column align-items-end">
+                                    {!item.visualizado && (
+                                        <Badge bg="warning" className="mb-2">Novo</Badge>
+                                    )}
+                                    <Button
+                                        size="sm"
+                                        variant={!item.visualizado ? "success" : "outline-secondary"}
+                                        onClick={() => marcarComoVisualizado(tipo, item.id)}
+                                        className="d-flex align-items-center"
+                                    >
+                                        <Check size={16} className="me-1" />
+                                        {!item.visualizado ? 'Marcar' : 'Visto'}
+                                    </Button>
+                                </div>
+                            </div>
+                        </div>
+                    ))
+                )}
+            </Card.Body>
+        </Card>
+    );
+
     return (
-        <Container fluid className="p-0" style={{ backgroundColor: '#ffffff', minHeight: '100vh', color: '#001A47' }}>
-            <Navbar expand="lg" className="shadow-sm px-4 py-3 mb-4" style={{ backgroundColor: '#001A47' }}>
-                <Navbar.Brand className="fw-bold text-uppercase text-white">
+        <Container fluid className="p-0" style={{ backgroundColor: '#f8f9fa', minHeight: '100vh' }}>
+            <Toaster position="top-right" />
+            
+            <Navbar expand="lg" className="shadow-sm px-4 py-3 mb-4" style={{ background: 'linear-gradient(135deg, #001A47 0%, #003875 100%)' }}>
+                <Navbar.Brand className="fw-bold text-uppercase text-white d-flex align-items-center">
+                    <Building className="me-2" />
                     Painel Administrativo - Wall Street
                 </Navbar.Brand>
                 <Nav className="ms-auto">
+                    <Link to="/andares" className="btn btn-outline-light me-3">
+                        <Building size={16} className="me-2" />
+                        Ver Andares
+                    </Link>
                     <Button variant="outline-light" onClick={logout}>
                         <i className="bi bi-box-arrow-right me-2"></i>
                         Sair
@@ -210,296 +365,288 @@ const Painel = () => {
                 <Tabs
                     activeKey={activeTab}
                     onSelect={(k) => setActiveTab(k)}
-                    className="mb-4"
+                    className="mb-4 nav-pills"
                 >
-                    <Tab eventKey="formularios" title="Formulários">
-                        <Row>
-                            <Col md={4}>
-                                <Card className="mb-4">
-                                    <Card.Header>
-                                        <h5 className="mb-0">Pré-Reservas</h5>
-                                    </Card.Header>
-                                    <Card.Body style={{ maxHeight: '400px', overflowY: 'auto' }}>
-                                        {preReservas.map((item) => (
-                                            <div key={item.id} className={`p-2 mb-2 rounded ${!item.visualizado ? 'bg-warning bg-opacity-25' : 'bg-light'}`}>
-                                                <div className="d-flex justify-content-between align-items-start">
-                                                    <div>
-                                                        <strong>{item.nome}</strong><br />
-                                                        <small>{item.email}</small><br />
-                                                        <small>{item.contato}</small><br />
-                                                        <small>{formatarData(item.createdAt)}</small>
-                                                    </div>
-                                                    <div>
-                                                        {!item.visualizado && (
-                                                            <Badge bg="warning">Novo</Badge>
-                                                        )}
-                                                        <Button
-                                                            size="sm"
-                                                            variant="outline-primary"
-                                                            className="ms-2"
-                                                            onClick={() => marcarComoVisualizado('pre-reservas', item.id)}
-                                                        >
-                                                            <i className="bi bi-check"></i>
-                                                        </Button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </Card.Body>
-                                </Card>
+                    <Tab eventKey="formularios" title={
+                        <span className="d-flex align-items-center">
+                            <Eye className="me-2" size={16} />
+                            Formulários
+                        </span>
+                    }>
+                        <Row className="g-4">
+                            <Col lg={4}>
+                                <FormularioCard 
+                                    title="Pré-Reservas" 
+                                    items={preReservas} 
+                                    tipo="pre-reservas"
+                                    icon={<i className="bi bi-bookmark-check text-primary"></i>}
+                                />
                             </Col>
-
-                            <Col md={4}>
-                                <Card className="mb-4">
-                                    <Card.Header>
-                                        <h5 className="mb-0">Contrapropostas</h5>
-                                    </Card.Header>
-                                    <Card.Body style={{ maxHeight: '400px', overflowY: 'auto' }}>
-                                        {contrapropostas.map((item) => (
-                                            <div key={item.id} className={`p-2 mb-2 rounded ${!item.visualizado ? 'bg-warning bg-opacity-25' : 'bg-light'}`}>
-                                                <div className="d-flex justify-content-between align-items-start">
-                                                    <div>
-                                                        <strong>{item.nome}</strong><br />
-                                                        <small>{item.email}</small><br />
-                                                        <small>{item.contato}</small><br />
-                                                        <small><strong>Proposta:</strong> {item.proposta}</small><br />
-                                                        <small>{formatarData(item.createdAt)}</small>
-                                                    </div>
-                                                    <div>
-                                                        {!item.visualizado && (
-                                                            <Badge bg="warning">Novo</Badge>
-                                                        )}
-                                                        <Button
-                                                            size="sm"
-                                                            variant="outline-primary"
-                                                            className="ms-2"
-                                                            onClick={() => marcarComoVisualizado('contrapropostas', item.id)}
-                                                        >
-                                                            <i className="bi bi-check"></i>
-                                                        </Button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </Card.Body>
-                                </Card>
+                            <Col lg={4}>
+                                <FormularioCard 
+                                    title="Contrapropostas" 
+                                    items={contrapropostas} 
+                                    tipo="contrapropostas"
+                                    icon={<i className="bi bi-chat-square-text text-warning"></i>}
+                                />
                             </Col>
-
-                            <Col md={4}>
-                                <Card className="mb-4">
-                                    <Card.Header>
-                                        <h5 className="mb-0">Agendamentos</h5>
-                                    </Card.Header>
-                                    <Card.Body style={{ maxHeight: '400px', overflowY: 'auto' }}>
-                                        {agendamentos.map((item) => (
-                                            <div key={item.id} className={`p-2 mb-2 rounded ${!item.visualizado ? 'bg-warning bg-opacity-25' : 'bg-light'}`}>
-                                                <div className="d-flex justify-content-between align-items-start">
-                                                    <div>
-                                                        <strong>{item.nome}</strong><br />
-                                                        <small>{item.email}</small><br />
-                                                        <small>{item.contato}</small><br />
-                                                        <small><strong>Data:</strong> {item.data} às {item.hora}</small><br />
-                                                        <small>{formatarData(item.createdAt)}</small>
-                                                    </div>
-                                                    <div>
-                                                        {!item.visualizado && (
-                                                            <Badge bg="warning">Novo</Badge>
-                                                        )}
-                                                        <Button
-                                                            size="sm"
-                                                            variant="outline-primary"
-                                                            className="ms-2"
-                                                            onClick={() => marcarComoVisualizado('agendamentos', item.id)}
-                                                        >
-                                                            <i className="bi bi-check"></i>
-                                                        </Button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </Card.Body>
-                                </Card>
+                            <Col lg={4}>
+                                <FormularioCard 
+                                    title="Agendamentos" 
+                                    items={agendamentos} 
+                                    tipo="agendamentos"
+                                    icon={<i className="bi bi-calendar-check text-success"></i>}
+                                />
                             </Col>
                         </Row>
                     </Tab>
 
-                    <Tab eventKey="salas" title="Gerenciar Salas">
-                        <div className="d-flex justify-content-between align-items-center mb-4">
-                            <h4>Salas Cadastradas</h4>
-                            <Button variant="primary" onClick={() => abrirEdicaoSala()}>
-                                <i className="bi bi-plus-circle me-2"></i>
-                                Nova Sala
-                            </Button>
-                        </div>
-
-                        <Table striped bordered hover responsive>
-                            <thead>
-                                <tr>
-                                    <th>Andar</th>
-                                    <th>Número</th>
-                                    <th>Nome</th>
-                                    <th>Área</th>
-                                    <th>Posição</th>
-                                    <th>Preço</th>
-                                    <th>Status</th>
-                                    <th>Ações</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {salas.map((sala) => (
-                                    <tr key={sala.id}>
-                                        <td>{sala.andar}°</td>
-                                        <td>{sala.numero}</td>
-                                        <td>{sala.nome}</td>
-                                        <td>{sala.area} m²</td>
-                                        <td>{sala.posicao}</td>
-                                        <td>R$ {parseFloat(sala.preco).toLocaleString('pt-BR', {minimumFractionDigits: 2})}</td>
-                                        <td>
-                                            <Badge bg={sala.disponivel ? 'success' : 'danger'}>
-                                                {sala.disponivel ? 'Disponível' : 'Reservado'}
-                                            </Badge>
-                                        </td>
-                                        <td>
-                                            <Button
-                                                size="sm"
-                                                variant="outline-primary"
-                                                onClick={() => abrirEdicaoSala(sala)}
-                                            >
-                                                <i className="bi bi-pencil"></i>
-                                            </Button>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </Table>
+                    <Tab eventKey="salas" title={
+                        <span className="d-flex align-items-center">
+                            <Building className="me-2" size={16} />
+                            Gerenciar Salas
+                        </span>
+                    }>
+                        <Card className="shadow-sm border-0 mb-4">
+                            <Card.Header className="bg-white border-0">
+                                <div className="d-flex justify-content-between align-items-center">
+                                    <h4 className="mb-0 d-flex align-items-center">
+                                        <Building className="me-2" />
+                                        Salas Cadastradas
+                                    </h4>
+                                    <Button 
+                                        variant="primary" 
+                                        onClick={() => abrirEdicaoSala()}
+                                        className="d-flex align-items-center"
+                                        style={{ background: 'linear-gradient(135deg, #001A47 0%, #003875 100%)', border: 'none' }}
+                                    >
+                                        <Plus size={16} className="me-2" />
+                                        Nova Sala
+                                    </Button>
+                                </div>
+                            </Card.Header>
+                            <Card.Body className="p-0">
+                                <Table striped hover responsive className="mb-0">
+                                    <thead style={{ backgroundColor: '#f8f9fa' }}>
+                                        <tr>
+                                            <th className="border-0">Andar</th>
+                                            <th className="border-0">Número</th>
+                                            <th className="border-0">Nome</th>
+                                            <th className="border-0">Área</th>
+                                            <th className="border-0">Posição</th>
+                                            <th className="border-0">Preço</th>
+                                            <th className="border-0">Status</th>
+                                            <th className="border-0">Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {salas.map((sala) => (
+                                            <tr key={sala.id} className="align-middle">
+                                                <td className="fw-semibold">{sala.andar}°</td>
+                                                <td>{sala.numero}</td>
+                                                <td>{sala.nome}</td>
+                                                <td>{sala.area} m²</td>
+                                                <td>
+                                                    <span className="badge bg-light text-dark border">{sala.posicao}</span>
+                                                </td>
+                                                <td className="fw-semibold">R$ {parseFloat(sala.preco).toLocaleString('pt-BR', {minimumFractionDigits: 2})}</td>
+                                                <td>
+                                                    <Badge bg={sala.disponivel ? 'success' : 'danger'} className="px-3 py-2">
+                                                        {sala.disponivel ? 'Disponível' : 'Reservado'}
+                                                    </Badge>
+                                                </td>
+                                                <td>
+                                                    <Button
+                                                        size="sm"
+                                                        variant="outline-primary"
+                                                        onClick={() => abrirEdicaoSala(sala)}
+                                                        className="d-flex align-items-center"
+                                                    >
+                                                        <Edit3 size={14} className="me-1" />
+                                                        Editar
+                                                    </Button>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </Table>
+                            </Card.Body>
+                        </Card>
                     </Tab>
                 </Tabs>
             </Container>
 
-            {/* Modal de Edição de Sala */}
-            <Modal show={showSalaModal} onHide={() => setShowSalaModal(false)} size="lg">
-                <Modal.Header closeButton>
-                    <Modal.Title>
+            {/* Modal de Edição de Sala - Modernizado */}
+            <Modal show={showSalaModal} onHide={() => setShowSalaModal(false)} size="xl" centered>
+                <Modal.Header closeButton className="border-0 pb-0">
+                    <Modal.Title className="d-flex align-items-center">
+                        {salaEdicao?.id ? <Edit3 className="me-2" /> : <Plus className="me-2" />}
                         {salaEdicao?.id ? 'Editar Sala' : 'Nova Sala'}
                     </Modal.Title>
                 </Modal.Header>
                 <Form onSubmit={salvarSala}>
-                    <Modal.Body>
-                        <Row>
+                    <Modal.Body className="px-4">
+                        <Row className="g-4">
+                            {/* Informações Básicas */}
                             <Col md={6}>
-                                <FloatingLabel controlId="andar" label="Andar" className="mb-3">
-                                    <Form.Select
-                                        value={salaEdicao?.andar || ''}
-                                        onChange={(e) => setSalaEdicao({...salaEdicao, andar: parseInt(e.target.value)})}
-                                        required
-                                    >
-                                        {Array.from({length: 15}, (_, i) => 19 - i).map(andar => (
-                                            <option key={andar} value={andar}>{andar}° andar</option>
-                                        ))}
-                                    </Form.Select>
-                                </FloatingLabel>
+                                <Card className="h-100 border-0" style={{ backgroundColor: '#f8f9fa' }}>
+                                    <Card.Header className="bg-transparent border-0 pb-2">
+                                        <h6 className="mb-0 text-muted">INFORMAÇÕES BÁSICAS</h6>
+                                    </Card.Header>
+                                    <Card.Body>
+                                        <Row>
+                                            <Col md={6}>
+                                                <FloatingLabel controlId="andar" label="Andar" className="mb-3">
+                                                    <Form.Select
+                                                        value={salaEdicao?.andar || ''}
+                                                        onChange={(e) => setSalaEdicao({...salaEdicao, andar: parseInt(e.target.value)})}
+                                                        required
+                                                    >
+                                                        {Array.from({length: 15}, (_, i) => 19 - i).map(andar => (
+                                                            <option key={andar} value={andar}>{andar}° andar</option>
+                                                        ))}
+                                                    </Form.Select>
+                                                </FloatingLabel>
+                                            </Col>
+                                            <Col md={6}>
+                                                <FloatingLabel controlId="numero" label="Número" className="mb-3">
+                                                    <Form.Control
+                                                        type="text"
+                                                        value={salaEdicao?.numero || ''}
+                                                        onChange={(e) => setSalaEdicao({...salaEdicao, numero: e.target.value})}
+                                                        required
+                                                    />
+                                                </FloatingLabel>
+                                            </Col>
+                                            <Col md={12}>
+                                                <FloatingLabel controlId="nome" label="Nome da Sala" className="mb-3">
+                                                    <Form.Control
+                                                        type="text"
+                                                        value={salaEdicao?.nome || ''}
+                                                        onChange={(e) => setSalaEdicao({...salaEdicao, nome: e.target.value})}
+                                                        required
+                                                    />
+                                                </FloatingLabel>
+                                            </Col>
+                                            <Col md={4}>
+                                                <FloatingLabel controlId="area" label="Área (m²)" className="mb-3">
+                                                    <Form.Control
+                                                        type="number"
+                                                        step="0.01"
+                                                        value={salaEdicao?.area || ''}
+                                                        onChange={(e) => setSalaEdicao({...salaEdicao, area: e.target.value})}
+                                                        required
+                                                    />
+                                                </FloatingLabel>
+                                            </Col>
+                                            <Col md={8}>
+                                                <FloatingLabel controlId="preco" label="Preço" className="mb-3">
+                                                    <Form.Control
+                                                        type="number"
+                                                        step="0.01"
+                                                        value={salaEdicao?.preco || ''}
+                                                        onChange={(e) => setSalaEdicao({...salaEdicao, preco: e.target.value})}
+                                                        required
+                                                    />
+                                                </FloatingLabel>
+                                            </Col>
+                                            <Col md={12}>
+                                                <FloatingLabel controlId="posicao" label="Posição/Orientação" className="mb-3">
+                                                    <Form.Control
+                                                        type="text"
+                                                        value={salaEdicao?.posicao || ''}
+                                                        onChange={(e) => setSalaEdicao({...salaEdicao, posicao: e.target.value})}
+                                                        required
+                                                    />
+                                                </FloatingLabel>
+                                            </Col>
+                                            <Col md={12}>
+                                                <div className="form-check form-switch">
+                                                    <input
+                                                        className="form-check-input"
+                                                        type="checkbox"
+                                                        id="disponibilidade"
+                                                        checked={salaEdicao?.disponivel || false}
+                                                        onChange={(e) => setSalaEdicao({...salaEdicao, disponivel: e.target.checked})}
+                                                    />
+                                                    <label className="form-check-label fw-semibold" htmlFor="disponibilidade">
+                                                        Sala disponível para venda
+                                                    </label>
+                                                </div>
+                                            </Col>
+                                        </Row>
+                                    </Card.Body>
+                                </Card>
                             </Col>
+
+                            {/* Upload de Arquivos */}
                             <Col md={6}>
-                                <FloatingLabel controlId="numero" label="Número" className="mb-3">
-                                    <Form.Control
-                                        type="text"
-                                        value={salaEdicao?.numero || ''}
-                                        onChange={(e) => setSalaEdicao({...salaEdicao, numero: e.target.value})}
-                                        required
-                                    />
-                                </FloatingLabel>
-                            </Col>
-                            <Col md={12}>
-                                <FloatingLabel controlId="nome" label="Nome da Sala" className="mb-3">
-                                    <Form.Control
-                                        type="text"
-                                        value={salaEdicao?.nome || ''}
-                                        onChange={(e) => setSalaEdicao({...salaEdicao, nome: e.target.value})}
-                                        required
-                                    />
-                                </FloatingLabel>
-                            </Col>
-                            <Col md={6}>
-                                <FloatingLabel controlId="area" label="Área (m²)" className="mb-3">
-                                    <Form.Control
-                                        type="number"
-                                        step="0.01"
-                                        value={salaEdicao?.area || ''}
-                                        onChange={(e) => setSalaEdicao({...salaEdicao, area: e.target.value})}
-                                        required
-                                    />
-                                </FloatingLabel>
-                            </Col>
-                            <Col md={6}>
-                                <FloatingLabel controlId="preco" label="Preço" className="mb-3">
-                                    <Form.Control
-                                        type="number"
-                                        step="0.01"
-                                        value={salaEdicao?.preco || ''}
-                                        onChange={(e) => setSalaEdicao({...salaEdicao, preco: e.target.value})}
-                                        required
-                                    />
-                                </FloatingLabel>
-                            </Col>
-                            <Col md={12}>
-                                <FloatingLabel controlId="posicao" label="Posição/Orientação" className="mb-3">
-                                    <Form.Control
-                                        type="text"
-                                        value={salaEdicao?.posicao || ''}
-                                        onChange={(e) => setSalaEdicao({...salaEdicao, posicao: e.target.value})}
-                                        required
-                                    />
-                                </FloatingLabel>
-                            </Col>
-                            <Col md={12}>
-                                <Form.Check
-                                    type="checkbox"
-                                    label="Sala disponível"
-                                    checked={salaEdicao?.disponivel || false}
-                                    onChange={(e) => setSalaEdicao({...salaEdicao, disponivel: e.target.checked})}
-                                    className="mb-3"
-                                />
-                            </Col>
-                            <Col md={6}>
-                                <Form.Group className="mb-3">
-                                    <Form.Label>Imagem da Sala</Form.Label>
-                                    <Form.Control
-                                        type="file"
-                                        accept="image/*"
-                                        onChange={(e) => setSalaEdicao({...salaEdicao, imagemFile: e.target.files[0]})}
-                                    />
-                                    {salaEdicao?.imagem && (
-                                        <small className="text-muted">Imagem atual: {salaEdicao.imagem}</small>
-                                    )}
-                                </Form.Group>
-                            </Col>
-                            <Col md={6}>
-                                <Form.Group className="mb-3">
-                                    <Form.Label>Planta da Sala</Form.Label>
-                                    <Form.Control
-                                        type="file"
-                                        accept="image/*"
-                                        onChange={(e) => setSalaEdicao({...salaEdicao, plantaFile: e.target.files[0]})}
-                                    />
-                                    {salaEdicao?.planta && (
-                                        <small className="text-muted">Planta atual: {salaEdicao.planta}</small>
-                                    )}
-                                </Form.Group>
+                                <Card className="h-100 border-0" style={{ backgroundColor: '#f8f9fa' }}>
+                                    <Card.Header className="bg-transparent border-0 pb-2">
+                                        <h6 className="mb-0 text-muted">ARQUIVOS DA SALA</h6>
+                                    </Card.Header>
+                                    <Card.Body>
+                                        <Row>
+                                            <Col md={12} className="mb-4">
+                                                <label className="form-label fw-semibold mb-2">
+                                                    <Image size={16} className="me-2" />
+                                                    Imagem da Sala
+                                                </label>
+                                                <DropzoneArea 
+                                                    getRootProps={getImagemRootProps}
+                                                    getInputProps={getImagemInputProps}
+                                                    isDragActive={isImagemDragActive}
+                                                    preview={imagemPreview}
+                                                    type="Imagem"
+                                                    icon={Image}
+                                                />
+                                            </Col>
+                                            <Col md={12}>
+                                                <label className="form-label fw-semibold mb-2">
+                                                    <FileText size={16} className="me-2" />
+                                                    Planta da Sala
+                                                </label>
+                                                <DropzoneArea 
+                                                    getRootProps={getPlantaRootProps}
+                                                    getInputProps={getPlantaInputProps}
+                                                    isDragActive={isPlantaDragActive}
+                                                    preview={plantaPreview}
+                                                    type="Planta"
+                                                    icon={FileText}
+                                                />
+                                            </Col>
+                                        </Row>
+                                    </Card.Body>
+                                </Card>
                             </Col>
                         </Row>
                     </Modal.Body>
-                    <Modal.Footer>
-                        <Button variant="secondary" onClick={() => setShowSalaModal(false)}>
+                    <Modal.Footer className="border-0 pt-0">
+                        <Button variant="outline-secondary" onClick={() => setShowSalaModal(false)}>
                             Cancelar
                         </Button>
-                        <Button type="submit" variant="primary" disabled={loading}>
-                            {loading ? 'Salvando...' : 'Salvar'}
+                        <Button 
+                            type="submit" 
+                            disabled={loading}
+                            style={{ background: 'linear-gradient(135deg, #001A47 0%, #003875 100%)', border: 'none' }}
+                        >
+                            {loading ? (
+                                <>
+                                    <div className="spinner-border spinner-border-sm me-2" role="status"></div>
+                                    Salvando...
+                                </>
+                            ) : (
+                                <>
+                                    <Check size={16} className="me-2" />
+                                    Salvar Sala
+                                </>
+                            )}
                         </Button>
                     </Modal.Footer>
                 </Form>
             </Modal>
 
-            <footer className="text-center py-4 mt-5 border-top" style={{ backgroundColor: '#000000' }}>
+            <footer className="text-center py-4 mt-5" style={{ backgroundColor: '#001A47' }}>
                 <small className="text-white">Wall Street Corporate © {new Date().getFullYear()}</small>
             </footer>
         </Container>
