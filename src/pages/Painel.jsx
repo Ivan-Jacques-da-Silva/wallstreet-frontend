@@ -1,15 +1,15 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { Container, Row, Col, Card, Form, Button, Navbar, Nav, FloatingLabel, Table, Badge, Modal, Tab, Tabs } from 'react-bootstrap';
+import { Container, Row, Col, Card, Form, Button, Navbar, Nav, FloatingLabel, Table, Badge, Modal, Tab, Tabs, Pagination, InputGroup } from 'react-bootstrap';
 import { useNavigate, Link } from 'react-router-dom';
 import { useDropzone } from 'react-dropzone';
 import toast, { Toaster } from 'react-hot-toast';
-import { Upload, Image, FileText, Eye, Check, Plus, Edit3, Building } from 'lucide-react';
+import { Upload, Image, FileText, Eye, Check, Plus, Edit3, Building, Search, Filter } from 'lucide-react';
 import Config from '../Config';
 
 const Painel = () => {
     const navigate = useNavigate();
-    const [activeTab, setActiveTab] = useState('formularios');
+    const [activeTab, setActiveTab] = useState('salas');
     const [preReservas, setPreReservas] = useState([]);
     const [contrapropostas, setContrapropostas] = useState([]);
     const [agendamentos, setAgendamentos] = useState([]);
@@ -19,6 +19,12 @@ const Painel = () => {
     const [loading, setLoading] = useState(false);
     const [imagemPreview, setImagemPreview] = useState(null);
     const [plantaPreview, setPlantaPreview] = useState(null);
+    
+    // Estados para paginação e filtros
+    const [paginaAtual, setPaginaAtual] = useState(1);
+    const [termoPesquisa, setTermoPesquisa] = useState('');
+    const [filtroDisponibilidade, setFiltroDisponibilidade] = useState('todos');
+    const itensPorPagina = 10;
 
     useEffect(() => {
         const token = localStorage.getItem('admin-token');
@@ -102,6 +108,30 @@ const Painel = () => {
             }
         }
     };
+
+    // Função para filtrar salas
+    const salasFiltradas = salas.filter(sala => {
+        const matchPesquisa = sala.nome.toLowerCase().includes(termoPesquisa.toLowerCase()) ||
+                             sala.andar.toString().includes(termoPesquisa) ||
+                             sala.numero.toString().includes(termoPesquisa);
+        
+        const matchDisponibilidade = filtroDisponibilidade === 'todos' ||
+                                   (filtroDisponibilidade === 'disponivel' && sala.disponivel) ||
+                                   (filtroDisponibilidade === 'indisponivel' && !sala.disponivel);
+        
+        return matchPesquisa && matchDisponibilidade;
+    });
+
+    // Calcular paginação
+    const totalPaginas = Math.ceil(salasFiltradas.length / itensPorPagina);
+    const indiceInicio = (paginaAtual - 1) * itensPorPagina;
+    const indiceFim = indiceInicio + itensPorPagina;
+    const salasExibidas = salasFiltradas.slice(indiceInicio, indiceFim);
+
+    // Reset da página quando filtros mudam
+    useEffect(() => {
+        setPaginaAtual(1);
+    }, [termoPesquisa, filtroDisponibilidade]);
 
     const marcarComoVisualizado = async (tipo, id) => {
         try {
@@ -197,7 +227,7 @@ const Painel = () => {
         },
         multiple: false,
         maxSize: 10485760, // 10MB
-        noClick: false,
+        noClick: true,  // Desabilitar clique automático
         noKeyboard: false
     });
 
@@ -210,7 +240,7 @@ const Painel = () => {
         },
         multiple: false,
         maxSize: 10485760, // 10MB
-        noClick: false,
+        noClick: true,  // Desabilitar clique automático
         noKeyboard: false
     });
 
@@ -275,7 +305,7 @@ const Painel = () => {
         return new Date(dataString).toLocaleString('pt-BR');
     };
 
-    const DropzoneArea = ({ getRootProps, getInputProps, isDragActive, preview, type, icon: Icon }) => (
+    const DropzoneArea = ({ getRootProps, getInputProps, isDragActive, preview, type, icon: Icon, openDialog }) => (
         <div
             {...getRootProps()}
             className={`border-2 border-dashed rounded-4 p-3 text-center position-relative ${
@@ -285,14 +315,20 @@ const Painel = () => {
             }`}
             style={{ 
                 minHeight: '180px', 
-                cursor: 'pointer',
                 transition: 'all 0.3s ease',
                 backgroundColor: isDragActive ? '#f8f9fa' : '#fff'
             }}
         >
             <input {...getInputProps()} style={{ display: 'none' }} />
             {preview ? (
-                <div className="position-relative h-100 d-flex flex-column align-items-center justify-content-center">
+                <div 
+                    className="position-relative h-100 d-flex flex-column align-items-center justify-content-center"
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        openDialog();
+                    }}
+                    style={{ cursor: 'pointer' }}
+                >
                     <img 
                         src={preview} 
                         alt={`Preview ${type}`}
@@ -308,13 +344,20 @@ const Painel = () => {
                         <Icon size={16} className="me-1" />
                         {type} selecionada
                     </div>
-                    <div className="small text-primary" style={{ cursor: 'pointer' }}>
+                    <div className="small text-primary">
                         <i className="bi bi-pencil-square me-1"></i>
                         Clique para alterar
                     </div>
                 </div>
             ) : (
-                <div className="d-flex flex-column align-items-center justify-content-center h-100">
+                <div 
+                    className="d-flex flex-column align-items-center justify-content-center h-100"
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        openDialog();
+                    }}
+                    style={{ cursor: 'pointer' }}
+                >
                     <Icon size={40} className={`mb-3 ${isDragActive ? 'text-primary' : 'text-muted'}`} />
                     <p className="mb-2 fw-semibold" style={{ color: isDragActive ? '#0d6efd' : '#6c757d' }}>
                         {isDragActive ? 
@@ -469,10 +512,11 @@ const Painel = () => {
                     }>
                         <Card className="shadow-sm border-0 mb-4">
                             <Card.Header className="bg-white border-0">
-                                <div className="d-flex justify-content-between align-items-center">
+                                <div className="d-flex justify-content-between align-items-center mb-3">
                                     <h4 className="mb-0 d-flex align-items-center">
                                         <Building className="me-2" />
                                         Salas Cadastradas
+                                        <Badge bg="secondary" className="ms-2">{salasFiltradas.length} salas</Badge>
                                     </h4>
                                     <Button 
                                         variant="primary" 
@@ -484,6 +528,45 @@ const Painel = () => {
                                         Nova Sala
                                     </Button>
                                 </div>
+                                
+                                {/* Filtros e Pesquisa */}
+                                <Row className="g-3">
+                                    <Col md={6}>
+                                        <InputGroup>
+                                            <InputGroup.Text className="bg-light border-end-0">
+                                                <Search size={16} />
+                                            </InputGroup.Text>
+                                            <Form.Control
+                                                type="text"
+                                                placeholder="Pesquisar por nome, andar ou número..."
+                                                value={termoPesquisa}
+                                                onChange={(e) => setTermoPesquisa(e.target.value)}
+                                                className="border-start-0"
+                                            />
+                                        </InputGroup>
+                                    </Col>
+                                    <Col md={4}>
+                                        <InputGroup>
+                                            <InputGroup.Text className="bg-light border-end-0">
+                                                <Filter size={16} />
+                                            </InputGroup.Text>
+                                            <Form.Select
+                                                value={filtroDisponibilidade}
+                                                onChange={(e) => setFiltroDisponibilidade(e.target.value)}
+                                                className="border-start-0"
+                                            >
+                                                <option value="todos">Todas as salas</option>
+                                                <option value="disponivel">Apenas disponíveis</option>
+                                                <option value="indisponivel">Apenas reservadas</option>
+                                            </Form.Select>
+                                        </InputGroup>
+                                    </Col>
+                                    <Col md={2}>
+                                        <div className="text-muted small">
+                                            Página {paginaAtual} de {totalPaginas}
+                                        </div>
+                                    </Col>
+                                </Row>
                             </Card.Header>
                             <Card.Body className="p-0">
                                 <Table striped hover responsive className="mb-0">
@@ -500,36 +583,93 @@ const Painel = () => {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {salas.map((sala) => (
-                                            <tr key={sala.id} className="align-middle">
-                                                <td className="fw-semibold">{sala.andar}°</td>
-                                                <td>{sala.numero}</td>
-                                                <td>{sala.nome}</td>
-                                                <td>{sala.area} m²</td>
-                                                <td>
-                                                    <span className="badge bg-light text-dark border">{sala.posicao}</span>
-                                                </td>
-                                                <td className="fw-semibold">R$ {parseFloat(sala.preco).toLocaleString('pt-BR', {minimumFractionDigits: 2})}</td>
-                                                <td>
-                                                    <Badge bg={sala.disponivel ? 'success' : 'danger'} className="px-3 py-2">
-                                                        {sala.disponivel ? 'Disponível' : 'Reservado'}
-                                                    </Badge>
-                                                </td>
-                                                <td>
-                                                    <Button
-                                                        size="sm"
-                                                        variant="outline-primary"
-                                                        onClick={() => abrirEdicaoSala(sala)}
-                                                        className="d-flex align-items-center"
-                                                    >
-                                                        <Edit3 size={14} className="me-1" />
-                                                        Editar
-                                                    </Button>
+                                        {salasExibidas.length === 0 ? (
+                                            <tr>
+                                                <td colSpan="8" className="text-center py-4 text-muted">
+                                                    <Building size={32} className="mb-2 opacity-50" />
+                                                    <div>Nenhuma sala encontrada com os filtros aplicados</div>
                                                 </td>
                                             </tr>
-                                        ))}
+                                        ) : (
+                                            salasExibidas.map((sala) => (
+                                                <tr key={sala.id} className="align-middle">
+                                                    <td className="fw-semibold">{sala.andar}°</td>
+                                                    <td>{sala.numero}</td>
+                                                    <td>{sala.nome}</td>
+                                                    <td>{sala.area} m²</td>
+                                                    <td>
+                                                        <span className="badge bg-light text-dark border">{sala.posicao}</span>
+                                                    </td>
+                                                    <td className="fw-semibold">R$ {parseFloat(sala.preco).toLocaleString('pt-BR', {minimumFractionDigits: 2})}</td>
+                                                    <td>
+                                                        <Badge bg={sala.disponivel ? 'success' : 'danger'} className="px-3 py-2">
+                                                            {sala.disponivel ? 'Disponível' : 'Reservado'}
+                                                        </Badge>
+                                                    </td>
+                                                    <td>
+                                                        <Button
+                                                            size="sm"
+                                                            variant="outline-primary"
+                                                            onClick={() => abrirEdicaoSala(sala)}
+                                                            className="d-flex align-items-center"
+                                                        >
+                                                            <Edit3 size={14} className="me-1" />
+                                                            Editar
+                                                        </Button>
+                                                    </td>
+                                                </tr>
+                                            ))
+                                        )}
                                     </tbody>
                                 </Table>
+                                
+                                {/* Paginação */}
+                                {totalPaginas > 1 && (
+                                    <div className="d-flex justify-content-center p-3 border-top">
+                                        <Pagination className="mb-0">
+                                            <Pagination.First 
+                                                onClick={() => setPaginaAtual(1)}
+                                                disabled={paginaAtual === 1}
+                                            />
+                                            <Pagination.Prev 
+                                                onClick={() => setPaginaAtual(Math.max(1, paginaAtual - 1))}
+                                                disabled={paginaAtual === 1}
+                                            />
+                                            
+                                            {Array.from({ length: Math.min(5, totalPaginas) }, (_, i) => {
+                                                let pageNum;
+                                                if (totalPaginas <= 5) {
+                                                    pageNum = i + 1;
+                                                } else if (paginaAtual <= 3) {
+                                                    pageNum = i + 1;
+                                                } else if (paginaAtual >= totalPaginas - 2) {
+                                                    pageNum = totalPaginas - 4 + i;
+                                                } else {
+                                                    pageNum = paginaAtual - 2 + i;
+                                                }
+                                                
+                                                return (
+                                                    <Pagination.Item
+                                                        key={pageNum}
+                                                        active={pageNum === paginaAtual}
+                                                        onClick={() => setPaginaAtual(pageNum)}
+                                                    >
+                                                        {pageNum}
+                                                    </Pagination.Item>
+                                                );
+                                            })}
+                                            
+                                            <Pagination.Next 
+                                                onClick={() => setPaginaAtual(Math.min(totalPaginas, paginaAtual + 1))}
+                                                disabled={paginaAtual === totalPaginas}
+                                            />
+                                            <Pagination.Last 
+                                                onClick={() => setPaginaAtual(totalPaginas)}
+                                                disabled={paginaAtual === totalPaginas}
+                                            />
+                                        </Pagination>
+                                    </div>
+                                )}
                             </Card.Body>
                         </Card>
                     </Tab>
@@ -662,6 +802,7 @@ const Painel = () => {
                                                     preview={imagemPreview}
                                                     type="Imagem"
                                                     icon={Image}
+                                                    openDialog={openImagemDialog}
                                                 />
                                             </Col>
                                             <Col md={12}>
@@ -676,6 +817,7 @@ const Painel = () => {
                                                     preview={plantaPreview}
                                                     type="Planta"
                                                     icon={FileText}
+                                                    openDialog={openPlantaDialog}
                                                 />
                                             </Col>
                                         </Row>
