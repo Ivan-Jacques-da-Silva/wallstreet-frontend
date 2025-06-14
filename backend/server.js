@@ -58,7 +58,12 @@ const errorHandler = (err, req, res, next) => {
 };
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: false
+}));
 app.use(express.json());
 app.use('/uploads', express.static('uploads'));
 
@@ -529,5 +534,6 @@ app.get('/api/csrf-token/', (req, res) => {
 app.use(errorHandler);
 
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`🚀 Servidor rodando na porta ${PORT}`);
+  console.log(`🚀 Servidor rodando em http://0.0.0.0:${PORT}`);
+  console.log(`🌐 Frontend deve acessar: http://localhost:${PORT}`);
 });
