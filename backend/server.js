@@ -206,6 +206,15 @@ app.get('/api/salas', async (req, res) => {
       ]
     });
 
+    // Se não há salas, retornar estrutura vazia mas consistente
+    if (salas.length === 0) {
+      return res.json({
+        produtos: [{
+          variacoes: []
+        }]
+      });
+    }
+
     res.json({
       produtos: [{
         variacoes: salas.reduce((acc, sala) => {

@@ -12,6 +12,7 @@ import Painel from './pages/Painel.jsx';
 // import Contato from './pages/Contato.jsx';
 import Login from './pages/Login.jsx';
 import AcessoNegado from './pages/AcessoNegado.jsx';
+import ProtectedRoute from './components/ProtectedRoute.jsx';
 
 function App() {
   return (
@@ -25,8 +26,8 @@ function App() {
           {/* <Route path="/sobre" element={<Sobre />} /> */}
           {/* <Route path="/contato" element={<Contato />} /> */}
           <Route path="/login" element={<Login />} />
-          <Route path="/admin" element={<Painel />} />
-          <Route path="/painel" element={<Painel />} />
+          <Route path="/admin" element={<ProtectedRoute><Painel /></ProtectedRoute>} />
+          <Route path="/painel" element={<ProtectedRoute><Painel /></ProtectedRoute>} />
           <Route path="/acesso-negado" element={<AcessoNegado />} />
         </Routes>
 

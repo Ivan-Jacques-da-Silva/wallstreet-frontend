@@ -67,19 +67,11 @@ model Sala {
   nome         String
   area         Float
   posicao      String
-  orientacao   String
   preco        Float
   disponivel   Boolean  @default(true)
   imagem       String?
   planta       String?
   proposta     String?
-  valorizacao  Float?
-  lucro        Float?
-  aluguel      Float?
-  condominio   Float?
-  iptu         Float?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
 
   @@map("salas")
 }
