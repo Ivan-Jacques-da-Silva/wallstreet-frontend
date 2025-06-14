@@ -143,37 +143,75 @@ const Painel = () => {
     };
 
     // Dropzone para imagem
-    const onDropImagem = useCallback((acceptedFiles) => {
+    const onDropImagem = useCallback((acceptedFiles, rejectedFiles) => {
+        if (rejectedFiles.length > 0) {
+            const error = rejectedFiles[0].errors[0];
+            if (error.code === 'file-too-large') {
+                toast.error('Arquivo muito grande! Máximo 10MB.');
+            } else if (error.code === 'file-invalid-type') {
+                toast.error('Tipo de arquivo inválido! Use PNG, JPG ou WEBP.');
+            } else {
+                toast.error('Erro ao selecionar arquivo.');
+            }
+            return;
+        }
+
         const file = acceptedFiles[0];
         if (file) {
             setSalaEdicao(prev => ({ ...prev, imagemFile: file }));
             const previewUrl = URL.createObjectURL(file);
             setImagemPreview(previewUrl);
-            toast.success('Imagem selecionada!');
+            toast.success('Imagem selecionada com sucesso!');
         }
     }, []);
 
     // Dropzone para planta
-    const onDropPlanta = useCallback((acceptedFiles) => {
+    const onDropPlanta = useCallback((acceptedFiles, rejectedFiles) => {
+        if (rejectedFiles.length > 0) {
+            const error = rejectedFiles[0].errors[0];
+            if (error.code === 'file-too-large') {
+                toast.error('Arquivo muito grande! Máximo 10MB.');
+            } else if (error.code === 'file-invalid-type') {
+                toast.error('Tipo de arquivo inválido! Use PNG, JPG ou WEBP.');
+            } else {
+                toast.error('Erro ao selecionar arquivo.');
+            }
+            return;
+        }
+
         const file = acceptedFiles[0];
         if (file) {
             setSalaEdicao(prev => ({ ...prev, plantaFile: file }));
             const previewUrl = URL.createObjectURL(file);
             setPlantaPreview(previewUrl);
-            toast.success('Planta selecionada!');
+            toast.success('Planta selecionada com sucesso!');
         }
     }, []);
 
-    const { getRootProps: getImagemRootProps, getInputProps: getImagemInputProps, isDragActive: isImagemDragActive } = useDropzone({
+    const { getRootProps: getImagemRootProps, getInputProps: getImagemInputProps, isDragActive: isImagemDragActive, open: openImagemDialog } = useDropzone({
         onDrop: onDropImagem,
-        accept: { 'image/*': [] },
-        multiple: false
+        accept: { 
+            'image/png': ['.png'],
+            'image/jpeg': ['.jpg', '.jpeg'],
+            'image/webp': ['.webp']
+        },
+        multiple: false,
+        maxSize: 10485760, // 10MB
+        noClick: false,
+        noKeyboard: false
     });
 
-    const { getRootProps: getPlantaRootProps, getInputProps: getPlantaInputProps, isDragActive: isPlantaDragActive } = useDropzone({
+    const { getRootProps: getPlantaRootProps, getInputProps: getPlantaInputProps, isDragActive: isPlantaDragActive, open: openPlantaDialog } = useDropzone({
         onDrop: onDropPlanta,
-        accept: { 'image/*': [] },
-        multiple: false
+        accept: { 
+            'image/png': ['.png'],
+            'image/jpeg': ['.jpg', '.jpeg'],
+            'image/webp': ['.webp']
+        },
+        multiple: false,
+        maxSize: 10485760, // 10MB
+        noClick: false,
+        noKeyboard: false
     });
 
     const salvarSala = async (e) => {
@@ -240,34 +278,56 @@ const Painel = () => {
     const DropzoneArea = ({ getRootProps, getInputProps, isDragActive, preview, type, icon: Icon }) => (
         <div
             {...getRootProps()}
-            className={`border-2 border-dashed rounded-4 p-4 text-center cursor-pointer transition-all duration-300 ${
+            className={`border-2 border-dashed rounded-4 p-3 text-center position-relative ${
                 isDragActive 
                     ? 'border-primary bg-primary bg-opacity-10' 
-                    : 'border-secondary hover:border-primary hover:bg-light'
+                    : 'border-secondary'
             }`}
-            style={{ minHeight: '200px' }}
+            style={{ 
+                minHeight: '180px', 
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+                backgroundColor: isDragActive ? '#f8f9fa' : '#fff'
+            }}
         >
-            <input {...getInputProps()} />
+            <input {...getInputProps()} style={{ display: 'none' }} />
             {preview ? (
-                <div className="position-relative">
+                <div className="position-relative h-100 d-flex flex-column align-items-center justify-content-center">
                     <img 
                         src={preview} 
                         alt={`Preview ${type}`}
                         className="img-fluid rounded mb-2"
-                        style={{ maxHeight: '150px', objectFit: 'cover' }}
+                        style={{ 
+                            maxHeight: '120px', 
+                            maxWidth: '100%', 
+                            objectFit: 'cover',
+                            border: '1px solid #dee2e6'
+                        }}
                     />
-                    <div className="small text-muted">Clique ou arraste para alterar</div>
+                    <div className="small text-muted fw-semibold mb-1">
+                        <Icon size={16} className="me-1" />
+                        {type} selecionada
+                    </div>
+                    <div className="small text-primary" style={{ cursor: 'pointer' }}>
+                        <i className="bi bi-pencil-square me-1"></i>
+                        Clique para alterar
+                    </div>
                 </div>
             ) : (
                 <div className="d-flex flex-column align-items-center justify-content-center h-100">
-                    <Icon size={48} className="text-muted mb-3" />
-                    <p className="mb-2 text-muted">
+                    <Icon size={40} className={`mb-3 ${isDragActive ? 'text-primary' : 'text-muted'}`} />
+                    <p className="mb-2 fw-semibold" style={{ color: isDragActive ? '#0d6efd' : '#6c757d' }}>
                         {isDragActive ? 
-                            `Solte a ${type.toLowerCase()} aqui...` : 
-                            `Clique ou arraste a ${type.toLowerCase()} aqui`
+                            `Solte a ${type.toLowerCase()} aqui` : 
+                            `Selecionar ${type.toLowerCase()}`
                         }
                     </p>
-                    <small className="text-muted">PNG, JPG até 10MB</small>
+                    <small className="text-muted">
+                        Clique ou arraste arquivos aqui
+                    </small>
+                    <small className="text-muted">
+                        PNG, JPG até 10MB
+                    </small>
                 </div>
             )}
         </div>
@@ -583,13 +643,16 @@ const Painel = () => {
                             <Col md={6}>
                                 <Card className="h-100 border-0" style={{ backgroundColor: '#f8f9fa' }}>
                                     <Card.Header className="bg-transparent border-0 pb-2">
-                                        <h6 className="mb-0 text-muted">ARQUIVOS DA SALA</h6>
+                                        <h6 className="mb-0 text-muted fw-bold">
+                                            <Upload size={16} className="me-2" />
+                                            ARQUIVOS DA SALA
+                                        </h6>
                                     </Card.Header>
                                     <Card.Body>
                                         <Row>
                                             <Col md={12} className="mb-4">
-                                                <label className="form-label fw-semibold mb-2">
-                                                    <Image size={16} className="me-2" />
+                                                <label className="form-label fw-semibold mb-3 d-flex align-items-center">
+                                                    <Image size={18} className="me-2 text-primary" />
                                                     Imagem da Sala
                                                 </label>
                                                 <DropzoneArea 
@@ -602,8 +665,8 @@ const Painel = () => {
                                                 />
                                             </Col>
                                             <Col md={12}>
-                                                <label className="form-label fw-semibold mb-2">
-                                                    <FileText size={16} className="me-2" />
+                                                <label className="form-label fw-semibold mb-3 d-flex align-items-center">
+                                                    <FileText size={18} className="me-2 text-primary" />
                                                     Planta da Sala
                                                 </label>
                                                 <DropzoneArea 
