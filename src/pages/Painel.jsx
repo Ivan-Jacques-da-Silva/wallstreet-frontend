@@ -797,7 +797,8 @@ const Painel = () => {
                                                         Sala disponível para venda
                                                     </label>
                                                 </div>
-                                            </Col                                        </Row>
+                                            </Col>
+                                        </Row>
                                     </Card.Body>
                                 </Card>
                             </Col>
