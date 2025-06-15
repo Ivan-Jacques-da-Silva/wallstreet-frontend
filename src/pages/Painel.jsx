@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Container, Row, Col, Card, Form, Button, Navbar, Nav, FloatingLabel, Table, Badge, Modal, Tab, Tabs, Pagination, InputGroup } from 'react-bootstrap';
 import { useNavigate, Link } from 'react-router-dom';
@@ -19,7 +18,7 @@ const Painel = () => {
     const [loading, setLoading] = useState(false);
     const [imagemPreview, setImagemPreview] = useState(null);
     const [plantaPreview, setPlantaPreview] = useState(null);
-    
+
     // Estados para paginação e filtros
     const [paginaAtual, setPaginaAtual] = useState(1);
     const [termoPesquisa, setTermoPesquisa] = useState('');
@@ -78,27 +77,42 @@ const Painel = () => {
             if (preData.sucesso) setPreReservas(preData.data);
             if (contraData.sucesso) setContrapropostas(contraData.data);
             if (agendData.sucesso) setAgendamentos(agendData.data);
-            
-            // Processar dados das salas
-            if (salasData.produtos && salasData.produtos[0]?.variacoes) {
-                const todasSalas = [];
-                salasData.produtos[0].variacoes.forEach(andar => {
-                    andar.variacoes.forEach((sala, index) => {
-                        todasSalas.push({
-                            id: `${andar.atributos.andar[0].valor}-${index + 1}`,
-                            andar: andar.atributos.andar[0].valor,
-                            numero: index + 1,
-                            nome: sala.atributos.nome[0].valor,
-                            area: sala.atributos.area[0].valor,
-                            posicao: sala.atributos.posicao[0].valor,
-                            preco: sala.precos.de[0].valor,
-                            disponivel: sala.atributos.disponibilidade[0].valor,
-                            imagem: sala.arquivos.imagens[0]?.baixar,
-                            planta: sala.arquivos.plantas[0]?.baixar
+
+            // Buscar salas diretamente do endpoint de salas
+            const salasResponse = await fetch(`${Config.api_url}/api/admin/salas-list`, { 
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (salasResponse.ok) {
+                const salasResult = await salasResponse.json();
+                if (salasResult.sucesso) {
+                    setSalas(salasResult.data);
+                }
+            } else {
+                // Fallback para estrutura antiga se endpoint não existir
+                if (salasData.produtos && salasData.produtos[0]?.variacoes) {
+                    const todasSalas = [];
+                    salasData.produtos[0].variacoes.forEach(andar => {
+                        andar.variacoes.forEach((sala, index) => {
+                            todasSalas.push({
+                                id: null, // Será um ID temporário para criação
+                                andar: andar.atributos.andar[0].valor,
+                                numero: (index + 1).toString(),
+                                nome: sala.atributos.nome[0].valor,
+                                area: sala.atributos.area[0].valor,
+                                posicao: sala.atributos.posicao[0].valor,
+                                preco: sala.precos.de[0].valor,
+                                disponivel: sala.atributos.disponibilidade[0].valor,
+                                imagem: sala.arquivos.imagens[0]?.baixar?.replace('/uploads/', ''),
+                                planta: sala.arquivos.plantas[0]?.baixar?.replace('/uploads/', '')
+                            });
                         });
                     });
-                });
-                setSalas(todasSalas);
+                    setSalas(todasSalas);
+                }
             }
         } catch (error) {
             console.error('Erro ao carregar dados:', error);
@@ -114,11 +128,11 @@ const Painel = () => {
         const matchPesquisa = sala.nome.toLowerCase().includes(termoPesquisa.toLowerCase()) ||
                              sala.andar.toString().includes(termoPesquisa) ||
                              sala.numero.toString().includes(termoPesquisa);
-        
+
         const matchDisponibilidade = filtroDisponibilidade === 'todos' ||
                                    (filtroDisponibilidade === 'disponivel' && sala.disponivel) ||
                                    (filtroDisponibilidade === 'indisponivel' && !sala.disponivel);
-        
+
         return matchPesquisa && matchDisponibilidade;
     });
 
@@ -143,7 +157,7 @@ const Painel = () => {
                     'Content-Type': 'application/json'
                 }
             });
-            
+
             if (response.ok) {
                 toast.success('Marcado como visualizado!');
                 carregarDados();
@@ -456,7 +470,7 @@ const Painel = () => {
     return (
         <Container fluid className="p-0" style={{ backgroundColor: '#f8f9fa', minHeight: '100vh' }}>
             <Toaster position="top-right" />
-            
+
             <Navbar expand="lg" className="shadow-sm px-4 py-3 mb-4" style={{ background: 'linear-gradient(135deg, #001A47 0%, #003875 100%)' }}>
                 <Navbar.Brand className="fw-bold text-uppercase text-white d-flex align-items-center">
                     <Building className="me-2" />
@@ -538,7 +552,7 @@ const Painel = () => {
                                         Nova Sala
                                     </Button>
                                 </div>
-                                
+
                                 {/* Filtros e Pesquisa */}
                                 <Row className="g-3">
                                     <Col md={6}>
@@ -632,7 +646,7 @@ const Painel = () => {
                                         )}
                                     </tbody>
                                 </Table>
-                                
+
                                 {/* Paginação */}
                                 {totalPaginas > 1 && (
                                     <div className="d-flex justify-content-center p-3 border-top">
@@ -645,7 +659,7 @@ const Painel = () => {
                                                 onClick={() => setPaginaAtual(Math.max(1, paginaAtual - 1))}
                                                 disabled={paginaAtual === 1}
                                             />
-                                            
+
                                             {Array.from({ length: Math.min(5, totalPaginas) }, (_, i) => {
                                                 let pageNum;
                                                 if (totalPaginas <= 5) {
@@ -657,7 +671,7 @@ const Painel = () => {
                                                 } else {
                                                     pageNum = paginaAtual - 2 + i;
                                                 }
-                                                
+
                                                 return (
                                                     <Pagination.Item
                                                         key={pageNum}
@@ -668,7 +682,7 @@ const Painel = () => {
                                                     </Pagination.Item>
                                                 );
                                             })}
-                                            
+
                                             <Pagination.Next 
                                                 onClick={() => setPaginaAtual(Math.min(totalPaginas, paginaAtual + 1))}
                                                 disabled={paginaAtual === totalPaginas}
@@ -783,8 +797,7 @@ const Painel = () => {
                                                         Sala disponível para venda
                                                     </label>
                                                 </div>
-                                            </Col>
-                                        </Row>
+                                            </Col                                        </Row>
                                     </Card.Body>
                                 </Card>
                             </Col>

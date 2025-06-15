@@ -414,6 +414,177 @@ app.delete('/api/salas/:id', authenticateAdmin, async (req, res) => {
   }
 });
 
+// ================= ROTAS DE ADMIN PARA SALAS =================
+
+// Criar nova sala (Admin)
+app.post('/api/admin/salas', authenticateAdmin, upload.fields([
+  { name: 'imagem', maxCount: 1 },
+  { name: 'planta', maxCount: 1 }
+]), async (req, res) => {
+  try {
+    const {
+      numero, andar, nome, area, posicao, orientacao, preco, disponivel
+    } = req.body;
+
+    const imagemFile = req.files?.imagem?.[0];
+    const plantaFile = req.files?.planta?.[0];
+
+    const sala = await prisma.sala.create({
+      data: {
+        numero,
+        andar: parseInt(andar),
+        nome,
+        area: parseFloat(area),
+        posicao: posicao || orientacao,
+        orientacao: orientacao || posicao,
+        preco: parseFloat(preco),
+        disponivel: disponivel === 'true',
+        imagem: imagemFile?.filename,
+        planta: plantaFile?.filename
+      }
+    });
+
+    res.json({ 
+      sucesso: true, 
+      mensagem: 'Sala criada com sucesso!',
+      data: sala
+    });
+  } catch (error) {
+    logError(error, req);
+    res.status(500).json({ 
+      sucesso: false, 
+      mensagem: 'Erro ao criar sala: ' + error.message
+    });
+  }
+});
+
+// Atualizar sala (Admin)
+app.put('/api/admin/salas/:id', authenticateAdmin, upload.fields([
+  { name: 'imagem', maxCount: 1 },
+  { name: 'planta', maxCount: 1 }
+]), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const {
+      numero, andar, nome, area, posicao, orientacao, preco, disponivel
+    } = req.body;
+
+    console.log('Dados recebidos para atualização:', { id, numero, andar, nome, area, posicao, preco, disponivel });
+
+    const imagemFile = req.files?.imagem?.[0];
+    const plantaFile = req.files?.planta?.[0];
+
+    // Buscar a sala existente primeiro
+    const salaExistente = await prisma.sala.findFirst({
+      where: { 
+        OR: [
+          { id: parseInt(id) },
+          { 
+            AND: [
+              { andar: parseInt(andar) },
+              { numero: numero }
+            ]
+          }
+        ]
+      }
+    });
+
+    if (!salaExistente) {
+      return res.status(404).json({ 
+        sucesso: false, 
+        mensagem: 'Sala não encontrada' 
+      });
+    }
+
+    const updateData = {
+      numero,
+      andar: parseInt(andar),
+      nome,
+      area: parseFloat(area),
+      posicao: posicao || orientacao,
+      orientacao: orientacao || posicao,
+      preco: parseFloat(preco),
+      disponivel: disponivel === 'true'
+    };
+
+    if (imagemFile) updateData.imagem = imagemFile.filename;
+    if (plantaFile) updateData.planta = plantaFile.filename;
+
+    const sala = await prisma.sala.update({
+      where: { id: salaExistente.id },
+      data: updateData
+    });
+
+    res.json({ 
+      sucesso: true, 
+      mensagem: 'Sala atualizada com sucesso!',
+      data: sala
+    });
+  } catch (error) {
+    logError(error, req);
+    res.status(500).json({ 
+      sucesso: false, 
+      mensagem: 'Erro ao atualizar sala: ' + error.message
+    });
+  }
+});
+
+// Deletar sala (Admin)
+app.delete('/api/admin/salas/:id', authenticateAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    const sala = await prisma.sala.findUnique({
+      where: { id: parseInt(id) }
+    });
+
+    if (!sala) {
+      return res.status(404).json({ 
+        sucesso: false, 
+        mensagem: 'Sala não encontrada' 
+      });
+    }
+
+    await prisma.sala.delete({
+      where: { id: parseInt(id) }
+    });
+
+    res.json({ 
+      sucesso: true, 
+      mensagem: 'Sala deletada com sucesso!' 
+    });
+  } catch (error) {
+    logError(error, req);
+    res.status(500).json({ 
+      sucesso: false, 
+      mensagem: 'Erro ao deletar sala: ' + error.message
+    });
+  }
+});
+
+// Listar salas para admin
+app.get('/api/admin/salas-list', authenticateAdmin, async (req, res) => {
+  try {
+    const salas = await prisma.sala.findMany({
+      orderBy: [
+        { andar: 'asc' },
+        { numero: 'asc' }
+      ]
+    });
+
+    res.json({ 
+      sucesso: true, 
+      data: salas
+    });
+  } catch (error) {
+    logError(error, req);
+    res.status(500).json({ 
+      sucesso: false, 
+      mensagem: 'Erro ao buscar salas: ' + error.message
+    });
+  }
+});
+
 // ================= ROTAS DE ADMIN E GERENCIAMENTO =================
 
 // Login Admin
