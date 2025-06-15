@@ -185,8 +185,8 @@ const Painel = () => {
                 imagemFile: null,
                 plantaFile: null
             });
-            setImagemPreview(sala.imagem ? `${Config.api_url}${sala.imagem}` : null);
-            setPlantaPreview(sala.planta ? `${Config.api_url}${sala.planta}` : null);
+            setImagemPreview(sala.imagem ? `${Config.api_url}/uploads/${sala.imagem}` : null);
+            setPlantaPreview(sala.planta ? `${Config.api_url}/uploads/${sala.planta}` : null);
         } else {
             // Nova sala
             setSalaEdicao({
