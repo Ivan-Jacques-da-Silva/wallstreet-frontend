@@ -10,7 +10,7 @@ const adminRoutes = require('./routes/admin');
 const formulariosRoutes = require('./routes/formularios');
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3001;
 
 // Sistema de Logs Melhorado
 const logError = (error, req = null, additionalData = {}) => {
