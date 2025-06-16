@@ -1,4 +1,3 @@
-
 import express, { Request, Response } from 'express';
 import multer from 'multer';
 import { PrismaClient } from '@prisma/client';
@@ -76,13 +75,13 @@ router.post('/salas', authenticateAdmin, upload.fields([
   try {
     const files = req.files as { [fieldname: string]: Express.Multer.File[] };
     const salaData: SalaData = req.body;
-    
+
     // Converter strings para números
     salaData.andar = parseInt(salaData.andar as any);
     salaData.area = parseFloat(salaData.area as any);
     salaData.preco = parseFloat(salaData.preco as any);
-    salaData.disponivel = salaData.disponivel === true || salaData.disponivel === 'true';
-    
+    salaData.disponivel = Boolean(salaData.disponivel === true || salaData.disponivel === 'true');
+
     if (salaData.valorizacao) salaData.valorizacao = parseFloat(salaData.valorizacao as any);
     if (salaData.lucro) salaData.lucro = parseFloat(salaData.lucro as any);
     if (salaData.aluguel) salaData.aluguel = parseFloat(salaData.aluguel as any);
@@ -128,7 +127,7 @@ router.put('/salas/:id', authenticateAdmin, upload.fields([
   try {
     const { id } = req.params;
     const files = req.files as { [fieldname: string]: Express.Multer.File[] };
-    
+
     // Buscar sala atual para comparação
     const salaAtual = await prisma.sala.findUnique({
       where: { id: parseInt(id) }
@@ -142,12 +141,12 @@ router.put('/salas/:id', authenticateAdmin, upload.fields([
     }
 
     const salaData: any = req.body;
-    
+
     // Converter strings para números
     if (salaData.andar) salaData.andar = parseInt(salaData.andar);
     if (salaData.area) salaData.area = parseFloat(salaData.area);
     if (salaData.preco) salaData.preco = parseFloat(salaData.preco);
-    if (salaData.disponivel !== undefined) salaData.disponivel = salaData.disponivel === true || salaData.disponivel === 'true';
+    if (salaData.disponivel !== undefined) salaData.disponivel = Boolean(salaData.disponivel === true || salaData.disponivel === 'true');
     if (salaData.valorizacao) salaData.valorizacao = parseFloat(salaData.valorizacao);
     if (salaData.lucro) salaData.lucro = parseFloat(salaData.lucro);
     if (salaData.aluguel) salaData.aluguel = parseFloat(salaData.aluguel);
@@ -188,7 +187,7 @@ router.put('/salas/:id', authenticateAdmin, upload.fields([
 router.delete('/salas/:id', authenticateAdmin, async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    
+
     // Buscar sala antes de deletar
     const sala = await prisma.sala.findUnique({
       where: { id: parseInt(id) }
@@ -226,7 +225,7 @@ router.get('/historico', authenticateAdmin, async (req: Request<{}, any, any, Hi
   try {
     const { page = '1', limit = '20', tabela, operacao } = req.query;
     const skip = (parseInt(page) - 1) * parseInt(limit);
-    
+
     const where: any = {};
     if (tabela) where.tabela = tabela;
     if (operacao) where.operacao = operacao;
