@@ -12,11 +12,22 @@ const formulariosRoutes = require('./routes/formularios');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Sistema de Logs
-const logError = (error, req = null) => {
+// Sistema de Logs Melhorado
+const logError = (error, req = null, additionalData = {}) => {
   const timestamp = new Date().toISOString();
   const route = req ? `${req.method} ${req.path}` : 'SYSTEM';
-  const logEntry = `[${timestamp}] ${route} - ERROR: ${error.message}\nStack: ${error.stack}\n\n`;
+  const ip = req ? (req.ip || req.connection.remoteAddress) : 'UNKNOWN';
+  const userAgent = req ? req.headers['user-agent'] : 'UNKNOWN';
+  
+  const logEntry = `
+[${timestamp}] ${route}
+IP: ${ip}
+User-Agent: ${userAgent}
+ERROR: ${error.message}
+Stack: ${error.stack}
+Additional Data: ${JSON.stringify(additionalData, null, 2)}
+${'='.repeat(80)}
+`;
 
   // Criar diretório de logs se não existir
   if (!fs.existsSync('logs')) {
@@ -30,14 +41,54 @@ const logError = (error, req = null) => {
   console.error(`[${timestamp}] ${route} - ERROR:`, error.message);
 };
 
+// Log de operações (sucessos)
+const logOperation = (operation, req, data = {}) => {
+  const timestamp = new Date().toISOString();
+  const route = req ? `${req.method} ${req.path}` : 'SYSTEM';
+  const ip = req ? (req.ip || req.connection.remoteAddress) : 'UNKNOWN';
+  
+  const logEntry = `[${timestamp}] ${route} - ${operation} - IP: ${ip} - Data: ${JSON.stringify(data)}\n`;
+
+  if (!fs.existsSync('logs')) {
+    fs.mkdirSync('logs');
+  }
+
+  const logFile = `logs/operations-${new Date().toISOString().split('T')[0]}.log`;
+  fs.appendFileSync(logFile, logEntry);
+
+  console.log(`[${timestamp}] ${route} - ${operation}`);
+};
+
 // Middleware global de tratamento de erros
 const errorHandler = (err, req, res, next) => {
-  logError(err, req);
+  // Log detalhado do erro
+  logError(err, req, {
+    body: req.body,
+    params: req.params,
+    query: req.query
+  });
+
+  // Resposta amigável para o frontend
+  let mensagem = 'Erro interno do servidor';
+  let codigo = 'INTERNAL_ERROR';
+
+  // Tratar diferentes tipos de erro
+  if (err.code === 'P2002') {
+    mensagem = 'Dados duplicados encontrados';
+    codigo = 'DUPLICATE_DATA';
+  } else if (err.code === 'P2025') {
+    mensagem = 'Registro não encontrado';
+    codigo = 'NOT_FOUND';
+  } else if (err.message.includes('Unknown argument')) {
+    mensagem = 'Erro de validação dos dados';
+    codigo = 'VALIDATION_ERROR';
+  }
 
   res.status(500).json({
     sucesso: false,
-    mensagem: 'Erro interno do servidor',
-    codigo: 'INTERNAL_ERROR'
+    mensagem,
+    codigo,
+    timestamp: new Date().toISOString()
   });
 };
 

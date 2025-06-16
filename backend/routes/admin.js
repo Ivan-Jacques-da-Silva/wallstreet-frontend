@@ -181,6 +181,25 @@ router.put('/salas/:id', authenticateAdmin, upload.fields([
       numero, andar, nome, area, posicao, orientacao, preco, disponivel
     } = req.body;
 
+    // Log da operação iniciada
+    const fs = require('fs');
+    const logOperation = (operation, req, data = {}) => {
+      const timestamp = new Date().toISOString();
+      const route = req ? `${req.method} ${req.path}` : 'SYSTEM';
+      const ip = req ? (req.ip || req.connection.remoteAddress) : 'UNKNOWN';
+      
+      const logEntry = `[${timestamp}] ${route} - ${operation} - IP: ${ip} - Data: ${JSON.stringify(data)}\n`;
+
+      if (!fs.existsSync('logs')) {
+        fs.mkdirSync('logs');
+      }
+
+      const logFile = `logs/operations-${new Date().toISOString().split('T')[0]}.log`;
+      fs.appendFileSync(logFile, logEntry);
+    };
+
+    logOperation('SALA_UPDATE_INICIADO', req, { salaId: id, dados: req.body });
+
     // Buscar dados antes da alteração
     const salaAntes = await prisma.sala.findFirst({
       where: { 
@@ -197,6 +216,7 @@ router.put('/salas/:id', authenticateAdmin, upload.fields([
     });
 
     if (!salaAntes) {
+      logOperation('SALA_UPDATE_ERRO', req, { erro: 'Sala não encontrada', salaId: id });
       return res.status(404).json({ 
         sucesso: false, 
         mensagem: 'Sala não encontrada' 
@@ -212,10 +232,14 @@ router.put('/salas/:id', authenticateAdmin, upload.fields([
       nome,
       area: parseFloat(area),
       posicao: posicao || orientacao,
-      orientacao: orientacao || posicao,
       preco: parseFloat(preco),
       disponivel: disponivel === 'true'
     };
+
+    // Adicionar orientacao se fornecida
+    if (orientacao) {
+      updateData.orientacao = orientacao;
+    }
 
     if (imagemFile) updateData.imagem = imagemFile.filename;
     if (plantaFile) updateData.planta = plantaFile.filename;
@@ -228,16 +252,48 @@ router.put('/salas/:id', authenticateAdmin, upload.fields([
     // Registrar no histórico
     await registrarHistorico(req, 'UPDATE', 'salas', sala.id, salaAntes, updateData);
 
+    logOperation('SALA_UPDATE_SUCESSO', req, { salaId: sala.id, nome: sala.nome });
+
     res.json({ 
       sucesso: true, 
       mensagem: 'Sala atualizada com sucesso!',
       data: sala
     });
   } catch (error) {
+    // Log detalhado do erro
+    const fs = require('fs');
+    const timestamp = new Date().toISOString();
+    const logEntry = `
+[${timestamp}] PUT /api/admin/salas/${req.params.id}
+IP: ${req.ip || req.connection.remoteAddress}
+ERROR: ${error.message}
+Stack: ${error.stack}
+Body: ${JSON.stringify(req.body, null, 2)}
+${'='.repeat(80)}
+`;
+
+    if (!fs.existsSync('logs')) {
+      fs.mkdirSync('logs');
+    }
+
+    fs.appendFileSync(`logs/error-${new Date().toISOString().split('T')[0]}.log`, logEntry);
+
     console.error('Erro ao atualizar sala:', error);
+    
+    // Resposta amigável para o frontend
+    let mensagem = 'Erro ao atualizar sala';
+    
+    if (error.message.includes('Unknown argument')) {
+      mensagem = 'Erro de validação dos dados da sala';
+    } else if (error.code === 'P2002') {
+      mensagem = 'Já existe uma sala com estes dados';
+    }
+    
     res.status(500).json({ 
       sucesso: false, 
-      mensagem: 'Erro ao atualizar sala: ' + error.message
+      mensagem,
+      codigo: 'SALA_UPDATE_ERROR',
+      timestamp: new Date().toISOString()
     });
   }
 });

@@ -67,6 +67,7 @@ model Sala {
   nome         String
   area         Float
   posicao      String
+  orientacao   String?
   preco        Float
   disponivel   Boolean  @default(true)
   imagem       String?
