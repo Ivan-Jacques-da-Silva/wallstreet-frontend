@@ -12,6 +12,9 @@ const Painel = () => {
     const [preReservas, setPreReservas] = useState([]);
     const [contrapropostas, setContrapropostas] = useState([]);
     const [agendamentos, setAgendamentos] = useState([]);
+    const [historico, setHistorico] = useState([]);
+    const [historicoPage, setHistoricoPage] = useState(1);
+    const [historicoTotal, setHistoricoTotal] = useState(0);
     const [salas, setSalas] = useState([]);
     const [showSalaModal, setShowSalaModal] = useState(false);
     const [salaEdicao, setSalaEdicao] = useState(null);
@@ -467,6 +470,47 @@ const Painel = () => {
         </Card>
     );
 
+    const buscarAgendamentos = async () => {
+        try {
+            const token = localStorage.getItem('admin-token');
+            const response = await fetch(`${Config.api_url}/api/admin/agendamentos`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await response.json();
+            if (data.sucesso) {
+                setAgendamentos(data.data);
+            }
+        } catch (error) {
+            console.error('Erro ao buscar agendamentos:', error);
+        }
+    };
+
+    const buscarHistorico = async (page = 1) => {
+        try {
+            const token = localStorage.getItem('admin-token');
+            const response = await fetch(`${Config.api_url}/api/admin/historico?page=${page}&limit=20`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await response.json();
+            if (data.sucesso) {
+                setHistorico(data.data);
+                setHistoricoTotal(data.pagination.total);
+            }
+        } catch (error) {
+            console.error('Erro ao buscar histórico:', error);
+        }
+    };
+
+    useEffect(() => {
+        const token = localStorage.getItem('admin-token');
+        if (activeTab === 'agendamentos') {
+            buscarAgendamentos();
+        }
+        if (activeTab === 'historico') {
+            buscarHistorico(historicoPage);
+        }
+    }, [activeTab, historicoPage]);
+
     return (
         <Container fluid className="p-0" style={{ backgroundColor: '#f8f9fa', minHeight: '100vh' }}>
             <Toaster position="top-right" />
@@ -696,6 +740,128 @@ const Painel = () => {
                                 )}
                             </Card.Body>
                         </Card>
+                    </Tab>
+
+                    <Tab eventKey="agendamentos" title={
+                        <span className="d-flex align-items-center">
+                            <i className="bi bi-calendar-check me-2"></i>
+                            Agendamentos
+                        </span>
+                    }>
+                        <Table striped bordered hover>
+                            <thead>
+                                <tr>
+                                    <th>Nome</th>
+                                    <th>CPF/CNPJ</th>
+                                    <th>Contato</th>
+                                    <th>Data</th>
+                                    <th>Hora</th>
+                                    <th>Status</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {agendamentos.map(agendamento => (
+                                    <tr key={agendamento.id} className={!agendamento.visualizado ? 'table-warning' : ''}>
+                                        <td>{agendamento.nome}</td>
+                                        <td>{agendamento.cpf_cnpj}</td>
+                                        <td>{agendamento.contato}</td>
+                                        <td>{agendamento.data}</td>
+                                        <td>{agendamento.hora}</td>
+                                        <td>
+                                            <Badge bg={agendamento.visualizado ? 'success' : 'warning'}>
+                                                {agendamento.visualizado ? 'Visualizado' : 'Novo'}
+                                            </Badge>
+                                        </td>
+                                        <td>
+                                            {!agendamento.visualizado && (
+                                                <Button 
+                                                    size="sm" 
+                                                    variant="outline-success"
+                                                    onClick={() => marcarComoVisualizado('agendamentos', agendamento.id)}
+                                                >
+                                                    Marcar como visto
+                                                </Button>
+                                            )}
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </Table>
+                    </Tab>
+
+                    <Tab eventKey="historico" title={
+                        <span className="d-flex align-items-center">
+                            <i className="bi bi-clock-history me-2"></i>
+                            Histórico
+                        </span>
+                    }>
+                        <div className="d-flex justify-content-between align-items-center mb-4">
+                            <h4>Histórico de Alterações</h4>
+                            <Badge bg="info">{historicoTotal} registros</Badge>
+                        </div>
+                        <Table striped bordered hover size="sm">
+                            <thead>
+                                <tr>
+                                    <th>Data/Hora</th>
+                                    <th>Operação</th>
+                                    <th>Tabela</th>
+                                    <th>Registro ID</th>
+                                    <th>Usuário</th>
+                                    <th>IP</th>
+                                    <th>Detalhes</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {historico.map(item => (
+                                    <tr key={item.id}>
+                                        <td style={{ fontSize: '12px' }}>
+                                            {new Date(item.createdAt).toLocaleString('pt-BR')}
+                                        </td>
+                                        <td>
+                                            <Badge bg={
+                                                item.operacao === 'CREATE' ? 'success' : 
+                                                item.operacao === 'UPDATE' ? 'warning' : 
+                                                item.operacao === 'DELETE' ? 'danger' : 'info'
+                                            }>
+                                                {item.operacao}
+                                            </Badge>
+                                        </td><td>{item.tabela}</td>
+                                        <td>{item.registro_id || '-'}</td>
+                                        <td>{item.usuario}</td>
+                                        <td style={{ fontSize: '11px' }}>{item.ip_address?.substring(0, 15) || '-'}</td>
+                                        <td>
+                                            <Button 
+                                                size="sm" 
+                                                variant="outline-info"
+                                                onClick={() => {
+                                                    const detalhes = {
+                                                        antes: item.dados_antes,
+                                                        depois: item.dados_depois
+                                                    };
+                                                    alert(`Detalhes:\n${JSON.stringify(detalhes, null, 2)}`);
+                                                }}
+                                            >
+                                                Ver
+                                            </Button>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </Table>
+                        <div className="d-flex justify-content-center mt-3">
+                            <Button 
+                                variant="outline-primary" 
+                                onClick={() => {
+                                    const newPage = historicoPage + 1;
+                                    setHistoricoPage(newPage);
+                                    buscarHistorico(newPage);
+                                }}
+                                disabled={historico.length < 20}
+                            >
+                                Carregar mais
+                            </Button>
+                        </div>
                     </Tab>
                 </Tabs>
             </Container>

@@ -72,7 +72,23 @@ model Sala {
   imagem       String?
   planta       String?
   proposta     String?
-
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   @@map("salas")
+}
+
+model HistoricoAlteracoes {
+  id           Int      @id @default(autoincrement())
+  tabela       String   // Nome da tabela alterada
+  operacao     String   // CREATE, UPDATE, DELETE
+  registro_id  Int?     // ID do registro alterado
+  dados_antes  Json?    // Dados antes da alteração
+  dados_depois Json?    // Dados depois da alteração
+  usuario      String   // Usuário que fez a alteração
+  ip_address   String?  // IP do usuário
+  user_agent   String?  // User Agent do navegador
+  createdAt    DateTime @default(now())
+
+  @@map("historico_alteracoes")
 }
