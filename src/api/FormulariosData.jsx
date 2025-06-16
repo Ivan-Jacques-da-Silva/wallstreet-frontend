@@ -22,7 +22,7 @@ export function PreReservaForm() {
         }
 
         try {
-            const response = await fetch(`${Config.api_url}/api/pre-reserva`, {
+            const response = await fetch(`${Config.api_url}/api/formularios/pre-reserva`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -145,7 +145,7 @@ export function ContrapropostaForm() {
         }
 
         try {
-            const response = await fetch(`${Config.api_url}/api/contraproposta`, {
+            const response = await fetch(`${Config.api_url}/api/formularios/contraproposta`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -276,7 +276,7 @@ export function AgendarReuniaoForm() {
         }
 
         try {
-            const response = await fetch(`${Config.api_url}/api/agendar-reuniao`, {
+            const response = await fetch(`${Config.api_url}/api/formularios/agendar-reuniao`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

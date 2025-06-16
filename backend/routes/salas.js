@@ -113,3 +113,71 @@ router.get('/:id', async (req, res) => {
 });
 
 module.exports = router;
+const express = require('express');
+const { PrismaClient } = require('@prisma/client');
+
+const router = express.Router();
+const prisma = new PrismaClient();
+
+// Listar todas as salas (endpoint público)
+router.get('/', async (req, res) => {
+  try {
+    const salas = await prisma.sala.findMany({
+      where: { disponivel: true },
+      orderBy: [
+        { andar: 'asc' },
+        { numero: 'asc' }
+      ]
+    });
+
+    // Estrutura compatível com código antigo
+    const estruturaAntica = {
+      produtos: [{
+        variacoes: []
+      }]
+    };
+
+    // Agrupar por andar
+    const andares = {};
+    salas.forEach(sala => {
+      if (!andares[sala.andar]) {
+        andares[sala.andar] = [];
+      }
+      andares[sala.andar].push({
+        atributos: {
+          nome: [{ valor: sala.nome }],
+          area: [{ valor: sala.area }],
+          posicao: [{ valor: sala.posicao }],
+          disponibilidade: [{ valor: sala.disponivel }]
+        },
+        precos: {
+          de: [{ valor: sala.preco }]
+        },
+        arquivos: {
+          imagens: sala.imagem ? [{ baixar: `/uploads/${sala.imagem}` }] : [],
+          plantas: sala.planta ? [{ baixar: `/uploads/${sala.planta}` }] : []
+        }
+      });
+    });
+
+    // Converter para estrutura antiga
+    Object.keys(andares).forEach(andar => {
+      estruturaAntica.produtos[0].variacoes.push({
+        atributos: {
+          andar: [{ valor: andar }]
+        },
+        variacoes: andares[andar]
+      });
+    });
+
+    res.json(estruturaAntica);
+  } catch (error) {
+    console.error('Erro ao buscar salas:', error);
+    res.status(500).json({ 
+      sucesso: false, 
+      mensagem: 'Erro ao buscar salas: ' + error.message
+    });
+  }
+});
+
+module.exports = router;
