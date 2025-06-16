@@ -5,9 +5,7 @@ require('dotenv').config();
 
 // Importar middleware e rotas
 const { auditarOperacao } = require('./middleware/auditoria');
-const salasRoutes = require('./routes/salas');
-const adminRoutes = require('./routes/admin');
-const formulariosRoutes = require('./routes/formularios');
+const apiRoutes = require('./routes/index');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -106,24 +104,8 @@ app.use('/uploads', express.static('uploads'));
 // Middleware de auditoria
 app.use(auditarOperacao);
 
-// Configurar rotas modulares
-app.use('/api/salas', salasRoutes);
-app.use('/api/admin', adminRoutes);
-app.use('/api', formulariosRoutes);
-
-// CSRF Token (compatibilidade)
-app.get('/api/csrf-token/', (req, res) => {
-  res.json({ csrfToken: 'dummy-token' });
-});
-
-// Rota de status da API
-app.get('/api/status', (req, res) => {
-  res.json({ 
-    status: 'online', 
-    timestamp: new Date().toISOString(),
-    version: '2.0.0'
-  });
-});
+// Configurar todas as rotas através do router principal
+app.use('/api', apiRoutes);
 
 // Middleware de tratamento de erros (deve estar por último)
 app.use(errorHandler);

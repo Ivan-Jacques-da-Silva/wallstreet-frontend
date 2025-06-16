@@ -2,24 +2,10 @@
 const express = require('express');
 const { PrismaClient } = require('@prisma/client');
 const { registrarHistorico } = require('../middleware/auditoria');
+const { authenticateAdmin } = require('../middleware/auth');
 
 const router = express.Router();
 const prisma = new PrismaClient();
-
-// Middleware de autenticação admin
-const authenticateAdmin = (req, res, next) => {
-  const token = req.headers.authorization?.replace('Bearer ', '');
-  
-  if (!token || token !== 'admin-token-123') {
-    return res.status(401).json({ 
-      sucesso: false, 
-      mensagem: 'Acesso negado. Token inválido.',
-      codigo: 'UNAUTHORIZED'
-    });
-  }
-  
-  next();
-};
 
 // Pré-Reserva
 router.post('/pre-reserva', async (req, res) => {
