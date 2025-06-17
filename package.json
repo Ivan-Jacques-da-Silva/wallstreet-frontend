@@ -1,13 +1,18 @@
+
 {
   "private": true,
   "type": "module",
-  "name": "frontend",
-  "version": "0.0.0",
+  "name": "wall-street-corporate-frontend",
+  "version": "1.0.0",
   "scripts": {
     "dev": "vite",
     "lint": "eslint .",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "dev:backend": "cd backend && npm install && npm run dev",
+    "dev:frontend": "npm install && npm run dev",
+    "install:all": "npm install && cd backend && npm install",
+    "start:backend": "cd backend && npm start"
   },
   "dependencies": {
     "@prisma/client": "^6.9.0",
@@ -41,17 +46,4 @@
     "globals": "^15.15.0",
     "vite": "^6.2.0"
   }
-}
-{
-  "name": "wall-street-corporate",
-  "version": "1.0.0",
-  "scripts": {
-    "dev": "cd backend && npm install && npm run dev",
-    "dev:frontend": "npm install && npm run dev",
-    "dev:backend": "cd backend && npm install && npm run dev",
-    "build": "cd backend && npm run build",
-    "start": "cd backend && npm start",
-    "install:all": "npm install && cd backend && npm install"
-  },
-  "devDependencies": {}
 }

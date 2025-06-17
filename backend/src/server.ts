@@ -148,11 +148,12 @@ const rateLimit = (req: Request, res: Response, next: NextFunction): void => {
   }
 
   if (data.count >= limit) {
-    return res.status(429).json({
+    res.status(429).json({
       sucesso: false,
       mensagem: 'Muitas requisições. Tente novamente em alguns minutos.',
       codigo: 'RATE_LIMIT_EXCEEDED'
     });
+    return;
   }
 
   data.count++;

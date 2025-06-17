@@ -153,7 +153,7 @@ const Painel = () => {
     const marcarComoVisualizado = async (tipo, id) => {
         try {
             const token = localStorage.getItem('admin-token');
-            const response = await fetch(`${Config.api_url}/api/admin/${tipo}/${id}/visualizar`, {
+            const response = await fetch(`${Config.api_url}/admin/${tipo}/${id}/visualizar`, {
                 method: 'PUT',
                 headers: {
                     'Authorization': `Bearer ${token}`,
