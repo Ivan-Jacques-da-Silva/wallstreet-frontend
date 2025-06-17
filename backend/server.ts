@@ -161,12 +161,15 @@ const rateLimit = (req: Request, res: Response, next: NextFunction): void => {
 
 // Configuração de CORS otimizada
 const corsOptions = {
-  origin: ['http://localhost:5173', 'http://127.0.0.1:5173', 'http://localhost:3000'],
+  origin: ['http://localhost:5173', 'http://127.0.0.1:5173', 'http://localhost:3000', 'http://localhost:5001'],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
   maxAge: 86400 // Cache preflight por 24h
 };
+
+// Aplicar CORS
+app.use(cors(corsOptions));
 
 // Middleware de parsing com limites de segurança
 app.use(express.json({ limit: '10mb' }));

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import Config from '../Config';
 import { Row, Col } from 'react-bootstrap';
@@ -212,7 +211,7 @@ export const buscarSalas = async () => {
     }
 
     const data = await response.json();
-    
+
     if (!data.produtos || !Array.isArray(data.produtos)) {
       throw new Error('Formato de dados inválido recebido da API');
     }
@@ -220,14 +219,14 @@ export const buscarSalas = async () => {
     return data;
   } catch (error) {
     console.error("Erro ao buscar as salas:", error);
-    
+
     // Tratamento específico para diferentes tipos de erro
     if (error.name === 'AbortError') {
       throw new Error('Timeout: A requisição demorou muito para responder');
     } else if (error.message.includes('Failed to fetch')) {
       throw new Error('Erro de conexão: Verifique sua internet');
     }
-    
+
     throw error;
   }
 };
