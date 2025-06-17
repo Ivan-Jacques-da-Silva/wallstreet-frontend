@@ -4,6 +4,8 @@ import { authenticateAdmin } from "../middleware/auth";
 
 const router = Router();
 
+const router = Router();
+
 // Buscar todas as salas
 router.get("/salas", async (req: Request, res: Response) => {
   try {
