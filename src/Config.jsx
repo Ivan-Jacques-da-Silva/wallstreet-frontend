@@ -1,6 +1,5 @@
-
 // Configuração centralizada da aplicação
-const api_url = 'http://localhost:5000'
+const api_url = 'http://localhost:5001'
 // const api_url = 'https://wallstreetnr.com.br' // URL de produção
 
 // Configuração de CSRF Token para compatibilidade

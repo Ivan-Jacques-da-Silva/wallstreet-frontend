@@ -1,9 +1,8 @@
-
 import express, { Application, Request, Response, NextFunction } from 'express';
 import cors from 'cors';
-import fs from 'fs';
-import path from 'path';
 import dotenv from 'dotenv';
+import path from 'path';
+import fs from 'fs';
 
 // Importar middleware e rotas
 import { auditarOperacao } from './src/middleware/auditoria';
@@ -30,7 +29,7 @@ const logError = (error: CustomError, req: Request | null = null, additionalData
   const route = req ? `${req.method} ${req.path}` : 'SYSTEM';
   const ip = req ? (req.ip || req.socket.remoteAddress) : 'UNKNOWN';
   const userAgent = req ? req.headers['user-agent'] : 'UNKNOWN';
-  
+
   const logEntry = `
 [${timestamp}] ${route}
 IP: ${ip}
@@ -58,7 +57,7 @@ const logOperation = (operation: string, req: Request, data: any = {}): void => 
   const timestamp = new Date().toISOString();
   const route = req ? `${req.method} ${req.path}` : 'SYSTEM';
   const ip = req ? (req.ip || req.socket.remoteAddress) : 'UNKNOWN';
-  
+
   const logEntry = `[${timestamp}] ${route} - ${operation} - IP: ${ip} - Data: ${JSON.stringify(data)}\n`;
 
   if (!fs.existsSync('logs')) {
@@ -77,10 +76,10 @@ const securityHeaders = (req: Request, res: Response, next: NextFunction): void 
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('X-Frame-Options', 'DENY');
   res.setHeader('X-XSS-Protection', '1; mode=block');
-  
+
   // Política de segurança de conteúdo básica
   res.setHeader('Content-Security-Policy', "default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'");
-  
+
   next();
 };
 
@@ -161,13 +160,13 @@ const rateLimit = (req: Request, res: Response, next: NextFunction): void => {
 };
 
 // Configuração de CORS otimizada
-app.use(cors({
+const corsOptions = {
   origin: ['http://localhost:5173', 'http://127.0.0.1:5173', 'http://localhost:3000'],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
   maxAge: 86400 // Cache preflight por 24h
-}));
+};
 
 // Middleware de parsing com limites de segurança
 app.use(express.json({ limit: '10mb' }));
