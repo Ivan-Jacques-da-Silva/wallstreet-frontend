@@ -1,189 +1,548 @@
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
+
+const express = require('express');
+const cors = require('cors');
+const { PrismaClient } = require('@prisma/client');
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
+require('dotenv').config();
+
+const app = express();
+const prisma = new PrismaClient();
+const PORT = process.env.PORT || 5000;
+
+// Sistema de Logs
+const logError = (error, req = null) => {
+  const timestamp = new Date().toISOString();
+  const route = req ? `${req.method} ${req.path}` : 'SYSTEM';
+  const logEntry = `[${timestamp}] ${route} - ERROR: ${error.message}\nStack: ${error.stack}\n\n`;
+  
+  // Criar diretório de logs se não existir
+  if (!fs.existsSync('logs')) {
+    fs.mkdirSync('logs');
+  }
+  
+  // Salvar no arquivo de log
+  const logFile = `logs/error-${new Date().toISOString().split('T')[0]}.log`;
+  fs.appendFileSync(logFile, logEntry);
+  
+  console.error(`[${timestamp}] ${route} - ERROR:`, error.message);
 };
-Object.defineProperty(exports, "__esModule", { value: true });
-const express_1 = __importDefault(require("express"));
-const cors_1 = __importDefault(require("cors"));
-const dotenv_1 = __importDefault(require("dotenv"));
-const path_1 = __importDefault(require("path"));
-const fs_1 = __importDefault(require("fs"));
-// Importar middleware e rotas
-const auditoria_1 = require("./src/middleware/auditoria");
-const index_1 = __importDefault(require("./src/routes/index"));
-dotenv_1.default.config();
-const app = (0, express_1.default)();
-const PORT = parseInt(process.env.PORT || '5001');
-// Sistema de Logs Melhorado com rotação
-const logError = (error, req = null, additionalData = {}) => {
-    const timestamp = new Date().toISOString();
-    const route = req ? `${req.method} ${req.path}` : 'SYSTEM';
-    const ip = req ? (req.ip || req.socket.remoteAddress) : 'UNKNOWN';
-    const userAgent = req ? req.headers['user-agent'] : 'UNKNOWN';
-    const logEntry = `
-[${timestamp}] ${route}
-IP: ${ip}
-User-Agent: ${userAgent}
-ERROR: ${error.message}
-Stack: ${error.stack}
-Additional Data: ${JSON.stringify(additionalData, null, 2)}
-${'='.repeat(80)}
-`;
-    // Criar diretório de logs se não existir
-    if (!fs_1.default.existsSync('logs')) {
-        fs_1.default.mkdirSync('logs');
-    }
-    // Salvar no arquivo de log com rotação diária
-    const logFile = `logs/error-${new Date().toISOString().split('T')[0]}.log`;
-    fs_1.default.appendFileSync(logFile, logEntry);
-    console.error(`[${timestamp}] ${route} - ERROR:`, error.message);
+
+// Middleware de autenticação
+const authenticateAdmin = (req, res, next) => {
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  
+  if (!token || token !== 'admin-token-123') {
+    const error = new Error('Token de acesso inválido ou expirado');
+    logError(error, req);
+    return res.status(401).json({ 
+      sucesso: false, 
+      mensagem: 'Acesso negado. Token inválido.',
+      codigo: 'UNAUTHORIZED'
+    });
+  }
+  
+  next();
 };
-// Log de operações de sucesso
-const logOperation = (operation, req, data = {}) => {
-    const timestamp = new Date().toISOString();
-    const route = req ? `${req.method} ${req.path}` : 'SYSTEM';
-    const ip = req ? (req.ip || req.socket.remoteAddress) : 'UNKNOWN';
-    const logEntry = `[${timestamp}] ${route} - ${operation} - IP: ${ip} - Data: ${JSON.stringify(data)}\n`;
-    if (!fs_1.default.existsSync('logs')) {
-        fs_1.default.mkdirSync('logs');
-    }
-    const logFile = `logs/operations-${new Date().toISOString().split('T')[0]}.log`;
-    fs_1.default.appendFileSync(logFile, logEntry);
-    console.log(`[${timestamp}] ${route} - ${operation}`);
-};
-// Middleware de segurança para headers
-const securityHeaders = (req, res, next) => {
-    // Prevenir ataques XSS
-    res.setHeader('X-Content-Type-Options', 'nosniff');
-    res.setHeader('X-Frame-Options', 'DENY');
-    res.setHeader('X-XSS-Protection', '1; mode=block');
-    // Política de segurança de conteúdo básica
-    res.setHeader('Content-Security-Policy', "default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'");
-    next();
-};
-// Middleware global de tratamento de erros aprimorado
+
+// Middleware global de tratamento de erros
 const errorHandler = (err, req, res, next) => {
-    // Log detalhado do erro
-    logError(err, req, {
-        body: req.body,
-        params: req.params,
-        query: req.query,
-        headers: req.headers
-    });
-    // Resposta amigável para o frontend
-    let mensagem = 'Erro interno do servidor';
-    let codigo = 'INTERNAL_ERROR';
-    let statusCode = err.statusCode || 500;
-    // Tratar diferentes tipos de erro do Prisma e outros
-    if (err.code === 'P2002') {
-        mensagem = 'Dados duplicados encontrados';
-        codigo = 'DUPLICATE_DATA';
-        statusCode = 409;
-    }
-    else if (err.code === 'P2025') {
-        mensagem = 'Registro não encontrado';
-        codigo = 'NOT_FOUND';
-        statusCode = 404;
-    }
-    else if (err.message.includes('Unknown argument')) {
-        mensagem = 'Erro de validação dos dados';
-        codigo = 'VALIDATION_ERROR';
-        statusCode = 400;
-    }
-    else if (err.message.includes('Unauthorized')) {
-        mensagem = 'Acesso não autorizado';
-        codigo = 'UNAUTHORIZED';
-        statusCode = 401;
-    }
-    res.status(statusCode).json({
-        sucesso: false,
-        mensagem,
-        codigo,
-        timestamp: new Date().toISOString(),
-        ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
-    });
+  logError(err, req);
+  
+  res.status(500).json({
+    sucesso: false,
+    mensagem: 'Erro interno do servidor',
+    codigo: 'INTERNAL_ERROR'
+  });
 };
-// Middleware de rate limiting básico
-const rateLimitMap = new Map();
-const rateLimit = (req, res, next) => {
-    const ip = req.ip || req.socket.remoteAddress || 'unknown';
-    const now = Date.now();
-    const windowMs = 15 * 60 * 1000; // 15 minutos
-    const limit = 100; // máximo 100 requests por IP por janela
-    if (!rateLimitMap.has(ip)) {
-        rateLimitMap.set(ip, { count: 1, resetTime: now + windowMs });
-        return next();
-    }
-    const data = rateLimitMap.get(ip);
-    if (now > data.resetTime) {
-        data.count = 1;
-        data.resetTime = now + windowMs;
-        return next();
-    }
-    if (data.count >= limit) {
-        res.status(429).json({
-            sucesso: false,
-            mensagem: 'Muitas requisições. Tente novamente em alguns minutos.',
-            codigo: 'RATE_LIMIT_EXCEEDED'
-        });
-        return;
-    }
-    data.count++;
-    next();
-};
-// Configuração de CORS otimizada
-const corsOptions = {
-    origin: ['http://localhost:5173', 'http://127.0.0.1:5173', 'http://localhost:3000', 'http://localhost:5001'],
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-    credentials: true,
-    maxAge: 86400 // Cache preflight por 24h
-};
-// Aplicar CORS
-app.use((0, cors_1.default)(corsOptions));
-// Middleware de parsing com limites de segurança
-app.use(express_1.default.json({ limit: '10mb' }));
-app.use(express_1.default.urlencoded({ extended: true, limit: '10mb' }));
-// Servir arquivos estáticos com cache headers
-app.use('/uploads', express_1.default.static(path_1.default.join(__dirname, 'uploads'), {
-    maxAge: '1d',
-    etag: true,
-    lastModified: true
+
+// Middleware
+app.use(cors({
+  origin: 'http://localhost:5173',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
 }));
-// Aplicar middlewares de segurança
-app.use(securityHeaders);
-app.use(rateLimit);
-// Middleware de auditoria para tracking de operações
-app.use(auditoria_1.auditarOperacao);
-// Configurar todas as rotas SEM prefixo /api
-app.use('/', index_1.default);
-// Rota de health check
-app.get('/health', (req, res) => {
-    res.json({
-        status: 'healthy',
-        timestamp: new Date().toISOString(),
-        uptime: process.uptime(),
-        memory: process.memoryUsage(),
-        version: '2.0.0'
-    });
+app.use(express.json());
+app.use('/uploads', express.static('uploads'));
+
+// Configuração do multer para upload de imagens
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/');
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + '-' + file.originalname);
+  }
 });
+
+const upload = multer({ storage });
+
+// ================= ROTAS DE FORMULÁRIOS =================
+
+// Pré-Reserva
+app.post('/api/pre-reserva', async (req, res) => {
+  try {
+    const { nome, cpf_cnpj, contato, email } = req.body;
+
+    if (!nome || !cpf_cnpj || !contato || !email) {
+      return res.status(400).json({ 
+        sucesso: false, 
+        mensagem: 'Todos os campos são obrigatórios' 
+      });
+    }
+
+    const preReserva = await prisma.preReserva.create({
+      data: {
+        nome,
+        cpf_cnpj,
+        contato,
+        email
+      }
+    });
+
+    res.json({ 
+      sucesso: true, 
+      mensagem: 'Pré-reserva enviada com sucesso!',
+      data: preReserva
+    });
+  } catch (error) {
+    console.error('Erro ao criar pré-reserva:', error);
+    res.status(500).json({ 
+      sucesso: false, 
+      mensagem: 'Erro interno do servidor' 
+    });
+  }
+});
+
+// Contraproposta
+app.post('/api/contraproposta', async (req, res) => {
+  try {
+    const { nome, cpf_cnpj, contato, email, proposta } = req.body;
+
+    if (!nome || !cpf_cnpj || !contato || !email || !proposta) {
+      return res.status(400).json({ 
+        sucesso: false, 
+        mensagem: 'Todos os campos são obrigatórios' 
+      });
+    }
+
+    const contraproposta = await prisma.contraproposta.create({
+      data: {
+        nome,
+        cpf_cnpj,
+        contato,
+        email,
+        proposta
+      }
+    });
+
+    res.json({ 
+      sucesso: true, 
+      mensagem: 'Contraproposta enviada com sucesso!',
+      data: contraproposta
+    });
+  } catch (error) {
+    console.error('Erro ao criar contraproposta:', error);
+    res.status(500).json({ 
+      sucesso: false, 
+      mensagem: 'Erro interno do servidor' 
+    });
+  }
+});
+
+// Agendamento de Reunião
+app.post('/api/agendar-reuniao', async (req, res) => {
+  try {
+    const { nome, cpf_cnpj, contato, email, data, hora } = req.body;
+
+    if (!nome || !cpf_cnpj || !contato || !email || !data || !hora) {
+      return res.status(400).json({ 
+        sucesso: false, 
+        mensagem: 'Todos os campos são obrigatórios' 
+      });
+    }
+
+    const agendamento = await prisma.agendamentoReuniao.create({
+      data: {
+        nome,
+        cpf_cnpj,
+        contato,
+        email,
+        data,
+        hora
+      }
+    });
+
+    res.json({ 
+      sucesso: true, 
+      mensagem: 'Reunião agendada com sucesso!',
+      data: agendamento
+    });
+  } catch (error) {
+    console.error('Erro ao agendar reunião:', error);
+    res.status(500).json({ 
+      sucesso: false, 
+      mensagem: 'Erro interno do servidor' 
+    });
+  }
+});
+
+// ================= ROTAS DE SALAS =================
+
+// Buscar todas as salas
+app.get('/api/salas', async (req, res) => {
+  try {
+    const { andar } = req.query;
+    
+    const where = andar ? { andar: parseInt(andar) } : {};
+    
+    const salas = await prisma.sala.findMany({
+      where,
+      orderBy: [
+        { andar: 'asc' },
+        { numero: 'asc' }
+      ]
+    });
+
+    // Se não há salas, retornar estrutura vazia mas consistente
+    if (salas.length === 0) {
+      return res.json({
+        produtos: [{
+          variacoes: []
+        }]
+      });
+    }
+
+    res.json({
+      produtos: [{
+        variacoes: salas.reduce((acc, sala) => {
+          let andarExistente = acc.find(a => a.atributos?.andar?.[0]?.valor === sala.andar);
+          
+          if (!andarExistente) {
+            andarExistente = {
+              atributos: {
+                andar: [{ valor: sala.andar }]
+              },
+              variacoes: []
+            };
+            acc.push(andarExistente);
+          }
+          
+          andarExistente.variacoes.push({
+            atributos: {
+              nome: [{ valor: sala.nome }],
+              area: [{ valor: sala.area.toString() }],
+              posicao: [{ valor: sala.posicao }],
+              disponibilidade: [{ valor: sala.disponivel }]
+            },
+            precos: {
+              de: [{ valor: sala.preco.toString() }]
+            },
+            arquivos: {
+              imagens: sala.imagem ? [{ baixar: `/uploads/${sala.imagem}` }] : [],
+              plantas: sala.planta ? [{ baixar: `/uploads/${sala.planta}` }] : []
+            }
+          });
+          
+          return acc;
+        }, [])
+      }]
+    });
+  } catch (error) {
+    console.error('Erro ao buscar salas:', error);
+    res.status(500).json({ 
+      sucesso: false, 
+      mensagem: 'Erro interno do servidor' 
+    });
+  }
+});
+
+// Buscar sala específica
+app.get('/api/salas/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    const sala = await prisma.sala.findUnique({
+      where: { id: parseInt(id) }
+    });
+
+    if (!sala) {
+      return res.status(404).json({ 
+        sucesso: false, 
+        mensagem: 'Sala não encontrada' 
+      });
+    }
+
+    res.json(sala);
+  } catch (error) {
+    console.error('Erro ao buscar sala:', error);
+    res.status(500).json({ 
+      sucesso: false, 
+      mensagem: 'Erro interno do servidor' 
+    });
+  }
+});
+
+// Criar nova sala
+app.post('/api/salas', authenticateAdmin, upload.fields([
+  { name: 'imagem', maxCount: 1 },
+  { name: 'planta', maxCount: 1 },
+  { name: 'proposta', maxCount: 1 }
+]), async (req, res) => {
+  try {
+    const {
+      numero, andar, nome, area, posicao, orientacao, preco,
+      disponivel, valorizacao, lucro, aluguel, condominio, iptu
+    } = req.body;
+
+    const imagemFile = req.files?.imagem?.[0];
+    const plantaFile = req.files?.planta?.[0];
+    const propostaFile = req.files?.proposta?.[0];
+
+    const sala = await prisma.sala.create({
+      data: {
+        numero,
+        andar: parseInt(andar),
+        nome,
+        area: parseFloat(area),
+        posicao,
+        orientacao,
+        preco: parseFloat(preco),
+        disponivel: disponivel === 'true',
+        valorizacao: valorizacao ? parseFloat(valorizacao) : null,
+        lucro: lucro ? parseFloat(lucro) : null,
+        aluguel: aluguel ? parseFloat(aluguel) : null,
+        condominio: condominio ? parseFloat(condominio) : null,
+        iptu: iptu ? parseFloat(iptu) : null,
+        imagem: imagemFile?.filename,
+        planta: plantaFile?.filename,
+        proposta: propostaFile?.filename
+      }
+    });
+
+    res.json({ 
+      sucesso: true, 
+      mensagem: 'Sala criada com sucesso!',
+      data: sala
+    });
+  } catch (error) {
+    console.error('Erro ao criar sala:', error);
+    res.status(500).json({ 
+      sucesso: false, 
+      mensagem: 'Erro interno do servidor' 
+    });
+  }
+});
+
+// Atualizar sala
+app.put('/api/salas/:id', authenticateAdmin, upload.fields([
+  { name: 'imagem', maxCount: 1 },
+  { name: 'planta', maxCount: 1 },
+  { name: 'proposta', maxCount: 1 }
+]), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const {
+      numero, andar, nome, area, posicao, orientacao, preco,
+      disponivel, valorizacao, lucro, aluguel, condominio, iptu
+    } = req.body;
+
+    const imagemFile = req.files?.imagem?.[0];
+    const plantaFile = req.files?.planta?.[0];
+    const propostaFile = req.files?.proposta?.[0];
+
+    const updateData = {
+      numero,
+      andar: parseInt(andar),
+      nome,
+      area: parseFloat(area),
+      posicao,
+      orientacao,
+      preco: parseFloat(preco),
+      disponivel: disponivel === 'true',
+      valorizacao: valorizacao ? parseFloat(valorizacao) : null,
+      lucro: lucro ? parseFloat(lucro) : null,
+      aluguel: aluguel ? parseFloat(aluguel) : null,
+      condominio: condominio ? parseFloat(condominio) : null,
+      iptu: iptu ? parseFloat(iptu) : null
+    };
+
+    if (imagemFile) updateData.imagem = imagemFile.filename;
+    if (plantaFile) updateData.planta = plantaFile.filename;
+    if (propostaFile) updateData.proposta = propostaFile.filename;
+
+    const sala = await prisma.sala.update({
+      where: { id: parseInt(id) },
+      data: updateData
+    });
+
+    res.json({ 
+      sucesso: true, 
+      mensagem: 'Sala atualizada com sucesso!',
+      data: sala
+    });
+  } catch (error) {
+    console.error('Erro ao atualizar sala:', error);
+    res.status(500).json({ 
+      sucesso: false, 
+      mensagem: 'Erro interno do servidor' 
+    });
+  }
+});
+
+// Deletar sala
+app.delete('/api/salas/:id', authenticateAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    await prisma.sala.delete({
+      where: { id: parseInt(id) }
+    });
+
+    res.json({ 
+      sucesso: true, 
+      mensagem: 'Sala deletada com sucesso!' 
+    });
+  } catch (error) {
+    console.error('Erro ao deletar sala:', error);
+    res.status(500).json({ 
+      sucesso: false, 
+      mensagem: 'Erro interno do servidor' 
+    });
+  }
+});
+
+// ================= ROTAS DE ADMIN E GERENCIAMENTO =================
+
+// Login Admin
+app.post('/api/admin/login', async (req, res) => {
+  try {
+    const { usuario, senha } = req.body;
+
+    if (!usuario || !senha) {
+      return res.status(400).json({ 
+        sucesso: false, 
+        mensagem: 'Usuário e senha são obrigatórios' 
+      });
+    }
+
+    // Verificação simples (em produção, use hash da senha)
+    if (usuario === 'admin' && senha === 'admin123') {
+      res.json({ 
+        sucesso: true, 
+        mensagem: 'Login realizado com sucesso!',
+        token: 'admin-token-123' // Token simples para demonstração
+      });
+    } else {
+      res.status(401).json({ 
+        sucesso: false, 
+        mensagem: 'Credenciais inválidas' 
+      });
+    }
+  } catch (error) {
+    console.error('Erro no login admin:', error);
+    res.status(500).json({ 
+      sucesso: false, 
+      mensagem: 'Erro interno do servidor' 
+    });
+  }
+});
+
+// Listar todas as pré-reservas
+app.get('/api/admin/pre-reservas', authenticateAdmin, async (req, res) => {
+  try {
+    const preReservas = await prisma.preReserva.findMany({
+      orderBy: { createdAt: 'desc' }
+    });
+    res.json({ sucesso: true, data: preReservas });
+  } catch (error) {
+    console.error('Erro ao buscar pré-reservas:', error);
+    res.status(500).json({ sucesso: false, mensagem: 'Erro interno do servidor' });
+  }
+});
+
+// Listar todas as contrapropostas
+app.get('/api/admin/contrapropostas', authenticateAdmin, async (req, res) => {
+  try {
+    const contrapropostas = await prisma.contraproposta.findMany({
+      orderBy: { createdAt: 'desc' }
+    });
+    res.json({ sucesso: true, data: contrapropostas });
+  } catch (error) {
+    logError(error, req);
+    res.status(500).json({ sucesso: false, mensagem: 'Erro interno do servidor' });
+  }
+});
+
+// Listar todos os agendamentos
+app.get('/api/admin/agendamentos', authenticateAdmin, async (req, res) => {
+  try {
+    const agendamentos = await prisma.agendamentoReuniao.findMany({
+      orderBy: { createdAt: 'desc' }
+    });
+    res.json({ sucesso: true, data: agendamentos });
+  } catch (error) {
+    logError(error, req);
+    res.status(500).json({ sucesso: false, mensagem: 'Erro interno do servidor' });
+  }
+});
+
+// Marcar pré-reserva como visualizada
+app.put('/api/admin/pre-reservas/:id/visualizar', authenticateAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const preReserva = await prisma.preReserva.update({
+      where: { id: parseInt(id) },
+      data: { visualizado: true }
+    });
+    res.json({ sucesso: true, data: preReserva });
+  } catch (error) {
+    logError(error, req);
+    res.status(500).json({ sucesso: false, mensagem: 'Erro interno do servidor' });
+  }
+});
+
+// Marcar contraproposta como visualizada
+app.put('/api/admin/contrapropostas/:id/visualizar', authenticateAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const contraproposta = await prisma.contraproposta.update({
+      where: { id: parseInt(id) },
+      data: { visualizado: true }
+    });
+    res.json({ sucesso: true, data: contraproposta });
+  } catch (error) {
+    logError(error, req);
+    res.status(500).json({ sucesso: false, mensagem: 'Erro interno do servidor' });
+  }
+});
+
+// Marcar agendamento como visualizado
+app.put('/api/admin/agendamentos/:id/visualizar', authenticateAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const agendamento = await prisma.agendamentoReuniao.update({
+      where: { id: parseInt(id) },
+      data: { visualizado: true }
+    });
+    res.json({ sucesso: true, data: agendamento });
+  } catch (error) {
+    logError(error, req);
+    res.status(500).json({ sucesso: false, mensagem: 'Erro interno do servidor' });
+  }
+});
+
+// CSRF Token (compatibilidade)
+app.get('/api/csrf-token/', (req, res) => {
+  res.json({ csrfToken: 'dummy-token' });
+});
+
 // Middleware de tratamento de erros (deve estar por último)
 app.use(errorHandler);
-// Tratamento de rotas não encontradas
-app.use('*', (req, res) => {
-    res.status(404).json({
-        sucesso: false,
-        mensagem: 'Rota não encontrada',
-        codigo: 'NOT_FOUND',
-        path: req.originalUrl
-    });
-});
+
 app.listen(PORT, '0.0.0.0', () => {
-    console.log(`🚀 Servidor rodando em http://0.0.0.0:${PORT}`);
-    console.log(`🌐 Frontend deve acessar: http://localhost:${PORT}`);
-    console.log(`📊 Sistema de auditoria ativo`);
-    console.log(`🔒 Rotas modulares configuradas`);
-    console.log(`🛡️  Middlewares de segurança ativos`);
-    console.log(`⚡ Sistema de rate limiting ativo`);
+  console.log(`🚀 Servidor rodando em http://0.0.0.0:${PORT}`);
+  console.log(`🌐 Frontend deve acessar: http://localhost:${PORT}`);
 });
-//# sourceMappingURL=server.js.map

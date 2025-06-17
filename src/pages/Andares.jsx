@@ -48,7 +48,7 @@ const Andares = () => {
     useEffect(() => {
         const fetchProduto = async () => {
             try {
-                const response = await fetch(`${Config.api_url}/salas`);
+                const response = await fetch(`${Config.api_url}/api/salas`);
                 if (!response.ok) {
                     throw new Error(`Erro ${response.status}: ${response.statusText}`);
                 }
@@ -87,7 +87,38 @@ const Andares = () => {
         );
     }
 
-    
+    // Se não há salas, mostrar mensagem de aviso
+    if (!salaAtual && salasDinamicas.length === 0) {
+        return (
+            <div className="andares-page bg-white">
+                <header className="ws-header py-3">
+                    <Container>
+                        <Row className="align-items-center justify-content-between">
+                            <Col xs="auto">
+                                <Link to="/">
+                                    <img src={logo} alt="Wall Street Corporate" className="ws-logo-img" />
+                                </Link>
+                            </Col>
+                            <Col xs="auto">
+                                <Link to="/" className="ws-nav-link mx-3">INÍCIO</Link>
+                            </Col>
+                        </Row>
+                    </Container>
+                </header>
+                <Container className="d-flex justify-content-center align-items-center" style={{height: '70vh'}}>
+                    <div className="text-center">
+                        <i className="bi bi-exclamation-triangle text-warning" style={{fontSize: '4rem'}}></i>
+                        <h4 className="mt-3">Nenhuma informação encontrada</h4>
+                        <p className="text-muted">
+                            Não há salas cadastradas para o {andarSelecionado}.<br/>
+                            Entre em contato com o administrador para mais informações.
+                        </p>
+                        <Link to="/" className="btn btn-primary mt-3">Voltar ao Início</Link>
+                    </div>
+                </Container>
+            </div>
+        );
+    }
 
     const valorSala = parseFloat(salaAtual?.precos?.de?.[0]?.valor || 0);
     const valorGaragem = 60000;
@@ -285,12 +316,9 @@ const Andares = () => {
                                 <div className="bg-dark text-white p-3 rounded text-center mb-3">
                                     <div className="fw-bold fs-5">WALL STREET CORPORATE</div>
                                     <div className="fw-bold text-white mt-2">
-                                        {salaAtual?.atributos?.nome?.[0]?.valor ? 
-                                            `Sala Comercial ${salaAtual.atributos.nome[0].valor}` :
-                                            'Selecione uma sala'
-                                        }
+                                        Sala Comercial {salaAtual?.atributos?.nome?.[0]?.valor}
                                     </div>
-                                    <div>{salaAtual?.atributos?.area?.[0]?.valor ? `${salaAtual.atributos.area[0].valor}m² de área privativa` : 'Área: -- m²'}</div>
+                                    <div>{salaAtual?.atributos?.area?.[0]?.valor}m² de área privativa</div>
                                 </div>
                                 <table className="table table-sm mb-3">
                                     <tbody>
