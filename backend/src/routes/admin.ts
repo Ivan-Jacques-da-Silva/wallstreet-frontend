@@ -1,6 +1,6 @@
 
 import { Router, Request, Response } from 'express';
-import { prisma } from '../server';
+import { prisma } from '../../server';
 import { authenticateAdmin } from '../middleware/auth';
 import { logError } from '../middleware/errorHandler';
 

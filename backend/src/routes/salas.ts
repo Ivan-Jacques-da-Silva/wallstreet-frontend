@@ -1,7 +1,6 @@
 import { Router, Request, Response } from "express";
-import { prisma } from "../../server";
+import { prisma, upload } from "../../server";
 import { authenticateAdmin } from "../middleware/auth";
-import { upload } from "../../server";
 
 const router = Router();
 
