@@ -1,6 +1,20 @@
 import express, { Router, Request, Response } from "express";
-import { prisma, upload } from "../../server";
+import multer from "multer";
+import path from "path";
+import { prisma } from "../../server";
 import { authenticateAdmin } from "../middleware/auth";
+
+// Configuração do multer local
+const uploadDir = path.resolve(__dirname, "../../../uploads");
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, uploadDir);
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + "-" + file.originalname);
+  },
+});
+const upload = multer({ storage });
 
 const router = Router();
 
