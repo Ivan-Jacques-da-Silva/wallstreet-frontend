@@ -1,126 +1,102 @@
-
-import { Router, Request, Response } from 'express';
-import { prisma } from '../../server';
-import { authenticateAdmin } from '../middleware/auth';
-import { logError } from '../middleware/errorHandler';
+import { Router, Request, Response } from "express";
+import { prisma } from "../../server";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import { authenticateAdmin } from "../middleware/auth";
 
 const router = Router();
 
-// Login Admin
-router.post('/admin/login', async (req: Request, res: Response) => {
+// Login do admin
+router.post('/login', async (req: Request, res: Response) => {
   try {
-    const { usuario, senha } = req.body;
+    const { email, senha } = req.body;
 
-    if (!usuario || !senha) {
-      return res.status(400).json({ 
-        sucesso: false, 
-        mensagem: 'Usuário e senha são obrigatórios' 
+    // Verificar se o admin existe
+    const admin = await prisma.admin.findUnique({
+      where: { email }
+    });
+
+    if (!admin) {
+      return res.status(401).json({
+        sucesso: false,
+        mensagem: 'Credenciais inválidas'
       });
     }
 
-    // Verificação simples (em produção, use hash da senha)
-    if (usuario === 'admin' && senha === 'admin123') {
-      res.json({ 
-        sucesso: true, 
-        mensagem: 'Login realizado com sucesso!',
-        token: 'admin-token-123' // Token simples para demonstração
-      });
-    } else {
-      res.status(401).json({ 
-        sucesso: false, 
-        mensagem: 'Credenciais inválidas' 
+    // Verificar senha
+    const senhaValida = await bcrypt.compare(senha, admin.senha);
+    if (!senhaValida) {
+      return res.status(401).json({
+        sucesso: false,
+        mensagem: 'Credenciais inválidas'
       });
     }
+
+    // Gerar token JWT
+    const token = jwt.sign(
+      { adminId: admin.id, email: admin.email },
+      process.env.JWT_SECRET || 'fallback-secret',
+      { expiresIn: '24h' }
+    );
+
+    res.json({
+      sucesso: true,
+      mensagem: 'Login realizado com sucesso',
+      token,
+      admin: {
+        id: admin.id,
+        email: admin.email,
+        nome: admin.nome
+      }
+    });
   } catch (error) {
-    console.error('Erro no login admin:', error);
-    res.status(500).json({ 
-      sucesso: false, 
-      mensagem: 'Erro interno do servidor' 
+    console.error('Erro no login:', error);
+    res.status(500).json({
+      sucesso: false,
+      mensagem: 'Erro interno do servidor'
     });
   }
 });
 
-// Listar todas as pré-reservas
-router.get('/admin/pre-reservas', authenticateAdmin, async (req: Request, res: Response) => {
+// Buscar todos os formulários
+router.get('/formularios', authenticateAdmin, async (req: Request, res: Response) => {
   try {
-    const preReservas = await prisma.preReserva.findMany({
-      orderBy: { createdAt: 'desc' }
+    const formularios = await prisma.formulario.findMany({
+      orderBy: { criadoEm: 'desc' }
     });
-    res.json({ sucesso: true, data: preReservas });
+
+    res.json(formularios);
   } catch (error) {
-    console.error('Erro ao buscar pré-reservas:', error);
-    res.status(500).json({ sucesso: false, mensagem: 'Erro interno do servidor' });
+    console.error('Erro ao buscar formulários:', error);
+    res.status(500).json({
+      sucesso: false,
+      mensagem: 'Erro interno do servidor'
+    });
   }
 });
 
-// Listar todas as contrapropostas
-router.get('/admin/contrapropostas', authenticateAdmin, async (req: Request, res: Response) => {
-  try {
-    const contrapropostas = await prisma.contraproposta.findMany({
-      orderBy: { createdAt: 'desc' }
-    });
-    res.json({ sucesso: true, data: contrapropostas });
-  } catch (error) {
-    logError(error as Error, req);
-    res.status(500).json({ sucesso: false, mensagem: 'Erro interno do servidor' });
-  }
-});
-
-// Listar todos os agendamentos
-router.get('/admin/agendamentos', authenticateAdmin, async (req: Request, res: Response) => {
-  try {
-    const agendamentos = await prisma.agendamentoReuniao.findMany({
-      orderBy: { createdAt: 'desc' }
-    });
-    res.json({ sucesso: true, data: agendamentos });
-  } catch (error) {
-    logError(error as Error, req);
-    res.status(500).json({ sucesso: false, mensagem: 'Erro interno do servidor' });
-  }
-});
-
-// Marcar pré-reserva como visualizada
-router.put('/admin/pre-reservas/:id/visualizar', authenticateAdmin, async (req: Request, res: Response) => {
+// Atualizar status do formulário
+router.put('/formularios/:id/status', authenticateAdmin, async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const preReserva = await prisma.preReserva.update({
-      where: { id: parseInt(id) },
-      data: { visualizado: true }
-    });
-    res.json({ sucesso: true, data: preReserva });
-  } catch (error) {
-    logError(error as Error, req);
-    res.status(500).json({ sucesso: false, mensagem: 'Erro interno do servidor' });
-  }
-});
+    const { status } = req.body;
 
-// Marcar contraproposta como visualizada
-router.put('/admin/contrapropostas/:id/visualizar', authenticateAdmin, async (req: Request, res: Response) => {
-  try {
-    const { id } = req.params;
-    const contraproposta = await prisma.contraproposta.update({
+    const formulario = await prisma.formulario.update({
       where: { id: parseInt(id) },
-      data: { visualizado: true }
+      data: { status }
     });
-    res.json({ sucesso: true, data: contraproposta });
-  } catch (error) {
-    logError(error as Error, req);
-    res.status(500).json({ sucesso: false, mensagem: 'Erro interno do servidor' });
-  }
-});
 
-// Marcar agendamento como visualizado
-router.put('/admin/agendamentos/:id/visualizar', authenticateAdmin, async (req: Request, res: Response) => {
-  try {
-    const { id } = req.params;
-    const agendamento = await prisma.agendamentoReuniao.update({
-      where: { id: parseInt(id) },
-      data: { visualizado: true }
+    res.json({
+      sucesso: true,
+      mensagem: 'Status atualizado com sucesso',
+      data: formulario
     });
-    res.json({ sucesso: true, data: agendamento });
   } catch (error) {
-    logError(error as Error, req);
-    res.status(500).json({ sucesso: false, mensagem: 'Erro interno do servidor' });
+    console.error('Erro ao atualizar status:', error);
+    res.status(500).json({
+      sucesso: false,
+      mensagem: 'Erro interno do servidor'
+    });
   }
 });
 
