@@ -90,54 +90,7 @@ const Andares = () => {
         );
     }
 
-    // Se não há salas, mostrar mensagem de aviso
-    if (!salaAtual && salasDinamicas.length === 0) {
-        return (
-            <div className="andares-page bg-white">
-                <header className="ws-header py-3">
-                    <Container>
-                        <Row className="align-items-center justify-content-between">
-                            <Col xs="auto">
-                                <Link to="/">
-                                    <img
-                                        src={logo}
-                                        alt="Wall Street Corporate"
-                                        className="ws-logo-img"
-                                    />
-                                </Link>
-                            </Col>
-                            <Col xs="auto">
-                                <Link to="/" className="ws-nav-link mx-3">
-                                    INÍCIO
-                                </Link>
-                            </Col>
-                        </Row>
-                    </Container>
-                </header>
-                <Container
-                    className="d-flex justify-content-center align-items-center"
-                    style={{ height: "70vh" }}
-                >
-                    <div className="text-center">
-                        <i
-                            className="bi bi-exclamation-triangle text-warning"
-                            style={{ fontSize: "4rem" }}
-                        ></i>
-                        <h4 className="mt-3">Nenhuma informação encontrada</h4>
-                        <p className="text-muted">
-                            Não há salas cadastradas para o {andarSelecionado}.
-                            <br />
-                            Entre em contato com o administrador para mais
-                            informações.
-                        </p>
-                        <Link to="/" className="btn btn-primary mt-3">
-                            Voltar ao Início
-                        </Link>
-                    </div>
-                </Container>
-            </div>
-        );
-    }
+    
 
     const valorSala = parseFloat(salaAtual?.precos?.de?.[0]?.valor || 0);
     const valorGaragem = 60000;
@@ -341,15 +294,32 @@ const Andares = () => {
                                 </span>
                             </div>
                         </div>
-                        <Salas
-                            salas={salasDinamicas}
-                            salaSelecionada={salaSelecionada}
-                            setSalaSelecionada={setSalaSelecionada}
-                            larguraTela={larguraTela}
-                            andarSelecionado={andarSelecionado}
-                            salasCom={salasCom}
-                            setMostrarProposta={setMostrarProposta}
-                        />
+                        
+                        {salasDinamicas.length > 0 ? (
+                            <Salas
+                                salas={salasDinamicas}
+                                salaSelecionada={salaSelecionada}
+                                setSalaSelecionada={setSalaSelecionada}
+                                larguraTela={larguraTela}
+                                andarSelecionado={andarSelecionado}
+                                salasCom={salasCom}
+                                setMostrarProposta={setMostrarProposta}
+                            />
+                        ) : (
+                            <div className="d-flex flex-column justify-content-center align-items-center p-4 text-center" style={{ minHeight: "300px" }}>
+                                <i
+                                    className="bi bi-exclamation-triangle text-warning mb-3"
+                                    style={{ fontSize: "3rem" }}
+                                ></i>
+                                <h5>Nenhuma sala disponível</h5>
+                                <p className="text-muted mb-3">
+                                    Não há salas cadastradas para o {andarSelecionado}.
+                                </p>
+                                <small className="text-muted">
+                                    Selecione outro andar na lateral para ver as salas disponíveis.
+                                </small>
+                            </div>
+                        )}
                     </Col>
                     <Col xs={12} md={3} xl={3} className="px-0 col-planta">
                         <AnimatePresence mode="wait">
@@ -384,13 +354,23 @@ const Andares = () => {
                                     />
                                 ) : (
                                     <div
-                                        className="d-flex justify-content-center align-items-center"
-                                        style={{ height: "200px" }}
+                                        className="d-flex flex-column justify-content-center align-items-center text-center p-3"
+                                        style={{ height: "300px" }}
                                     >
-                                        <div
-                                            className="spinner-border text-primary"
-                                            role="status"
-                                        />
+                                        {salasDinamicas.length === 0 ? (
+                                            <>
+                                                <i className="bi bi-building text-muted mb-2" style={{ fontSize: "2rem" }}></i>
+                                                <p className="text-muted">Selecione um andar com salas disponíveis</p>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <div
+                                                    className="spinner-border text-primary mb-2"
+                                                    role="status"
+                                                />
+                                                <p className="text-muted">Carregando planta...</p>
+                                            </>
+                                        )}
                                     </div>
                                 )}
                             </motion.div>
@@ -407,9 +387,24 @@ const Andares = () => {
                                 exit={{ y: "100%" }}
                                 transition={{ duration: 0.4 }}
                             >
-                                <h4 className="fw-bold text-center mb-4">
-                                    PROPOSTA ABAIXO
-                                </h4>
+                                {salasDinamicas.length === 0 ? (
+                                    <div className="d-flex flex-column justify-content-center align-items-center text-center" style={{ minHeight: "400px" }}>
+                                        <i className="bi bi-clipboard-x text-muted mb-3" style={{ fontSize: "3rem" }}></i>
+                                        <h5 className="text-muted">Nenhuma proposta disponível</h5>
+                                        <p className="text-muted">
+                                            Selecione um andar com salas disponíveis para ver as propostas.
+                                        </p>
+                                    </div>
+                                ) : !salaAtual ? (
+                                    <div className="d-flex flex-column justify-content-center align-items-center text-center" style={{ minHeight: "400px" }}>
+                                        <div className="spinner-border text-primary mb-3" role="status"></div>
+                                        <p className="text-muted">Carregando proposta...</p>
+                                    </div>
+                                ) : (
+                                    <>
+                                        <h4 className="fw-bold text-center mb-4">
+                                            PROPOSTA ABAIXO
+                                        </h4>
                                 <div className="bg-dark text-white p-3 rounded text-center mb-3">
                                     <div className="fw-bold fs-5">
                                         WALL STREET CORPORATE
@@ -638,6 +633,8 @@ const Andares = () => {
                                         );
                                     })()}
                                 </div>
+                                    </>
+                                )}
                             </motion.div>
                         </div>
                     </Col>
