@@ -1,0 +1,39 @@
+PS C:\Users\Notebook\Downloads\wallstreet-frontend\backend> npm run dev
+
+> backend@1.0.0 dev
+> nodemon server.ts
+
+[nodemon] 3.1.10
+[nodemon] to restart at any time, enter `rs`
+[nodemon] watching path(s): *.* src\**\*
+[nodemon] watching extensions: ts
+[nodemon] starting `ts-node server.ts server.ts`
+C:\Users\Notebook\Downloads\wallstreet-frontend\backend\node_modules\ts-node\src\index.ts:859
+    return new TSError(diagnosticText, diagnosticCodes, diagnostics);
+           ^
+TSError: ⨯ Unable to compile TypeScript:
+server.ts:57:12 - error TS2769: No overload matches this call.
+  Overload 1 of 6, '(port: number, hostname: string, backlog: number, callback?: (() => void) | undefined): Server<typeof IncomingMessage, typeof ServerResponse>', gave the following error.
+    Argument of type 'string | 5000' is not assignable to parameter of type 'number'.
+      Type 'string' is not assignable to type 'number'.
+  Overload 2 of 6, '(port: number, hostname: string, callback?: (() => void) | undefined): Server<typeof IncomingMessage, typeof ServerResponse>', gave the following error.
+    Argument of type 'string | 5000' is not assignable to parameter of type 'number'.
+      Type 'string' is not assignable to type 'number'.
+
+57 app.listen(PORT, '0.0.0.0', () => {
+              ~~~~
+
+
+    at createTSError (C:\Users\Notebook\Downloads\wallstreet-frontend\backend\node_modules\ts-node\src\index.ts:859:12)
+    at reportTSError (C:\Users\Notebook\Downloads\wallstreet-frontend\backend\node_modules\ts-node\src\index.ts:863:19)
+    at getOutput (C:\Users\Notebook\Downloads\wallstreet-frontend\backend\node_modules\ts-node\src\index.ts:1077:36)
+    at Object.compile (C:\Users\Notebook\Downloads\wallstreet-frontend\backend\node_modules\ts-node\src\index.ts:1433:41)
+    at Module.m._compile (C:\Users\Notebook\Downloads\wallstreet-frontend\backend\node_modules\ts-node\src\index.ts:1617:30)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
+    at Object.require.extensions.<computed> [as .ts] (C:\Users\Notebook\Downloads\wallstreet-frontend\backend\node_modules\ts-node\src\index.ts:1621:12)
+    at Module.load (node:internal/modules/cjs/loader:1275:32)
+    at Function.Module._load (node:internal/modules/cjs/loader:1096:12)
+    at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:164:12) {
+  diagnosticCodes: [ 2769 ]
+}
+[nodemon] app crashed - waiting for file changes before starting...
