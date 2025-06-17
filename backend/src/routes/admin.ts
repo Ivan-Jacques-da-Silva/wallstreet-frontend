@@ -1,3 +1,4 @@
+
 import express, { Router, Request, Response } from "express";
 import { prisma } from "../../server";
 import bcrypt from "bcrypt";
@@ -62,12 +63,63 @@ router.post('/login', async (req: Request, res: Response) => {
 router.get('/formularios', authenticateAdmin, async (req: Request, res: Response) => {
   try {
     const formularios = await prisma.formulario.findMany({
-      orderBy: { criadoEm: 'desc' }
+      orderBy: { createdAt: 'desc' }
     });
 
     res.json(formularios);
   } catch (error) {
     console.error('Erro ao buscar formulários:', error);
+    res.status(500).json({
+      sucesso: false,
+      mensagem: 'Erro interno do servidor'
+    });
+  }
+});
+
+// Buscar pré-reservas
+router.get('/pre-reservas', authenticateAdmin, async (req: Request, res: Response) => {
+  try {
+    const preReservas = await prisma.preReserva.findMany({
+      orderBy: { createdAt: 'desc' }
+    });
+
+    res.json(preReservas);
+  } catch (error) {
+    console.error('Erro ao buscar pré-reservas:', error);
+    res.status(500).json({
+      sucesso: false,
+      mensagem: 'Erro interno do servidor'
+    });
+  }
+});
+
+// Buscar contrapropostas
+router.get('/contrapropostas', authenticateAdmin, async (req: Request, res: Response) => {
+  try {
+    const contrapropostas = await prisma.contraproposta.findMany({
+      orderBy: { createdAt: 'desc' }
+    });
+
+    res.json(contrapropostas);
+  } catch (error) {
+    console.error('Erro ao buscar contrapropostas:', error);
+    res.status(500).json({
+      sucesso: false,
+      mensagem: 'Erro interno do servidor'
+    });
+  }
+});
+
+// Buscar agendamentos
+router.get('/agendamentos', authenticateAdmin, async (req: Request, res: Response) => {
+  try {
+    const agendamentos = await prisma.agendamentoReuniao.findMany({
+      orderBy: { createdAt: 'desc' }
+    });
+
+    res.json(agendamentos);
+  } catch (error) {
+    console.error('Erro ao buscar agendamentos:', error);
     res.status(500).json({
       sucesso: false,
       mensagem: 'Erro interno do servidor'

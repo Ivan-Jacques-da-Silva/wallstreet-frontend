@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "nodemon server.ts",
     "build": "tsc",
-    "start": "node dist/server.js"
+    "start": "node dist/server.js",
+    "seed:admin": "ts-node seed-admin.ts",
+    "seed:salas": "ts-node seed-salas.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.10.0",

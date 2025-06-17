@@ -1,92 +1,95 @@
+
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
-
-model PreReserva {
-  id          Int      @id @default(autoincrement())
-  nome        String
-  cpf_cnpj    String
-  contato     String
-  email       String
-  visualizado Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  @@map("pre_reservas")
-}
-
-model Contraproposta {
-  id          Int      @id @default(autoincrement())
-  nome        String
-  cpf_cnpj    String
-  contato     String
-  email       String
-  proposta    String
-  visualizado Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  @@map("contrapropostas")
-}
-
-model AgendamentoReuniao {
-  id          Int      @id @default(autoincrement())
-  nome        String
-  cpf_cnpj    String
-  contato     String
-  email       String
-  data        String
-  hora        String
-  visualizado Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  @@map("agendamentos_reuniao")
+  provider = "sqlite"
+  url      = "file:./dev.db"
 }
 
 model Admin {
   id        Int      @id @default(autoincrement())
-  usuario   String   @unique
+  email     String   @unique
+  nome      String
   senha     String
   createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
-
-  @@map("admins")
+  updatedAt DateTime @updatedAt
 }
 
 model Sala {
-  id         Int      @id @default(autoincrement())
-  numero     String
-  andar      Int
-  nome       String
-  area       Float
-  posicao    String
-  preco      Float
-  disponivel Boolean  @default(true)
-  imagem     String?
-  planta     String?
-  proposta   String?
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt @default(now())
-  orientacao String?
-
-  @@map("salas")
+  id           Int      @id @default(autoincrement())
+  numero       String
+  andar        Int
+  nome         String
+  area         Float
+  posicao      String
+  orientacao   String?
+  preco        Float
+  disponivel   Boolean  @default(true)
+  imagem       String?
+  planta       String?
+  proposta     String?
+  valorizacao  Float?
+  lucro        Float?
+  aluguel      Float?
+  condominio   Float?
+  iptu         Float?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
 
-model historico_alteracoes {
+model PreReserva {
+  id        Int      @id @default(autoincrement())
+  nome      String
+  cpf_cnpj  String
+  contato   String
+  email     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Contraproposta {
+  id        Int      @id @default(autoincrement())
+  nome      String
+  cpf_cnpj  String
+  contato   String
+  email     String
+  proposta  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model AgendamentoReuniao {
+  id        Int      @id @default(autoincrement())
+  nome      String
+  cpf_cnpj  String
+  contato   String
+  email     String
+  data      String
+  hora      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Formulario {
   id           Int      @id @default(autoincrement())
-  tabela       String
-  operacao     String
-  registro_id  Int?
-  dados_antes  Json?
-  dados_depois Json?
-  usuario      String
-  ip_address   String?
-  user_agent   String?
+  tipo         String   // 'pre-reserva', 'contraproposta', 'agendamento'
+  nome         String
+  cpf_cnpj     String
+  contato      String
+  email        String
+  proposta     String?
+  data         String?
+  hora         String?
+  status       String   @default("pendente")
+  visualizado  Boolean  @default(false)
   createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
