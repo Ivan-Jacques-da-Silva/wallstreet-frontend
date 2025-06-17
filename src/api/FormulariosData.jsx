@@ -1,3 +1,4 @@
+
 import Config from '../Config'
 import { Button } from 'react-bootstrap'
 import React, { useState } from 'react'
@@ -21,25 +22,44 @@ export function PreReservaForm() {
         }
 
         try {
-            const response = await fetch(`${Config.api_url}/api/formularios/pre-reserva`, {
+            // Validação local antes de enviar
+            if (!data.nome || !data.cpf_cnpj || !data.contato || !data.email) {
+                alert('Todos os campos são obrigatórios')
+                return
+            }
+
+            // Requisição para API sem prefixo /api
+            const controller = new AbortController()
+            const timeoutId = setTimeout(() => controller.abort(), Config.requestTimeout)
+
+            const response = await fetch(`${Config.api_url}/formularios/pre-reserva`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(data)
+                body: JSON.stringify(data),
+                signal: controller.signal
             })
+
+            clearTimeout(timeoutId)
 
             const json = await response.json()
 
             if (json.sucesso) {
                 setMostrarModal(false)
-                alert(json.mensagem)
+                alert(json.mensagem || 'Pré-reserva enviada com sucesso!')
                 event.target.reset()
             } else {
-                alert(json.mensagem)
+                alert(json.mensagem || 'Erro ao enviar pré-reserva')
             }
         } catch (error) {
-            alert('Erro ao enviar formulário. Tente novamente.')
+            console.error('Erro no envio de pré-reserva:', error)
+            
+            if (error.name === 'AbortError') {
+                alert('Timeout: A requisição demorou muito para responder')
+            } else {
+                alert('Erro ao enviar formulário. Verifique sua conexão e tente novamente.')
+            }
         } finally {
             setLoading(false)
         }
@@ -85,6 +105,7 @@ export function PreReservaForm() {
                                     required
                                     placeholder="NOME COMPLETO"
                                     className="form-control rounded-4 px-3 py-3 mb-3"
+                                    maxLength="100"
                                 />
                                 <input
                                     name="cpf_cnpj"
@@ -92,6 +113,7 @@ export function PreReservaForm() {
                                     required
                                     placeholder="CPF/CNPJ"
                                     className="form-control rounded-4 px-3 py-3 mb-3"
+                                    maxLength="18"
                                 />
                                 <input
                                     name="contato"
@@ -99,6 +121,7 @@ export function PreReservaForm() {
                                     required
                                     placeholder="TELEFONE"
                                     className="form-control rounded-4 px-3 py-3 mb-3"
+                                    maxLength="20"
                                 />
                                 <input
                                     name="email"
@@ -106,6 +129,7 @@ export function PreReservaForm() {
                                     required
                                     placeholder="EMAIL"
                                     className="form-control rounded-4 px-3 py-3 mb-3"
+                                    maxLength="100"
                                 />
                                 <button
                                     type="submit"
@@ -116,7 +140,11 @@ export function PreReservaForm() {
                                     {loading ? 'ENVIANDO...' : 'ENVIAR PRÉ-RESERVA'}
                                 </button>
                             </form>
-                            <button onClick={() => setMostrarModal(false)} className="btn-close position-absolute top-0 end-0 m-3"></button>
+                            <button 
+                                onClick={() => setMostrarModal(false)} 
+                                className="btn-close position-absolute top-0 end-0 m-3"
+                                disabled={loading}
+                            ></button>
                         </div>
                     </motion.div>
                 )}
@@ -144,25 +172,43 @@ export function ContrapropostaForm() {
         }
 
         try {
-            const response = await fetch(`${Config.api_url}/api/formularios/contraproposta`, {
+            // Validação local
+            if (!data.nome || !data.cpf_cnpj || !data.contato || !data.email || !data.proposta) {
+                alert('Todos os campos são obrigatórios')
+                return
+            }
+
+            const controller = new AbortController()
+            const timeoutId = setTimeout(() => controller.abort(), Config.requestTimeout)
+
+            const response = await fetch(`${Config.api_url}/formularios/contraproposta`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(data)
+                body: JSON.stringify(data),
+                signal: controller.signal
             })
+
+            clearTimeout(timeoutId)
 
             const json = await response.json()
 
             if (json.sucesso) {
                 setMostrarModal(false)
-                alert(json.mensagem)
+                alert(json.mensagem || 'Contraproposta enviada com sucesso!')
                 event.target.reset()
             } else {
-                alert(json.mensagem)
+                alert(json.mensagem || 'Erro ao enviar contraproposta')
             }
         } catch (error) {
-            alert('Erro ao enviar formulário. Tente novamente.')
+            console.error('Erro no envio de contraproposta:', error)
+            
+            if (error.name === 'AbortError') {
+                alert('Timeout: A requisição demorou muito para responder')
+            } else {
+                alert('Erro ao enviar formulário. Verifique sua conexão e tente novamente.')
+            }
         } finally {
             setLoading(false)
         }
@@ -208,6 +254,7 @@ export function ContrapropostaForm() {
                                     required
                                     placeholder="NOME COMPLETO"
                                     className="form-control rounded-4 px-3 py-3 mb-3"
+                                    maxLength="100"
                                 />
                                 <input
                                     name="cpf_cnpj"
@@ -215,6 +262,7 @@ export function ContrapropostaForm() {
                                     required
                                     placeholder="CPF/CNPJ"
                                     className="form-control rounded-4 px-3 py-3 mb-3"
+                                    maxLength="18"
                                 />
                                 <input
                                     name="contato"
@@ -222,6 +270,7 @@ export function ContrapropostaForm() {
                                     required
                                     placeholder="TELEFONE"
                                     className="form-control rounded-4 px-3 py-3 mb-3"
+                                    maxLength="20"
                                 />
                                 <input
                                     name="email"
@@ -229,6 +278,7 @@ export function ContrapropostaForm() {
                                     required
                                     placeholder="EMAIL"
                                     className="form-control rounded-4 px-3 py-3 mb-3"
+                                    maxLength="100"
                                 />
                                 <textarea
                                     name="proposta"
@@ -236,6 +286,7 @@ export function ContrapropostaForm() {
                                     placeholder="SUA PROPOSTA"
                                     className="form-control rounded-4 px-3 py-3 mb-3"
                                     rows="3"
+                                    maxLength="500"
                                 />
                                 <button
                                     type="submit"
@@ -246,7 +297,11 @@ export function ContrapropostaForm() {
                                     {loading ? 'ENVIANDO...' : 'ENVIAR CONTRAPROPOSTA'}
                                 </button>
                             </form>
-                            <button onClick={() => setMostrarModal(false)} className="btn-close position-absolute top-0 end-0 m-3"></button>
+                            <button 
+                                onClick={() => setMostrarModal(false)} 
+                                className="btn-close position-absolute top-0 end-0 m-3"
+                                disabled={loading}
+                            ></button>
                         </div>
                     </motion.div>
                 )}
@@ -275,25 +330,50 @@ export function AgendarReuniaoForm() {
         }
 
         try {
-            const response = await fetch(`${Config.api_url}/api/formularios/agendar-reuniao`, {
+            // Validação local
+            if (!data.nome || !data.cpf_cnpj || !data.contato || !data.email || !data.data || !data.hora) {
+                alert('Todos os campos são obrigatórios')
+                return
+            }
+
+            // Validar se a data não é no passado
+            const dataAgendamento = new Date(`${data.data}T${data.hora}`)
+            if (dataAgendamento < new Date()) {
+                alert('Não é possível agendar para uma data/hora no passado')
+                return
+            }
+
+            const controller = new AbortController()
+            const timeoutId = setTimeout(() => controller.abort(), Config.requestTimeout)
+
+            const response = await fetch(`${Config.api_url}/formularios/agendar-reuniao`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(data)
+                body: JSON.stringify(data),
+                signal: controller.signal
             })
+
+            clearTimeout(timeoutId)
 
             const json = await response.json()
 
             if (json.sucesso) {
                 setMostrarModal(false)
-                alert(json.mensagem)
+                alert(json.mensagem || 'Reunião agendada com sucesso!')
                 event.target.reset()
             } else {
-                alert(json.mensagem)
+                alert(json.mensagem || 'Erro ao agendar reunião')
             }
         } catch (error) {
-            alert('Erro ao enviar formulário. Tente novamente.')
+            console.error('Erro no agendamento de reunião:', error)
+            
+            if (error.name === 'AbortError') {
+                alert('Timeout: A requisição demorou muito para responder')
+            } else {
+                alert('Erro ao enviar formulário. Verifique sua conexão e tente novamente.')
+            }
         } finally {
             setLoading(false)
         }
@@ -339,6 +419,7 @@ export function AgendarReuniaoForm() {
                                     required
                                     placeholder="NOME COMPLETO"
                                     className="form-control rounded-4 px-3 py-3 mb-3"
+                                    maxLength="100"
                                 />
                                 <input
                                     name="cpf_cnpj"
@@ -346,6 +427,7 @@ export function AgendarReuniaoForm() {
                                     required
                                     placeholder="CPF/CNPJ"
                                     className="form-control rounded-4 px-3 py-3 mb-3"
+                                    maxLength="18"
                                 />
                                 <input
                                     name="contato"
@@ -353,6 +435,7 @@ export function AgendarReuniaoForm() {
                                     required
                                     placeholder="TELEFONE"
                                     className="form-control rounded-4 px-3 py-3 mb-3"
+                                    maxLength="20"
                                 />
                                 <input
                                     name="email"
@@ -360,12 +443,14 @@ export function AgendarReuniaoForm() {
                                     required
                                     placeholder="EMAIL"
                                     className="form-control rounded-4 px-3 py-3 mb-3"
+                                    maxLength="100"
                                 />
                                 <input
                                     name="data"
                                     type="date"
                                     required
                                     className="form-control rounded-4 px-3 py-3 mb-3"
+                                    min={new Date().toISOString().split('T')[0]}
                                 />
                                 <input
                                     name="hora"
@@ -382,7 +467,11 @@ export function AgendarReuniaoForm() {
                                     {loading ? 'ENVIANDO...' : 'AGENDAR REUNIÃO'}
                                 </button>
                             </form>
-                            <button onClick={() => setMostrarModal(false)} className="btn-close position-absolute top-0 end-0 m-3"></button>
+                            <button 
+                                onClick={() => setMostrarModal(false)} 
+                                className="btn-close position-absolute top-0 end-0 m-3"
+                                disabled={loading}
+                            ></button>
                         </div>
                     </motion.div>
                 )}
@@ -403,4 +492,3 @@ export default function FormulariosData({ codigo = '' }) {
 
     return null
 }
-```
