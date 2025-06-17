@@ -42,3 +42,16 @@
     "vite": "^6.2.0"
   }
 }
+{
+  "name": "wall-street-corporate",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "cd backend && npm install && npm run dev",
+    "dev:frontend": "npm install && npm run dev",
+    "dev:backend": "cd backend && npm install && npm run dev",
+    "build": "cd backend && npm run build",
+    "start": "cd backend && npm start",
+    "install:all": "npm install && cd backend && npm install"
+  },
+  "devDependencies": {}
+}

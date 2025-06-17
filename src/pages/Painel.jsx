@@ -59,10 +59,10 @@ const Painel = () => {
             };
 
             const [preRes, contraRes, agendRes, salasRes] = await Promise.all([
-                fetch(`${Config.api_url}/api/admin/pre-reservas`, { headers }),
-                fetch(`${Config.api_url}/api/admin/contrapropostas`, { headers }),
-                fetch(`${Config.api_url}/api/admin/agendamentos`, { headers }),
-                fetch(`${Config.api_url}/api/salas`)
+                fetch(`${Config.api_url}/admin/pre-reservas`, { headers }),
+                fetch(`${Config.api_url}/admin/contrapropostas`, { headers }),
+                fetch(`${Config.api_url}/admin/agendamentos`, { headers }),
+                fetch(`${Config.api_url}/salas`)
             ]);
 
             const preData = await preRes.json();
@@ -82,7 +82,7 @@ const Painel = () => {
             if (agendData.sucesso) setAgendamentos(agendData.data);
 
             // Buscar salas diretamente do endpoint de salas
-            const salasResponse = await fetch(`${Config.api_url}/api/admin/salas-list`, { 
+            const salasResponse = await fetch(`${Config.api_url}/admin/salas-list`, { 
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
