@@ -4,7 +4,7 @@ import { prisma } from '../../server';
 const router = Router();
 
 // Pré-Reserva
-router.post('/pre-reserva', async (req: Request, res: Response) => {
+router.post('/pre-reserva', async (req: Request, res: Response): Promise<Response> => {
   try {
     const { nome, cpf_cnpj, contato, email } = req.body;
 
@@ -24,14 +24,14 @@ router.post('/pre-reserva', async (req: Request, res: Response) => {
       }
     });
 
-    res.json({ 
+    return res.json({ 
       sucesso: true, 
       mensagem: 'Pré-reserva enviada com sucesso!',
       data: preReserva
     });
   } catch (error) {
     console.error('Erro ao criar pré-reserva:', error);
-    res.status(500).json({ 
+    return res.status(500).json({ 
       sucesso: false, 
       mensagem: 'Erro interno do servidor' 
     });
@@ -39,7 +39,7 @@ router.post('/pre-reserva', async (req: Request, res: Response) => {
 });
 
 // Contraproposta
-router.post('/contraproposta', async (req: Request, res: Response) => {
+router.post('/contraproposta', async (req: Request, res: Response): Promise<Response> => {
   try {
     const { nome, cpf_cnpj, contato, email, proposta } = req.body;
 
@@ -60,14 +60,14 @@ router.post('/contraproposta', async (req: Request, res: Response) => {
       }
     });
 
-    res.json({ 
+    return res.json({ 
       sucesso: true, 
       mensagem: 'Contraproposta enviada com sucesso!',
       data: contraproposta
     });
   } catch (error) {
     console.error('Erro ao criar contraproposta:', error);
-    res.status(500).json({ 
+    return res.status(500).json({ 
       sucesso: false, 
       mensagem: 'Erro interno do servidor' 
     });
@@ -75,7 +75,7 @@ router.post('/contraproposta', async (req: Request, res: Response) => {
 });
 
 // Agendamento de Reunião
-router.post('/agendar-reuniao', async (req: Request, res: Response) => {
+router.post('/agendar-reuniao', async (req: Request, res: Response): Promise<Response> => {
   try {
     const { nome, cpf_cnpj, contato, email, data, hora } = req.body;
 
@@ -97,14 +97,14 @@ router.post('/agendar-reuniao', async (req: Request, res: Response) => {
       }
     });
 
-    res.json({ 
+    return res.json({ 
       sucesso: true, 
       mensagem: 'Reunião agendada com sucesso!',
       data: agendamento
     });
   } catch (error) {
     console.error('Erro ao agendar reunião:', error);
-    res.status(500).json({ 
+    return res.status(500).json({ 
       sucesso: false, 
       mensagem: 'Erro interno do servidor' 
     });
