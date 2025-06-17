@@ -1,4 +1,4 @@
-import { Router, Request, Response } from 'express';
+import express, { Router, Request, Response } from 'express';
 import { prisma } from '../../server';
 
 const router = Router();

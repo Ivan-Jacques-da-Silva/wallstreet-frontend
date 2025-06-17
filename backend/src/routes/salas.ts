@@ -1,8 +1,6 @@
-import { Router, Request, Response } from "express";
+import express, { Router, Request, Response } from "express";
 import { prisma, upload } from "../../server";
 import { authenticateAdmin } from "../middleware/auth";
-
-const router = Router();
 
 const router = Router();
 
