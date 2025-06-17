@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Container, Card, Form, Button, Alert } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
@@ -17,7 +16,7 @@ const Login = () => {
     setErro('');
 
     try {
-      const response = await fetch(`${Config.api_url}/api/admin/login`, {
+      const response = await fetch(`${Config.api_url}/api/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -47,9 +46,9 @@ const Login = () => {
           <h3 className="text-center mb-4" style={{ color: '#001A47' }}>
             Painel Administrativo
           </h3>
-          
+
           {erro && <Alert variant="danger">{erro}</Alert>}
-          
+
           <Form onSubmit={handleSubmit}>
             <Form.Group className="mb-3">
               <Form.Label>Usuário</Form.Label>
@@ -61,7 +60,7 @@ const Login = () => {
                 placeholder="Digite seu usuário"
               />
             </Form.Group>
-            
+
             <Form.Group className="mb-4">
               <Form.Label>Senha</Form.Label>
               <Form.Control
@@ -72,7 +71,7 @@ const Login = () => {
                 placeholder="Digite sua senha"
               />
             </Form.Group>
-            
+
             <Button 
               type="submit" 
               variant="primary" 
@@ -83,7 +82,7 @@ const Login = () => {
               {loading ? 'Entrando...' : 'Entrar'}
             </Button>
           </Form>
-          
+
           <div className="text-center mt-3">
             <small className="text-muted">
               Usuário: admin | Senha: admin123

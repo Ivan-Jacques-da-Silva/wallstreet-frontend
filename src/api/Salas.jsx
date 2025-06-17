@@ -177,3 +177,18 @@ const Salas = ({
 };
 
 export default Salas;
+const API_BASE_URL = Config.api_url;
+
+export const buscarSalas = async () => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/salas`);
+    if (!response.ok) {
+      throw new Error(`Erro ao buscar salas: ${response.status}`);
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Erro ao buscar as salas:", error);
+    throw error;
+  }
+};

@@ -1,4 +1,3 @@
-
 import Config from '../Config'
 import { Button } from 'react-bootstrap'
 import React, { useState } from 'react'
@@ -12,7 +11,7 @@ export function PreReservaForm() {
     const handleSubmit = async (event) => {
         event.preventDefault()
         setLoading(true)
-        
+
         const formData = new FormData(event.target)
         const data = {
             nome: formData.get('nome'),
@@ -29,9 +28,9 @@ export function PreReservaForm() {
                 },
                 body: JSON.stringify(data)
             })
-            
+
             const json = await response.json()
-            
+
             if (json.sucesso) {
                 setMostrarModal(false)
                 alert(json.mensagem)
@@ -134,7 +133,7 @@ export function ContrapropostaForm() {
     const handleSubmit = async (event) => {
         event.preventDefault()
         setLoading(true)
-        
+
         const formData = new FormData(event.target)
         const data = {
             nome: formData.get('nome'),
@@ -152,9 +151,9 @@ export function ContrapropostaForm() {
                 },
                 body: JSON.stringify(data)
             })
-            
+
             const json = await response.json()
-            
+
             if (json.sucesso) {
                 setMostrarModal(false)
                 alert(json.mensagem)
@@ -264,7 +263,7 @@ export function AgendarReuniaoForm() {
     const handleSubmit = async (event) => {
         event.preventDefault()
         setLoading(true)
-        
+
         const formData = new FormData(event.target)
         const data = {
             nome: formData.get('nome'),
@@ -283,9 +282,9 @@ export function AgendarReuniaoForm() {
                 },
                 body: JSON.stringify(data)
             })
-            
+
             const json = await response.json()
-            
+
             if (json.sucesso) {
                 setMostrarModal(false)
                 alert(json.mensagem)
@@ -401,6 +400,7 @@ export default function FormulariosData({ codigo = '' }) {
     } else if (codigo === 'wall_street_agendar_reuniao') {
         return <AgendarReuniaoForm />
     }
-    
+
     return null
 }
+```

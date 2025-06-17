@@ -80,7 +80,7 @@ router.post('/salas', authenticateAdmin, upload.fields([
     salaData.andar = parseInt(salaData.andar as any);
     salaData.area = parseFloat(salaData.area as any);
     salaData.preco = parseFloat(salaData.preco as any);
-    salaData.disponivel = Boolean(salaData.disponivel === true || salaData.disponivel === 'true');
+    salaData.disponivel = Boolean(salaData.disponivel === true || String(salaData.disponivel) === 'true');
 
     if (salaData.valorizacao) salaData.valorizacao = parseFloat(salaData.valorizacao as any);
     if (salaData.lucro) salaData.lucro = parseFloat(salaData.lucro as any);
@@ -146,7 +146,7 @@ router.put('/salas/:id', authenticateAdmin, upload.fields([
     if (salaData.andar) salaData.andar = parseInt(salaData.andar);
     if (salaData.area) salaData.area = parseFloat(salaData.area);
     if (salaData.preco) salaData.preco = parseFloat(salaData.preco);
-    if (salaData.disponivel !== undefined) salaData.disponivel = Boolean(salaData.disponivel === true || salaData.disponivel === 'true');
+    if (salaData.disponivel !== undefined) salaData.disponivel = Boolean(salaData.disponivel === true || String(salaData.disponivel) === 'true');
     if (salaData.valorizacao) salaData.valorizacao = parseFloat(salaData.valorizacao);
     if (salaData.lucro) salaData.lucro = parseFloat(salaData.lucro);
     if (salaData.aluguel) salaData.aluguel = parseFloat(salaData.aluguel);
