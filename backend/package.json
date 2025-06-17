@@ -6,9 +6,9 @@
   "main": "dist/server.js",
   "scripts": {
     "build": "tsc",
-    "dev": "ts-node src/server.ts",
+    "dev": "ts-node server.ts",
     "start": "node dist/server.js",
-    "dev:watch": "nodemon --exec ts-node src/server.ts",
+    "dev:watch": "nodemon --exec ts-node server.ts",
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate dev",
     "db:generate": "prisma generate",
