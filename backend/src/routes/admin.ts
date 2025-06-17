@@ -259,4 +259,124 @@ router.get('/historico', authenticateAdmin, async (req: Request<{}, any, any, Hi
   }
 });
 
+// Rota para listar salas (alternativa)
+router.get('/salas-list', authenticateAdmin, async (req: Request, res: Response) => {
+  try {
+    const salas = await prisma.sala.findMany({
+      orderBy: [
+        { andar: 'asc' },
+        { numero: 'asc' }
+      ]
+    });
+
+    res.json({ 
+      sucesso: true, 
+      data: salas
+    });
+  } catch (error) {
+    console.error('Erro ao buscar salas:', error);
+    res.status(500).json({ 
+      sucesso: false, 
+      mensagem: 'Erro ao buscar salas: ' + (error as Error).message
+    });
+  }
+});
+
+// Rotas para pre-reservas
+router.get('/pre-reservas', authenticateAdmin, async (req: Request, res: Response) => {
+  try {
+    // Como não existe tabela pre-reservas no schema, retorno estrutura base
+    res.json({ 
+      sucesso: true, 
+      data: [],
+      mensagem: 'Funcionalidade de pré-reservas em desenvolvimento'
+    });
+  } catch (error) {
+    console.error('Erro ao buscar pré-reservas:', error);
+    res.status(500).json({ 
+      sucesso: false, 
+      mensagem: 'Erro ao buscar pré-reservas: ' + (error as Error).message
+    });
+  }
+});
+
+router.post('/pre-reservas', authenticateAdmin, async (req: Request, res: Response) => {
+  try {
+    res.json({ 
+      sucesso: true, 
+      mensagem: 'Funcionalidade de pré-reservas em desenvolvimento'
+    });
+  } catch (error) {
+    console.error('Erro ao criar pré-reserva:', error);
+    res.status(500).json({ 
+      sucesso: false, 
+      mensagem: 'Erro ao criar pré-reserva: ' + (error as Error).message
+    });
+  }
+});
+
+// Rotas para contrapropostas
+router.get('/contrapropostas', authenticateAdmin, async (req: Request, res: Response) => {
+  try {
+    res.json({ 
+      sucesso: true, 
+      data: [],
+      mensagem: 'Funcionalidade de contrapropostas em desenvolvimento'
+    });
+  } catch (error) {
+    console.error('Erro ao buscar contrapropostas:', error);
+    res.status(500).json({ 
+      sucesso: false, 
+      mensagem: 'Erro ao buscar contrapropostas: ' + (error as Error).message
+    });
+  }
+});
+
+router.post('/contrapropostas', authenticateAdmin, async (req: Request, res: Response) => {
+  try {
+    res.json({ 
+      sucesso: true, 
+      mensagem: 'Funcionalidade de contrapropostas em desenvolvimento'
+    });
+  } catch (error) {
+    console.error('Erro ao criar contraproposta:', error);
+    res.status(500).json({ 
+      sucesso: false, 
+      mensagem: 'Erro ao criar contraproposta: ' + (error as Error).message
+    });
+  }
+});
+
+// Rotas para agendamentos
+router.get('/agendamentos', authenticateAdmin, async (req: Request, res: Response) => {
+  try {
+    res.json({ 
+      sucesso: true, 
+      data: [],
+      mensagem: 'Funcionalidade de agendamentos em desenvolvimento'
+    });
+  } catch (error) {
+    console.error('Erro ao buscar agendamentos:', error);
+    res.status(500).json({ 
+      sucesso: false, 
+      mensagem: 'Erro ao buscar agendamentos: ' + (error as Error).message
+    });
+  }
+});
+
+router.post('/agendamentos', authenticateAdmin, async (req: Request, res: Response) => {
+  try {
+    res.json({ 
+      sucesso: true, 
+      mensagem: 'Funcionalidade de agendamentos em desenvolvimento'
+    });
+  } catch (error) {
+    console.error('Erro ao criar agendamento:', error);
+    res.status(500).json({ 
+      sucesso: false, 
+      mensagem: 'Erro ao criar agendamento: ' + (error as Error).message
+    });
+  }
+});
+
 export default router;

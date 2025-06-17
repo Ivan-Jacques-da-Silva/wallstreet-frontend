@@ -5,7 +5,7 @@ import { Container } from 'react-bootstrap';
 
 const ProtectedRoute = ({ children }) => {
     const navigate = useNavigate();
-    const token = localStorage.getItem('admin-token');
+    const token = localStorage.getItem('admin-token') || localStorage.getItem('token');
 
     useEffect(() => {
         if (!token) {

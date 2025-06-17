@@ -78,14 +78,16 @@ export const authenticateAdmin = (req: AuthenticatedRequest, res: Response, next
         role: 'admin',
         lastLogin: new Date()
       };
-      return next();
+      next();
+      return;
     }
     
     // Validação de token gerado dinamicamente
     const user = validateToken(token);
     if (user) {
       req.user = user;
-      return next();
+      next();
+      return;
     }
     
     res.status(401).json({ 
