@@ -1,0 +1,56 @@
+[nodemon] watching extensions: ts
+[nodemon] starting ts-node server.ts server.ts
+C:\Users\Notebook\Downloads\wallstreet-frontend\backend\node_modules\ts-node\src\index.ts:859
+    return new TSError(diagnosticText, diagnosticCodes, diagnostics);
+           ^
+TSError: ⨯ Unable to compile TypeScript:
+src/routes/formularios.ts:8:29 - error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Argument of type '(req: Request, res: Response) => Promise<Response<any, Record<string, any>> | undefined>' is not assignable to parameter of type 'Application<Record<string, any>>'.
+      Type '(req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>, res: Response<any, Record<string, any>>) => Promise<...>' is missing the following properties from type 'Application<Record<string, any>>': init, defaultConfiguration, engine, set, and 63 more.
+
+8 router.post('/pre-reserva', async (req: Request, res: Response) => {
+                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  node_modules/@types/express-serve-static-core/index.d.ts:168:5
+    168     (path: PathParams, subApplication: Application): T;
+            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    The last overload is declared here.
+src/routes/formularios.ts:43:32 - error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Argument of type '(req: Request, res: Response) => Promise<Response<any, Record<string, any>> | undefined>' is not assignable to parameter of type 'Application<Record<string, any>>'.
+      Type '(req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>, res: Response<any, Record<string, any>>) => Promise<...>' is missing the following properties from type 'Application<Record<string, any>>': init, defaultConfiguration, engine, set, and 63 more.
+
+43 router.post('/contraproposta', async (req: Request, res: Response) => {
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  node_modules/@types/express-serve-static-core/index.d.ts:168:5
+    168     (path: PathParams, subApplication: Application): T;
+            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    The last overload is declared here.
+src/routes/formularios.ts:79:33 - error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Argument of type '(req: Request, res: Response) => Promise<Response<any, Record<string, any>> | undefined>' is not assignable to parameter of type 'Application<Record<string, any>>'.
+      Type '(req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>, res: Response<any, Record<string, any>>) => Promise<...>' is missing the following properties from type 'Application<Record<string, any>>': init, defaultConfiguration, engine, set, and 63 more.
+
+79 router.post('/agendar-reuniao', async (req: Request, res: Response) => {
+                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  node_modules/@types/express-serve-static-core/index.d.ts:168:5
+    168     (path: PathParams, subApplication: Application): T;
+            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    The last overload is declared here.
+
+    at createTSError (C:\Users\Notebook\Downloads\wallstreet-frontend\backend\node_modules\ts-node\src\index.ts:859:12)
+    at reportTSError (C:\Users\Notebook\Downloads\wallstreet-frontend\backend\node_modules\ts-node\src\index.ts:863:19)
+    at getOutput (C:\Users\Notebook\Downloads\wallstreet-frontend\backend\node_modules\ts-node\src\index.ts:1077:36)
+    at Object.compile (C:\Users\Notebook\Downloads\wallstreet-frontend\backend\node_modules\ts-node\src\index.ts:1433:41)
+    at Module.m._compile (C:\Users\Notebook\Downloads\wallstreet-frontend\backend\node_modules\ts-node\src\index.ts:1617:30)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
+    at Object.require.extensions.<computed> [as .ts] (C:\Users\Notebook\Downloads\wallstreet-frontend\backend\node_modules\ts-node\src\index.ts:1621:12)
+    at Module.load (node:internal/modules/cjs/loader:1275:32)
+    at Function.Module._load (node:internal/modules/cjs/loader:1096:12)
+    at Module.require (node:internal/modules/cjs/loader:1298:19) {
+  diagnosticCodes: [ 2769, 2769, 2769 ]
+}
+[nodemon] app crashed - waiting for file changes before starting...
