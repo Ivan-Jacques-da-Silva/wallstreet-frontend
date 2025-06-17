@@ -67,7 +67,7 @@ const Painel = () => {
             if (preData.sucesso) setPreReservas(preData.data);
             if (contraData.sucesso) setContrapropostas(contraData.data);
             if (agendData.sucesso) setAgendamentos(agendData.data);
-            
+
             // Processar dados das salas
             if (salasData.produtos && salasData.produtos[0]?.variacoes) {
                 const todasSalas = [];
@@ -108,7 +108,7 @@ const Painel = () => {
                     'Content-Type': 'application/json'
                 }
             });
-            
+
             if (response.ok) {
                 carregarDados();
             }
@@ -158,7 +158,7 @@ const Painel = () => {
             const url = salaEdicao.id ? 
                 `${Config.api_url}/api/salas/${salaEdicao.id}` : 
                 `${Config.api_url}/api/salas`;
-            
+
             const method = salaEdicao.id ? 'PUT' : 'POST';
 
             const token = localStorage.getItem('admin-token');

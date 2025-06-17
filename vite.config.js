@@ -9,8 +9,8 @@ export default defineConfig({
     port: 5173,
     strictPort: true,
     allowedHosts: [
-      "c71e4e0b-924b-4cd6-98f4-162b5e3a3de3-00-3h3j3mtwtorhf.worf.replit.dev"
-    ]
+      "ec9f62f5-d35f-4649-b5c7-d65dcbfc08f5-00-1hnr5mpm6qixg.kirk.replit.dev",
+    ],
   },
   build: {
     rollupOptions: {

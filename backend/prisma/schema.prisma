@@ -1,4 +1,3 @@
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -9,69 +8,85 @@ datasource db {
 }
 
 model PreReserva {
-  id         Int      @id @default(autoincrement())
-  nome       String
-  cpf_cnpj   String
-  contato    String
-  email      String
-  visualizado Boolean @default(false)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id          Int      @id @default(autoincrement())
+  nome        String
+  cpf_cnpj    String
+  contato     String
+  email       String
+  visualizado Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   @@map("pre_reservas")
 }
 
 model Contraproposta {
-  id         Int      @id @default(autoincrement())
-  nome       String
-  cpf_cnpj   String
-  contato    String
-  email      String
-  proposta   String
-  visualizado Boolean @default(false)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id          Int      @id @default(autoincrement())
+  nome        String
+  cpf_cnpj    String
+  contato     String
+  email       String
+  proposta    String
+  visualizado Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   @@map("contrapropostas")
 }
 
 model AgendamentoReuniao {
-  id         Int      @id @default(autoincrement())
-  nome       String
-  cpf_cnpj   String
-  contato    String
-  email      String
-  data       String
-  hora       String
-  visualizado Boolean @default(false)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id          Int      @id @default(autoincrement())
+  nome        String
+  cpf_cnpj    String
+  contato     String
+  email       String
+  data        String
+  hora        String
+  visualizado Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   @@map("agendamentos_reuniao")
 }
 
 model Admin {
-  id       Int      @id @default(autoincrement())
-  usuario  String   @unique
-  senha    String
+  id        Int      @id @default(autoincrement())
+  usuario   String   @unique
+  senha     String
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  updatedAt DateTime @default(now()) @updatedAt
 
   @@map("admins")
 }
 
 model Sala {
-  id           Int      @id @default(autoincrement())
-  numero       String
-  andar        Int
-  nome         String
-  area         Float
-  posicao      String
-  preco        Float
-  disponivel   Boolean  @default(true)
-  imagem       String?
-  planta       String?
-  proposta     String?
+  id         Int      @id @default(autoincrement())
+  numero     String
+  andar      Int
+  nome       String
+  area       Float
+  posicao    String
+  preco      Float
+  disponivel Boolean  @default(true)
+  imagem     String?
+  planta     String?
+  proposta   String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt @default(now())
+  orientacao String?
 
   @@map("salas")
+}
+
+model historico_alteracoes {
+  id           Int      @id @default(autoincrement())
+  tabela       String
+  operacao     String
+  registro_id  Int?
+  dados_antes  Json?
+  dados_depois Json?
+  usuario      String
+  ip_address   String?
+  user_agent   String?
+  createdAt    DateTime @default(now())
 }
