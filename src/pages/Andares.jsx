@@ -48,7 +48,7 @@ const Andares = () => {
     useEffect(() => {
         const fetchProduto = async () => {
             try {
-                const response = await fetch(`${Config.api_url}/api/salas`);
+                const response = await fetch(`${Config.api_url}/salas`);
                 if (!response.ok) {
                     throw new Error(`Erro ${response.status}: ${response.statusText}`);
                 }

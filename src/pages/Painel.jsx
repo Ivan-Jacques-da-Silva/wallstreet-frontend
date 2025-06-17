@@ -301,11 +301,11 @@ const Painel = () => {
 
             if (salaEdicao.id && salaEdicao.id !== '') {
                 // Edição - usar endpoint admin
-                url = `${Config.api_url}/api/admin/salas/${salaEdicao.id}`;
+                url = `${Config.api_url}/admin/salas/${salaEdicao.id}`;
                 method = 'PUT';
             } else {
                 // Criação - usar endpoint admin
-                url = `${Config.api_url}/api/admin/salas`;
+                url = `${Config.api_url}/admin/salas`;
                 method = 'POST';
             }
 
@@ -473,7 +473,7 @@ const Painel = () => {
     const buscarAgendamentos = async () => {
         try {
             const token = localStorage.getItem('admin-token');
-            const response = await fetch(`${Config.api_url}/api/admin/agendamentos`, {
+            const response = await fetch(`${Config.api_url}/admin/agendamentos`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const data = await response.json();
@@ -488,7 +488,7 @@ const Painel = () => {
     const buscarHistorico = async (page = 1) => {
         try {
             const token = localStorage.getItem('admin-token');
-            const response = await fetch(`${Config.api_url}/api/admin/historico?page=${page}&limit=20`, {
+            const response = await fetch(`${Config.api_url}/admin/historico?page=${page}&limit=20`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const data = await response.json();
